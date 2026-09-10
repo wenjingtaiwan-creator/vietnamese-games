@@ -14,16 +14,208 @@
 
 html,body{
   width:100%;
-  height:100%;
-  overflow:hidden;
+  min-height:100%;
   font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
   background:#eef3f8;
 }
 
-body{
+/* =========================
+   題目設定頁
+========================= */
+
+#setupScreen{
+  min-height:100vh;
+  padding:30px 20px 60px;
+  background:
+    linear-gradient(rgba(255,255,255,.93),rgba(255,255,255,.93)),
+    url("assets/background.png");
+  background-size:cover;
+  background-position:center;
+}
+
+.setup-container{
+  width:min(1000px,96%);
+  margin:auto;
+}
+
+.setup-header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.setup-header h1{
+  font-size:clamp(30px,4vw,55px);
+  color:#202124;
+  margin-bottom:8px;
+}
+
+.setup-header p{
+  color:#666;
+  font-size:18px;
+}
+
+.question-card{
+  background:#fff;
+  border-radius:22px;
+  padding:22px;
+  margin-bottom:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.10);
+  border:2px solid #edf0f5;
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.card-title{
+  font-size:21px;
+  font-weight:900;
+  color:#333;
+}
+
+.delete-btn{
+  border:none;
+  background:#ffe6e8;
+  color:#c52d3a;
+  padding:8px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:800;
+  font-size:15px;
+}
+
+.field-label{
+  display:block;
+  font-weight:800;
+  margin:10px 0 6px;
+  color:#444;
+}
+
+.question-input,
+.answer-input{
+  width:100%;
+  border:2px solid #dce2ea;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:17px;
+  outline:none;
+  transition:.2s;
+}
+
+.question-input:focus,
+.answer-input:focus{
+  border-color:#427ee9;
+}
+
+.answers-editor{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.answer-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.answer-letter{
+  width:35px;
+  height:35px;
+  flex:0 0 35px;
   display:flex;
   justify-content:center;
   align-items:center;
+  border-radius:50%;
+  font-weight:900;
+  color:#fff;
+  background:#667085;
+}
+
+.answer-row input[type="radio"]{
+  width:21px;
+  height:21px;
+  cursor:pointer;
+  accent-color:#20a45a;
+}
+
+.correct-tip{
+  margin-top:14px;
+  color:#18864a;
+  font-weight:700;
+  font-size:14px;
+}
+
+.setup-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:22px;
+}
+
+.add-btn,
+.start-btn,
+.clear-btn{
+  border:none;
+  border-radius:30px;
+  padding:14px 27px;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.add-btn{
+  background:#fff;
+  color:#3371d6;
+  border:2px solid #3371d6;
+}
+
+.start-btn{
+  background:linear-gradient(135deg,#ef3c48,#ff7b32);
+  color:#fff;
+  box-shadow:0 5px 15px rgba(239,60,72,.25);
+}
+
+.clear-btn{
+  background:#eef1f5;
+  color:#666;
+}
+
+.add-btn:hover,
+.start-btn:hover,
+.clear-btn:hover{
+  transform:translateY(-2px);
+}
+
+.setup-info{
+  margin:25px auto 0;
+  background:#fff;
+  border-radius:18px;
+  padding:15px 20px;
+  text-align:center;
+  color:#666;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+}
+
+.setup-info strong{
+  color:#ef3340;
+}
+
+/* =========================
+   遊戲
+========================= */
+
+#gameScreen{
+  display:none;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
 }
 
 #game{
@@ -40,7 +232,7 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  padding:10px 120px;
+  padding:10px 150px;
   background:#fff;
   z-index:10;
 }
@@ -78,6 +270,15 @@ body{
   box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
+.timer.danger{
+  animation:timerPulse .6s infinite alternate;
+}
+
+@keyframes timerPulse{
+  from{transform:translateY(-50%) scale(1);}
+  to{transform:translateY(-50%) scale(1.12);}
+}
+
 .progress{
   position:absolute;
   left:4%;
@@ -88,19 +289,36 @@ body{
   font-weight:700;
 }
 
-.sound-btn{
+.top-controls{
   position:absolute;
   right:1.5%;
-  top:10px;
+  top:8px;
+  display:flex;
+  gap:8px;
   z-index:30;
-  width:46px;
-  height:46px;
+}
+
+.sound-btn{
+  width:44px;
+  height:44px;
   border:none;
   border-radius:50%;
-  background:#ffffff;
+  background:#fff;
   box-shadow:0 3px 10px rgba(0,0,0,.15);
-  font-size:23px;
+  font-size:21px;
   cursor:pointer;
+}
+
+.stop-btn{
+  border:none;
+  border-radius:22px;
+  padding:0 15px;
+  height:44px;
+  background:#333;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
 .arena{
@@ -203,7 +421,7 @@ body{
   left:50%;
   transform:translateX(-50%);
   z-index:20;
-  background:rgba(255,255,255,.95);
+  background:rgba(255,255,255,.96);
   padding:8px 20px;
   border-radius:30px;
   font-size:18px;
@@ -305,10 +523,14 @@ body{
   cursor:default;
 }
 
+/* =========================
+   勝利
+========================= */
+
 #winnerScreen{
   position:fixed;
   inset:0;
-  background:rgba(10,20,35,.84);
+  background:rgba(10,20,35,.88);
   z-index:100;
   display:none;
   justify-content:center;
@@ -332,23 +554,104 @@ body{
   margin:15px;
 }
 
-.restart{
+.winner-buttons{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.restart,
+.edit-questions{
   border:none;
-  background:#fff;
-  padding:15px 35px;
+  padding:15px 30px;
   border-radius:30px;
-  font-size:20px;
+  font-size:19px;
   font-weight:900;
   cursor:pointer;
 }
 
+.restart{
+  background:#fff;
+  color:#222;
+}
+
+.edit-questions{
+  background:#ffd84d;
+  color:#333;
+}
+
+/* =========================
+   停止確認
+========================= */
+
+#stopModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  z-index:200;
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+#stopModal.show{
+  display:flex;
+}
+
+.stop-box{
+  width:min(440px,90%);
+  background:#fff;
+  padding:30px;
+  border-radius:24px;
+  text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,.25);
+}
+
+.stop-box h2{
+  font-size:26px;
+  margin-bottom:10px;
+}
+
+.stop-box p{
+  color:#666;
+  margin-bottom:22px;
+}
+
+.stop-actions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+
+.continue-btn,
+.end-btn{
+  border:none;
+  padding:12px 20px;
+  border-radius:25px;
+  font-size:17px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.continue-btn{
+  background:#e9edf3;
+  color:#333;
+}
+
+.end-btn{
+  background:#e93443;
+  color:#fff;
+}
+
 @media(max-width:800px){
+
   #game{
     grid-template-rows:18% 44% 38%;
   }
 
   .question-area{
-    padding:10px 80px;
+    padding:10px 75px;
   }
 
   .timer{
@@ -359,6 +662,10 @@ body{
 
   .progress{
     display:none;
+  }
+
+  .answers-editor{
+    grid-template-columns:1fr;
   }
 
   .team-panel{
@@ -377,51 +684,115 @@ body{
     width:98%;
     max-height:90%;
   }
+
+  .stop-btn{
+    padding:0 9px;
+    font-size:12px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- =========================
+     老師出題頁
+========================= -->
+
+<section id="setupScreen">
+
+  <div class="setup-container">
+
+    <div class="setup-header">
+      <h1>🇻🇳 越南語拔河大賽</h1>
+      <p>輸入今天要讓學生挑戰的題目</p>
+    </div>
+
+    <div id="questionEditor"></div>
+
+    <div class="setup-actions">
+
+      <button class="add-btn" id="addQuestionBtn">
+        ＋ 新增題目
+      </button>
+
+      <button class="clear-btn" id="clearQuestionsBtn">
+        🗑️ 清空題目
+      </button>
+
+      <button class="start-btn" id="startGameBtn">
+        🔥 開始拔河！
+      </button>
+
+    </div>
+
+    <div class="setup-info">
+      ⏱️ 每題 <strong>10 秒</strong>
+      ・
+      🏆 先拉動 <strong>5 次</strong> 的隊伍獲勝
+      ・
+      💾 題目會自動保存在這台電腦
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     遊戲頁
+========================= -->
+
+<section id="gameScreen">
+
 <div id="game">
 
   <header class="question-area">
 
-    <div class="progress" id="progress">
-      Câu 1/6
-    </div>
+    <div class="progress" id="progress"></div>
 
     <div class="game-title">
       🇻🇳 VIETNAMESE TUG OF WAR
     </div>
 
-    <div class="question" id="question">
-      Bạn tên là gì?
-    </div>
+    <div class="question" id="question"></div>
 
-    <div class="timer" id="timer">
-      20
-    </div>
+    <div class="timer" id="timer">10</div>
 
-    <button class="sound-btn" id="soundBtn">🔊</button>
+    <div class="top-controls">
+
+      <button
+        class="sound-btn"
+        id="soundBtn"
+        title="音效開關">
+        🔊
+      </button>
+
+      <button
+        class="stop-btn"
+        id="stopBtn">
+        ⏹ 停止遊戲
+      </button>
+
+    </div>
 
   </header>
+
 
   <main class="arena">
 
     <div class="center-line"></div>
 
-    <div class="status" id="status">
-      Chuẩn bị!
-    </div>
+    <div class="status" id="status"></div>
 
     <div class="tug-wrap">
+
       <img
         src="assets/tug-war.png"
         class="tug-image"
         id="tugImage"
-        alt="Vietnamese Tug of War"
-      >
+        alt="Vietnamese Tug of War">
+
     </div>
 
     <div class="team-label red-label">
@@ -434,72 +805,151 @@ body{
 
   </main>
 
+
   <section class="answers">
 
     <div class="team-panel red-panel">
-      <div class="panel-title">🔴 ĐỘI ĐỎ</div>
-      <div class="answer-grid" id="redAnswers"></div>
+
+      <div class="panel-title">
+        🔴 ĐỘI ĐỎ
+      </div>
+
+      <div
+        class="answer-grid"
+        id="redAnswers">
+      </div>
+
     </div>
 
+
     <div class="team-panel blue-panel">
-      <div class="panel-title">🔵 ĐỘI XANH</div>
-      <div class="answer-grid" id="blueAnswers"></div>
+
+      <div class="panel-title">
+        🔵 ĐỘI XANH
+      </div>
+
+      <div
+        class="answer-grid"
+        id="blueAnswers">
+      </div>
+
     </div>
 
   </section>
 
 </div>
 
+</section>
+
+
+<!-- =========================
+     勝利畫面
+========================= -->
+
 <div id="winnerScreen">
-  <div id="winnerEmoji">🏆</div>
-  <div id="winnerText">ĐỘI ĐỎ THẮNG!</div>
-  <button class="restart" id="restartBtn">Chơi lại</button>
+
+  <div id="winnerEmoji">
+    🏆
+  </div>
+
+  <div id="winnerText"></div>
+
+  <div class="winner-buttons">
+
+    <button
+      class="restart"
+      id="restartBtn">
+      🔥 再玩一次
+    </button>
+
+    <button
+      class="edit-questions"
+      id="editQuestionsBtn">
+      ✏️ 編輯題目
+    </button>
+
+  </div>
+
 </div>
 
-<audio id="bgm" src="assets/bgm.mp3" loop></audio>
-<audio id="countdownSound" src="assets/countdown.mp3"></audio>
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="winSound" src="assets/win.mp3"></audio>
+
+<!-- =========================
+     停止確認
+========================= -->
+
+<div id="stopModal">
+
+  <div class="stop-box">
+
+    <h2>⏹ 停止遊戲？</h2>
+
+    <p>
+      題目會保留，不會被刪除。
+    </p>
+
+    <div class="stop-actions">
+
+      <button
+        class="continue-btn"
+        id="continueBtn">
+        🔙 繼續比賽
+      </button>
+
+      <button
+        class="end-btn"
+        id="endGameBtn">
+        ⏹ 結束遊戲
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     音樂
+========================= -->
+
+<audio
+  id="bgm"
+  src="assets/bgm.mp3"
+  loop>
+</audio>
+
+<audio
+  id="countdownSound"
+  src="assets/countdown.mp3">
+</audio>
+
+<audio
+  id="correctSound"
+  src="assets/correct.mp3">
+</audio>
+
+<audio
+  id="wrongSound"
+  src="assets/wrong.mp3">
+</audio>
+
+<audio
+  id="winSound"
+  src="assets/win.mp3">
+</audio>
+
 
 <script>
 
-const questions = [
-{
-  question:"Bạn tên là gì?",
-  answers:["你幾歲？","你叫什麼名字？","你住在哪裡？","你喜歡什麼？"],
-  correct:1
-},
-{
-  question:"“Xin chào” nghĩa là gì?",
-  answers:["再見","你好","謝謝","對不起"],
-  correct:1
-},
-{
-  question:"“Màu đỏ” là màu gì?",
-  answers:["藍色","黃色","紅色","綠色"],
-  correct:2
-},
-{
-  question:"Bạn bao nhiêu tuổi?",
-  answers:["你幾歲？","你叫什麼名字？","你是哪國人？","你喜歡什麼？"],
-  correct:0
-},
-{
-  question:"Tôi thích nghe nhạc.",
-  answers:["我喜歡看書","我喜歡聽音樂","我喜歡運動","我喜歡旅行"],
-  correct:1
-},
-{
-  question:"“Cảm ơn” nghĩa là gì?",
-  answers:["謝謝","對不起","你好","再見"],
-  correct:0
-}
-];
+/* =========================
+   基本設定
+========================= */
 
-const QUESTION_TIME = 20;
+const QUESTION_TIME = 10;
 const WIN_SCORE = 5;
 const STEP = 2.8;
+
+let questions = [];
 
 let currentQuestion = 0;
 let ropePosition = 0;
@@ -520,27 +970,99 @@ let roundFinished = false;
 let soundEnabled = true;
 let audioStarted = false;
 
-const questionEl = document.getElementById("question");
-const progressEl = document.getElementById("progress");
-const timerEl = document.getElementById("timer");
+let gamePaused = false;
 
-const redAnswersEl = document.getElementById("redAnswers");
-const blueAnswersEl = document.getElementById("blueAnswers");
 
-const tugImage = document.getElementById("tugImage");
-const statusEl = document.getElementById("status");
+/* =========================
+   DOM
+========================= */
 
-const winnerScreen = document.getElementById("winnerScreen");
-const winnerText = document.getElementById("winnerText");
-const restartBtn = document.getElementById("restartBtn");
+const setupScreen =
+document.getElementById("setupScreen");
 
-const soundBtn = document.getElementById("soundBtn");
+const gameScreen =
+document.getElementById("gameScreen");
 
-const bgm = document.getElementById("bgm");
-const countdownSound = document.getElementById("countdownSound");
-const correctSound = document.getElementById("correctSound");
-const wrongSound = document.getElementById("wrongSound");
-const winSound = document.getElementById("winSound");
+const questionEditor =
+document.getElementById("questionEditor");
+
+const addQuestionBtn =
+document.getElementById("addQuestionBtn");
+
+const clearQuestionsBtn =
+document.getElementById("clearQuestionsBtn");
+
+const startGameBtn =
+document.getElementById("startGameBtn");
+
+const questionEl =
+document.getElementById("question");
+
+const progressEl =
+document.getElementById("progress");
+
+const timerEl =
+document.getElementById("timer");
+
+const redAnswersEl =
+document.getElementById("redAnswers");
+
+const blueAnswersEl =
+document.getElementById("blueAnswers");
+
+const tugImage =
+document.getElementById("tugImage");
+
+const statusEl =
+document.getElementById("status");
+
+const winnerScreen =
+document.getElementById("winnerScreen");
+
+const winnerText =
+document.getElementById("winnerText");
+
+const restartBtn =
+document.getElementById("restartBtn");
+
+const editQuestionsBtn =
+document.getElementById("editQuestionsBtn");
+
+const soundBtn =
+document.getElementById("soundBtn");
+
+const stopBtn =
+document.getElementById("stopBtn");
+
+const stopModal =
+document.getElementById("stopModal");
+
+const continueBtn =
+document.getElementById("continueBtn");
+
+const endGameBtn =
+document.getElementById("endGameBtn");
+
+
+/* =========================
+   音樂
+========================= */
+
+const bgm =
+document.getElementById("bgm");
+
+const countdownSound =
+document.getElementById("countdownSound");
+
+const correctSound =
+document.getElementById("correctSound");
+
+const wrongSound =
+document.getElementById("wrongSound");
+
+const winSound =
+document.getElementById("winSound");
+
 
 bgm.volume = 0.26;
 countdownSound.volume = 0.65;
@@ -548,46 +1070,488 @@ correctSound.volume = 0.75;
 wrongSound.volume = 0.75;
 winSound.volume = 0.9;
 
-function startAudio(){
-  if(audioStarted || !soundEnabled) return;
 
-  audioStarted = true;
+function stopAllSounds(){
+
+  bgm.pause();
+
+  countdownSound.pause();
+  correctSound.pause();
+  wrongSound.pause();
+  winSound.pause();
 
   bgm.currentTime = 0;
-  bgm.play().catch(()=>{});
+  countdownSound.currentTime = 0;
+  correctSound.currentTime = 0;
+  wrongSound.currentTime = 0;
+  winSound.currentTime = 0;
+
 }
 
+
 function playSound(audio){
+
   if(!soundEnabled) return;
 
   audio.currentTime = 0;
+
   audio.play().catch(()=>{});
+
 }
+
+
+function startBGM(){
+
+  if(!soundEnabled) return;
+
+  audioStarted = true;
+
+  bgm.play().catch(()=>{});
+
+}
+
 
 soundBtn.addEventListener("click",()=>{
 
   soundEnabled = !soundEnabled;
 
   if(soundEnabled){
+
     soundBtn.textContent = "🔊";
 
-    if(audioStarted){
+    if(
+      gameScreen.style.display === "block" &&
+      !gamePaused &&
+      !winnerScreen.classList.contains("show")
+    ){
       bgm.play().catch(()=>{});
-    }else{
-      startAudio();
     }
 
   }else{
-    soundBtn.textContent = "🔇";
-    bgm.pause();
 
+    soundBtn.textContent = "🔇";
+
+    bgm.pause();
     countdownSound.pause();
     correctSound.pause();
     wrongSound.pause();
     winSound.pause();
+
   }
 
 });
+
+
+/* =========================
+   題目資料
+========================= */
+
+function createBlankQuestion(){
+
+  return {
+    question:"",
+    answers:["","","",""],
+    correct:0
+  };
+
+}
+
+
+function loadSavedQuestions(){
+
+  const saved =
+  localStorage.getItem("vietnameseTugQuestions");
+
+  if(saved){
+
+    try{
+
+      const data = JSON.parse(saved);
+
+      if(
+        Array.isArray(data) &&
+        data.length > 0
+      ){
+        questions = data;
+        return;
+      }
+
+    }catch(error){}
+
+  }
+
+  /* 第一次開啟時給一題範例 */
+
+  questions = [
+    {
+      question:"Bạn tên là gì?",
+      answers:[
+        "你幾歲？",
+        "你叫什麼名字？",
+        "你住在哪裡？",
+        "你喜歡什麼？"
+      ],
+      correct:1
+    }
+  ];
+
+}
+
+
+function saveQuestions(){
+
+  localStorage.setItem(
+    "vietnameseTugQuestions",
+    JSON.stringify(questions)
+  );
+
+}
+
+
+/* =========================
+   題目編輯器
+========================= */
+
+function renderEditor(){
+
+  questionEditor.innerHTML = "";
+
+  questions.forEach((q,index)=>{
+
+    const card =
+    document.createElement("div");
+
+    card.className = "question-card";
+
+    const letters =
+    ["A","B","C","D"];
+
+    card.innerHTML = `
+
+      <div class="card-top">
+
+        <div class="card-title">
+          題目 ${index + 1}
+        </div>
+
+        ${
+          questions.length > 1
+          ?
+          `<button
+            class="delete-btn"
+            data-delete="${index}">
+            🗑️ 刪除
+          </button>`
+          :
+          ""
+        }
+
+      </div>
+
+      <label class="field-label">
+        題目
+      </label>
+
+      <input
+        class="question-input"
+        data-question="${index}"
+        value="${escapeHTML(q.question)}"
+        placeholder="例如：Bạn tên là gì?">
+
+      <label class="field-label">
+        選項
+      </label>
+
+      <div class="answers-editor">
+
+        ${q.answers.map((answer,aIndex)=>`
+
+          <div class="answer-row">
+
+            <div class="answer-letter">
+              ${letters[aIndex]}
+            </div>
+
+            <input
+              type="text"
+              class="answer-input"
+              data-answer-question="${index}"
+              data-answer-index="${aIndex}"
+              value="${escapeHTML(answer)}"
+              placeholder="輸入選項 ${letters[aIndex]}">
+
+            <input
+              type="radio"
+              name="correct-${index}"
+              data-correct-question="${index}"
+              data-correct-index="${aIndex}"
+              ${q.correct === aIndex ? "checked" : ""}
+              title="設為正確答案">
+
+          </div>
+
+        `).join("")}
+
+      </div>
+
+      <div class="correct-tip">
+        ✓ 點選選項右邊的圓圈，設定正確答案
+      </div>
+
+    `;
+
+    questionEditor.appendChild(card);
+
+  });
+
+
+  bindEditorEvents();
+
+}
+
+
+function escapeHTML(text){
+
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+
+}
+
+
+function bindEditorEvents(){
+
+  document
+  .querySelectorAll("[data-question]")
+  .forEach(input=>{
+
+    input.addEventListener("input",()=>{
+
+      const index =
+      Number(input.dataset.question);
+
+      questions[index].question =
+      input.value;
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll("[data-answer-question]")
+  .forEach(input=>{
+
+    input.addEventListener("input",()=>{
+
+      const qIndex =
+      Number(input.dataset.answerQuestion);
+
+      const aIndex =
+      Number(input.dataset.answerIndex);
+
+      questions[qIndex]
+      .answers[aIndex] =
+      input.value;
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll("[data-correct-question]")
+  .forEach(radio=>{
+
+    radio.addEventListener("change",()=>{
+
+      const qIndex =
+      Number(radio.dataset.correctQuestion);
+
+      const aIndex =
+      Number(radio.dataset.correctIndex);
+
+      questions[qIndex].correct =
+      aIndex;
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll("[data-delete]")
+  .forEach(button=>{
+
+    button.addEventListener("click",()=>{
+
+      const index =
+      Number(button.dataset.delete);
+
+      questions.splice(index,1);
+
+      saveQuestions();
+      renderEditor();
+
+    });
+
+  });
+
+}
+
+
+addQuestionBtn.addEventListener("click",()=>{
+
+  questions.push(
+    createBlankQuestion()
+  );
+
+  saveQuestions();
+  renderEditor();
+
+  setTimeout(()=>{
+
+    window.scrollTo({
+      top:document.body.scrollHeight,
+      behavior:"smooth"
+    });
+
+  },100);
+
+});
+
+
+clearQuestionsBtn.addEventListener("click",()=>{
+
+  const ok =
+  confirm("確定要清空所有題目嗎？");
+
+  if(!ok) return;
+
+  questions = [
+    createBlankQuestion()
+  ];
+
+  saveQuestions();
+  renderEditor();
+
+});
+
+
+/* =========================
+   開始遊戲
+========================= */
+
+startGameBtn.addEventListener("click",()=>{
+
+  const valid =
+  validateQuestions();
+
+  if(!valid) return;
+
+  saveQuestions();
+
+  currentQuestion = 0;
+  ropePosition = 0;
+
+  gamePaused = false;
+  roundFinished = false;
+
+  tugImage.style.setProperty(
+    "--x",
+    "0vw"
+  );
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+  stopAllSounds();
+
+  setupScreen.style.display =
+  "none";
+
+  gameScreen.style.display =
+  "block";
+
+  document.body.style.overflow =
+  "hidden";
+
+  /* 老師按「開始拔河」就是使用者操作，
+     因此這裡可以開始播放 BGM */
+
+  startBGM();
+
+  loadQuestion();
+
+});
+
+
+function validateQuestions(){
+
+  if(questions.length === 0){
+
+    alert("請至少新增一題。");
+    return false;
+
+  }
+
+  for(
+    let i=0;
+    i<questions.length;
+    i++
+  ){
+
+    const q = questions[i];
+
+    if(!q.question.trim()){
+
+      alert(
+        `第 ${i+1} 題還沒有輸入題目。`
+      );
+
+      return false;
+
+    }
+
+    for(
+      let a=0;
+      a<4;
+      a++
+    ){
+
+      if(
+        !q.answers[a] ||
+        !q.answers[a].trim()
+      ){
+
+        alert(
+          `第 ${i+1} 題的選項 ${["A","B","C","D"][a]} 還沒有填寫。`
+        );
+
+        return false;
+
+      }
+
+    }
+
+  }
+
+  return true;
+
+}
+
+
+/* =========================
+   載入題目
+========================= */
 
 function loadQuestion(){
 
@@ -606,123 +1570,241 @@ function loadQuestion(){
 
   timeLeft = QUESTION_TIME;
 
-  const q = questions[currentQuestion];
+  const q =
+  questions[currentQuestion];
 
-  questionEl.textContent = q.question;
+  questionEl.textContent =
+  q.question;
 
   progressEl.textContent =
   `Câu ${currentQuestion + 1}/${questions.length}`;
 
-  timerEl.textContent = timeLeft;
-  timerEl.style.background = "#ef3340";
+  timerEl.textContent =
+  timeLeft;
 
-  createAnswers(redAnswersEl,"red",q);
-  createAnswers(blueAnswersEl,"blue",q);
+  timerEl.style.background =
+  "#ef3340";
 
-  questionStartTime = performance.now();
+  timerEl.classList.remove(
+    "danger"
+  );
 
-  timerInterval = setInterval(()=>{
+  createAnswers(
+    redAnswersEl,
+    "red",
+    q
+  );
+
+  createAnswers(
+    blueAnswersEl,
+    "blue",
+    q
+  );
+
+  questionStartTime =
+  performance.now();
+
+  startTimer();
+
+}
+
+
+/* =========================
+   計時器
+========================= */
+
+function startTimer(){
+
+  clearInterval(timerInterval);
+
+  timerInterval =
+  setInterval(()=>{
+
+    if(gamePaused) return;
 
     timeLeft--;
 
-    timerEl.textContent = timeLeft;
+    timerEl.textContent =
+    timeLeft;
 
     if(timeLeft <= 5){
-      timerEl.style.background = "#ff7a00";
+
+      timerEl.style.background =
+      "#ff6500";
+
+      timerEl.classList.add(
+        "danger"
+      );
+
     }else{
-      timerEl.style.background = "#ef3340";
+
+      timerEl.style.background =
+      "#ef3340";
+
     }
 
     if(timeLeft === 5){
-      playSound(countdownSound);
+
+      playSound(
+        countdownSound
+      );
+
     }
 
     if(timeLeft <= 0){
-      clearInterval(timerInterval);
+
+      clearInterval(
+        timerInterval
+      );
+
       finishRound();
+
     }
 
   },1000);
 
 }
 
-function createAnswers(container,team,q){
+
+/* =========================
+   建立答案
+========================= */
+
+function createAnswers(
+  container,
+  team,
+  q
+){
 
   container.innerHTML = "";
 
-  const letters = ["A","B","C","D"];
+  const letters =
+  ["A","B","C","D"];
 
-  q.answers.forEach((answer,index)=>{
+  q.answers.forEach(
+    (answer,index)=>{
 
-    const button = document.createElement("button");
+      const button =
+      document.createElement(
+        "button"
+      );
 
-    button.className = "answer-btn";
+      button.className =
+      "answer-btn";
 
-    button.innerHTML =
-    `<strong>${letters[index]}.</strong> ${answer}`;
+      button.innerHTML =
+      `<strong>${letters[index]}.</strong> ${escapeHTML(answer)}`;
 
-    button.addEventListener(
-      "click",
-      ()=>chooseAnswer(team,index,button)
-    );
+      button.addEventListener(
+        "click",
+        ()=>chooseAnswer(
+          team,
+          index,
+          button
+        )
+      );
 
-    container.appendChild(button);
+      container.appendChild(
+        button
+      );
 
-  });
+    }
+  );
 
 }
 
-function chooseAnswer(team,index,button){
 
-  startAudio();
+/* =========================
+   作答
+========================= */
 
-  if(roundFinished) return;
+function chooseAnswer(
+  team,
+  index,
+  button
+){
+
+  if(
+    roundFinished ||
+    gamePaused
+  ) return;
+
+  if(!audioStarted){
+    startBGM();
+  }
 
   const answerTime =
-  performance.now() - questionStartTime;
+  performance.now() -
+  questionStartTime;
 
   if(team === "red"){
 
-    if(redAnswer !== null) return;
+    if(
+      redAnswer !== null
+    ) return;
 
     redAnswer = index;
     redTime = answerTime;
 
-    lockTeam(redAnswersEl);
-    button.classList.add("selected");
+    lockTeam(
+      redAnswersEl
+    );
+
+    button.classList.add(
+      "selected"
+    );
 
   }
 
+
   if(team === "blue"){
 
-    if(blueAnswer !== null) return;
+    if(
+      blueAnswer !== null
+    ) return;
 
     blueAnswer = index;
     blueTime = answerTime;
 
-    lockTeam(blueAnswersEl);
-    button.classList.add("selected");
+    lockTeam(
+      blueAnswersEl
+    );
+
+    button.classList.add(
+      "selected"
+    );
 
   }
+
 
   if(
     redAnswer !== null &&
     blueAnswer !== null
   ){
+
     finishRound();
+
   }
 
 }
+
 
 function lockTeam(container){
 
   container
   .querySelectorAll("button")
   .forEach(btn=>{
+
     btn.disabled = true;
+
   });
 
 }
+
+
+/* =========================
+   回合判定
+========================= */
 
 function finishRound(){
 
@@ -730,54 +1812,94 @@ function finishRound(){
 
   roundFinished = true;
 
-  clearInterval(timerInterval);
+  clearInterval(
+    timerInterval
+  );
 
   countdownSound.pause();
   countdownSound.currentTime = 0;
 
-  const q = questions[currentQuestion];
+  timerEl.classList.remove(
+    "danger"
+  );
 
-  revealAnswers(q.correct);
+  const q =
+  questions[currentQuestion];
 
-  const redCorrect = redAnswer === q.correct;
-  const blueCorrect = blueAnswer === q.correct;
+  revealAnswers(
+    q.correct
+  );
 
-  if(redCorrect && !blueCorrect){
+  const redCorrect =
+  redAnswer === q.correct;
 
-    playSound(correctSound);
+  const blueCorrect =
+  blueAnswer === q.correct;
 
-    showStatus("🔴 ĐỘI ĐỎ KÉO!");
+
+  if(
+    redCorrect &&
+    !blueCorrect
+  ){
+
+    playSound(
+      correctSound
+    );
+
+    showStatus(
+      "🔴 ĐỘI ĐỎ KÉO!"
+    );
 
     moveTug(-1);
 
   }
 
-  else if(blueCorrect && !redCorrect){
+  else if(
+    blueCorrect &&
+    !redCorrect
+  ){
 
-    playSound(correctSound);
+    playSound(
+      correctSound
+    );
 
-    showStatus("ĐỘI XANH KÉO! 🔵");
+    showStatus(
+      "ĐỘI XANH KÉO! 🔵"
+    );
 
     moveTug(1);
 
   }
 
-  else if(redCorrect && blueCorrect){
+  else if(
+    redCorrect &&
+    blueCorrect
+  ){
 
-    playSound(correctSound);
+    playSound(
+      correctSound
+    );
 
     const difference =
-    Math.abs(redTime - blueTime);
+    Math.abs(
+      redTime - blueTime
+    );
 
     if(difference < 50){
 
-      showStatus("⚡ HÒA!");
+      showStatus(
+        "⚡ HÒA!"
+      );
 
     }
 
-    else if(redTime < blueTime){
+    else if(
+      redTime < blueTime
+    ){
 
-      showStatus("⚡ ĐỘI ĐỎ NHANH HƠN!");
+      showStatus(
+        "⚡ ĐỘI ĐỎ NHANH HƠN!"
+      );
 
       moveTug(-1);
 
@@ -785,7 +1907,9 @@ function finishRound(){
 
     else{
 
-      showStatus("⚡ ĐỘI XANH NHANH HƠN!");
+      showStatus(
+        "⚡ ĐỘI XANH NHANH HƠN!"
+      );
 
       moveTug(1);
 
@@ -795,13 +1919,21 @@ function finishRound(){
 
   else{
 
-    playSound(wrongSound);
+    playSound(
+      wrongSound
+    );
 
-    showStatus("😅 KHÔNG ĐỘI NÀO KÉO!");
+    showStatus(
+      "😅 KHÔNG ĐỘI NÀO KÉO!"
+    );
 
   }
 
-  if(ropePosition <= -WIN_SCORE){
+
+  if(
+    ropePosition <=
+    -WIN_SCORE
+  ){
 
     setTimeout(
       ()=>showWinner("red"),
@@ -809,9 +1941,14 @@ function finishRound(){
     );
 
     return;
+
   }
 
-  if(ropePosition >= WIN_SCORE){
+
+  if(
+    ropePosition >=
+    WIN_SCORE
+  ){
 
     setTimeout(
       ()=>showWinner("blue"),
@@ -819,14 +1956,23 @@ function finishRound(){
     );
 
     return;
+
   }
+
 
   setTimeout(()=>{
 
+    if(gamePaused) return;
+
     currentQuestion++;
 
-    if(currentQuestion >= questions.length){
+    if(
+      currentQuestion >=
+      questions.length
+    ){
+
       currentQuestion = 0;
+
     }
 
     loadQuestion();
@@ -834,6 +1980,11 @@ function finishRound(){
   },2200);
 
 }
+
+
+/* =========================
+   顯示答案
+========================= */
 
 function revealAnswers(correct){
 
@@ -843,39 +1994,64 @@ function revealAnswers(correct){
   ].forEach(container=>{
 
     const buttons =
-    container.querySelectorAll("button");
+    container.querySelectorAll(
+      "button"
+    );
 
-    buttons.forEach((button,index)=>{
+    buttons.forEach(
+      (button,index)=>{
 
-      button.disabled = true;
+        button.disabled = true;
 
-      if(index === correct){
-        button.classList.add("correct");
+        if(
+          index === correct
+        ){
+
+          button.classList.add(
+            "correct"
+          );
+
+        }
+
       }
-
-    });
+    );
 
   });
+
 
   if(
     redAnswer !== null &&
     redAnswer !== correct
   ){
+
     redAnswersEl
     .children[redAnswer]
-    .classList.add("wrong");
+    .classList.add(
+      "wrong"
+    );
+
   }
+
 
   if(
     blueAnswer !== null &&
     blueAnswer !== correct
   ){
+
     blueAnswersEl
     .children[blueAnswer]
-    .classList.add("wrong");
+    .classList.add(
+      "wrong"
+    );
+
   }
 
 }
+
+
+/* =========================
+   拔河
+========================= */
 
 function moveTug(direction){
 
@@ -892,41 +2068,65 @@ function moveTug(direction){
   tugImage.style.transform =
   `translateX(${position}vw)`;
 
+
+  tugImage.classList.remove(
+    "pull-left",
+    "pull-right"
+  );
+
+  void tugImage.offsetWidth;
+
+
   if(direction < 0){
 
-    tugImage.classList.remove("pull-right");
-    tugImage.classList.remove("pull-left");
-
-    void tugImage.offsetWidth;
-
-    tugImage.classList.add("pull-left");
+    tugImage.classList.add(
+      "pull-left"
+    );
 
   }else{
 
-    tugImage.classList.remove("pull-left");
-    tugImage.classList.remove("pull-right");
+    tugImage.classList.add(
+      "pull-right"
+    );
 
-    void tugImage.offsetWidth;
-
-    tugImage.classList.add("pull-right");
   }
 
 }
 
+
+/* =========================
+   狀態
+========================= */
+
 function showStatus(text){
 
-  statusEl.textContent = text;
-  statusEl.classList.add("show");
+  statusEl.textContent =
+  text;
+
+  statusEl.classList.add(
+    "show"
+  );
 
   setTimeout(()=>{
-    statusEl.classList.remove("show");
+
+    statusEl.classList.remove(
+      "show"
+    );
+
   },1700);
 
 }
 
+
+/* =========================
+   勝利
+========================= */
+
 function showWinner(team){
 
-  clearInterval(timerInterval);
+  clearInterval(
+    timerInterval
+  );
 
   bgm.pause();
   bgm.currentTime = 0;
@@ -934,23 +2134,179 @@ function showWinner(team){
   countdownSound.pause();
   countdownSound.currentTime = 0;
 
-  playSound(winSound);
+  correctSound.pause();
+  correctSound.currentTime = 0;
 
-  winnerScreen.classList.add("show");
+  wrongSound.pause();
+  wrongSound.currentTime = 0;
+
+  playSound(
+    winSound
+  );
+
+  winnerScreen.classList.add(
+    "show"
+  );
 
   if(team === "red"){
+
     winnerText.textContent =
     "🔴 ĐỘI ĐỎ THẮNG!";
+
   }else{
+
     winnerText.textContent =
     "ĐỘI XANH THẮNG! 🔵";
+
   }
 
 }
 
+
+/* =========================
+   再玩一次
+========================= */
+
 function restartGame(){
 
-  clearInterval(timerInterval);
+  stopAllSounds();
+
+  clearInterval(
+    timerInterval
+  );
+
+  currentQuestion = 0;
+  ropePosition = 0;
+
+  redAnswer = null;
+  blueAnswer = null;
+
+  gamePaused = false;
+  roundFinished = false;
+
+  tugImage.style.setProperty(
+    "--x",
+    "0vw"
+  );
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+  winnerScreen.classList.remove(
+    "show"
+  );
+
+  if(soundEnabled){
+
+    bgm.play().catch(()=>{});
+
+  }
+
+  loadQuestion();
+
+}
+
+
+restartBtn.addEventListener(
+  "click",
+  restartGame
+);
+
+
+/* =========================
+   編輯題目
+========================= */
+
+editQuestionsBtn.addEventListener(
+  "click",
+  ()=>{
+
+    winnerScreen.classList.remove(
+      "show"
+    );
+
+    returnToSetup();
+
+  }
+);
+
+
+/* =========================
+   停止遊戲
+========================= */
+
+stopBtn.addEventListener(
+  "click",
+  ()=>{
+
+    gamePaused = true;
+
+    clearInterval(
+      timerInterval
+    );
+
+    bgm.pause();
+
+    countdownSound.pause();
+
+    stopModal.classList.add(
+      "show"
+    );
+
+  }
+);
+
+
+/* 繼續 */
+
+continueBtn.addEventListener(
+  "click",
+  ()=>{
+
+    stopModal.classList.remove(
+      "show"
+    );
+
+    gamePaused = false;
+
+    if(soundEnabled){
+
+      bgm.play().catch(()=>{});
+
+    }
+
+    startTimer();
+
+  }
+);
+
+
+/* 真正結束 */
+
+endGameBtn.addEventListener(
+  "click",
+  ()=>{
+
+    stopModal.classList.remove(
+      "show"
+    );
+
+    returnToSetup();
+
+  }
+);
+
+
+function returnToSetup(){
+
+  clearInterval(
+    timerInterval
+  );
+
+  stopAllSounds();
+
+  gamePaused = false;
+  roundFinished = false;
 
   currentQuestion = 0;
   ropePosition = 0;
@@ -961,29 +2317,43 @@ function restartGame(){
   );
 
   tugImage.style.transform =
-    "translateX(0)";
+  "translateX(0)";
 
-  winnerScreen.classList.remove("show");
+  winnerScreen.classList.remove(
+    "show"
+  );
 
-  if(soundEnabled){
-    bgm.currentTime = 0;
-    bgm.play().catch(()=>{});
-  }
+  gameScreen.style.display =
+  "none";
 
-  loadQuestion();
+  setupScreen.style.display =
+  "block";
+
+  document.body.style.overflow =
+  "auto";
+
+  renderEditor();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
 }
 
-restartBtn.addEventListener(
-  "click",
-  restartGame
-);
+
+/* =========================
+   啟動
+========================= */
+
+loadSavedQuestions();
+
+renderEditor();
 
 tugImage.style.setProperty(
   "--x",
   "0vw"
 );
-
-loadQuestion();
 
 </script>
 
