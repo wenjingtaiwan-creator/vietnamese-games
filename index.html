@@ -145,47 +145,69 @@ body{
 
 /* 紅隊 */
 
+/* =========================
+   紅隊人物
+========================= */
+
 .red-team{
   position:absolute;
-  width:34%;
-  max-height:76%;
+
+  /* 不再用 width 控制大小 */
+  height:72%;
+  width:auto;
+
+  left:2.5%;
+  bottom:4%;
+
   object-fit:contain;
-
-  left:3%;
-  bottom:7%;
-
   z-index:4;
 
   filter:drop-shadow(0 6px 5px rgba(0,0,0,.18));
 }
 
-/* 藍隊 */
+
+/* =========================
+   藍隊人物
+========================= */
 
 .blue-team{
   position:absolute;
-  width:34%;
-  max-height:76%;
+
+  height:72%;
+  width:auto;
+
+  right:2.5%;
+  bottom:4%;
+
   object-fit:contain;
-
-  right:3%;
-  bottom:7%;
-
   z-index:4;
 
   filter:drop-shadow(0 6px 5px rgba(0,0,0,.18));
 }
 
-/* 繩子 */
+
+/* =========================
+   拔河繩
+========================= */
 
 .rope{
   position:absolute;
-  width:82%;
+
+  width:88%;
   height:auto;
-  left:9%;
-  top:68%;
-  transform:translateY(-50%);
+
+  left:6%;
+
+  /*
+  不再從上面定位
+  改成從地面往上算
+  */
+  bottom:23%;
+
   z-index:5;
+
   pointer-events:none;
+
   filter:drop-shadow(0 3px 2px rgba(0,0,0,.18));
 }
 /* =========================
