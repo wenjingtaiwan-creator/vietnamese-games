@@ -191,126 +191,6 @@ button{
 }
 
 /* =========================
-   AI 自動出題
-========================= */
-
-.ai-box{
-  margin-bottom:22px;
-  padding:24px;
-  border-radius:24px;
-  background:
-    linear-gradient(135deg,#f7f2ff,#edf6ff);
-  border:2px solid #ded3f6;
-  box-shadow:0 5px 20px rgba(0,0,0,.07);
-}
-
-.ai-heading{
-  text-align:center;
-  margin-bottom:18px;
-}
-
-.ai-heading h2{
-  font-size:26px;
-  margin-bottom:6px;
-}
-
-.ai-heading p{
-  color:#6c657a;
-  line-height:1.6;
-}
-
-.ai-form{
-  display:grid;
-  grid-template-columns:2fr .7fr .9fr;
-  gap:13px;
-}
-
-.ai-field label{
-  display:block;
-  margin-bottom:7px;
-  font-weight:900;
-  color:#444;
-}
-
-.ai-field textarea,
-.ai-field input,
-.ai-field select{
-  width:100%;
-  border:2px solid #d9d1eb;
-  background:#fff;
-  border-radius:14px;
-  padding:12px 13px;
-  font-size:16px;
-  outline:none;
-}
-
-.ai-field textarea{
-  height:86px;
-  resize:vertical;
-}
-
-.ai-field textarea:focus,
-.ai-field input:focus,
-.ai-field select:focus{
-  border-color:#7957c8;
-}
-
-.ai-examples{
-  margin-top:10px;
-  color:#716b7b;
-  font-size:13px;
-  line-height:1.6;
-}
-
-.ai-actions{
-  text-align:center;
-  margin-top:18px;
-}
-
-.ai-generate-btn{
-  border:none;
-  border-radius:30px;
-  padding:14px 32px;
-  background:linear-gradient(135deg,#6a43c7,#477ce5);
-  color:#fff;
-  font-size:18px;
-  font-weight:900;
-  box-shadow:0 5px 14px rgba(83,71,190,.25);
-}
-
-.ai-generate-btn:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-
-#aiStatus{
-  display:none;
-  margin-top:15px;
-  text-align:center;
-  padding:12px;
-  border-radius:14px;
-  font-weight:800;
-}
-
-#aiStatus.loading{
-  display:block;
-  background:#fff3cd;
-  color:#7d5d00;
-}
-
-#aiStatus.success{
-  display:block;
-  background:#dcf7e5;
-  color:#14753c;
-}
-
-#aiStatus.error{
-  display:block;
-  background:#ffe3e5;
-  color:#b5232e;
-}
-
-/* =========================
    題目編輯
 ========================= */
 
@@ -643,26 +523,6 @@ button{
   filter:drop-shadow(0 5px 5px rgba(0,0,0,.16));
 }
 
-.tug-image.pull-left{
-  animation:pullLeft .5s ease;
-}
-
-.tug-image.pull-right{
-  animation:pullRight .5s ease;
-}
-
-@keyframes pullLeft{
-  0%{transform:translateX(var(--x));}
-  40%{transform:translateX(calc(var(--x) - 18px));}
-  100%{transform:translateX(var(--x));}
-}
-
-@keyframes pullRight{
-  0%{transform:translateX(var(--x));}
-  40%{transform:translateX(calc(var(--x) + 18px));}
-  100%{transform:translateX(var(--x));}
-}
-
 .team-label{
   position:absolute;
   bottom:4%;
@@ -892,10 +752,6 @@ button{
     grid-template-columns:1fr;
   }
 
-  .ai-form{
-    grid-template-columns:1fr;
-  }
-
   .import-card p{
     min-height:auto;
   }
@@ -937,6 +793,10 @@ button{
 
 <body>
 
+<!-- =========================
+     題庫設定
+========================= -->
+
 <section id="setupScreen">
 <div class="setup-container">
 
@@ -944,8 +804,6 @@ button{
     <h1>🇻🇳 越南語拔河大賽</h1>
     <p>建立題庫後，紅隊與藍隊一起挑戰！</p>
   </div>
-
-  <!-- 題庫來源 -->
 
   <div class="import-box">
 
@@ -955,9 +813,14 @@ button{
 
     <div class="import-options">
 
+      <!-- GOOGLE -->
+
       <div class="import-card">
+
         <div class="import-icon">☁️</div>
+
         <h3>Google 雲端題庫</h3>
+
         <p>
           直接載入公開 Google 試算表。
           修改試算表後重新載入即可更新。
@@ -966,10 +829,15 @@ button{
         <button class="google-btn" id="googleImportBtn">
           ☁️ 載入 Google 題庫
         </button>
+
       </div>
 
+      <!-- EXCEL -->
+
       <div class="import-card">
+
         <div class="import-icon">📂</div>
+
         <h3>Excel / CSV 題庫</h3>
 
         <p>
@@ -978,11 +846,14 @@ button{
         </p>
 
         <label class="file-label">
+
           📂 上傳題庫
+
           <input
             type="file"
             id="fileInput"
             accept=".xlsx,.xls,.csv">
+
         </label>
 
         <br>
@@ -991,138 +862,122 @@ button{
           class="template-btn"
           href="assets/越南語拔河遊戲_題庫範本.xlsx"
           download>
-          📥 下載題庫範本
+          📥 下載 Excel 範本
         </a>
+
       </div>
 
+      <!-- MANUAL -->
+
       <div class="import-card">
+
         <div class="import-icon">✏️</div>
+
         <h3>自己輸入題目</h3>
+
         <p>
           不需要準備檔案，
-          可以在下面直接新增及修改題目。
+          可以直接新增、修改及刪除題目。
         </p>
 
         <button class="google-btn" id="manualAddTopBtn">
           ＋ 新增一題
         </button>
+
       </div>
 
     </div>
 
     <div class="format-tip">
+
       Excel / Google Sheet 第一列格式：
-      <strong>題目｜A｜B｜C｜D｜正確答案</strong>
+
+      <strong>
+        題目｜A｜B｜C｜D｜正確答案
+      </strong>
+
       ，正確答案填
+
       <strong>A、B、C 或 D</strong>
+
     </div>
 
     <div id="importStatus"></div>
 
   </div>
 
-  <!-- AI 自動出題 -->
 
-  <div class="ai-box">
-
-    <div class="ai-heading">
-      <h2>🤖 AI 自動出題</h2>
-      <p>
-        告訴 AI 想教什麼，它會自動產生四選一題目。
-        生成後仍可由老師修改。
-      </p>
-    </div>
-
-    <div class="ai-form">
-
-      <div class="ai-field">
-        <label>想生成什麼題目？</label>
-
-        <textarea
-          id="aiDescription"
-          placeholder="例如：越南語初學者，主題是動物名稱，看中文選正確的越南語。選項簡單，適合國中生。"></textarea>
-
-        <div class="ai-examples">
-          例如：家庭稱謂、顏色、數字 1–20、自我介紹、
-          水果、交通工具、教室用品……
-        </div>
-      </div>
-
-      <div class="ai-field">
-        <label>題目數量</label>
-
-        <input
-          id="aiCount"
-          type="number"
-          min="1"
-          max="30"
-          value="10">
-      </div>
-
-      <div class="ai-field">
-        <label>難度</label>
-
-        <select id="aiDifficulty">
-          <option value="初級">🌱 初級</option>
-          <option value="中級">🌿 中級</option>
-          <option value="進階">🌳 進階</option>
-        </select>
-      </div>
-
-    </div>
-
-    <div class="ai-actions">
-      <button class="ai-generate-btn" id="aiGenerateBtn">
-        ✨ AI 幫我出題
-      </button>
-    </div>
-
-    <div id="aiStatus"></div>
-
-  </div>
-
-  <!-- 編輯區 -->
+  <!-- 題目編輯 -->
 
   <div class="editor-heading">
-    <h2>✏️ 題目預覽與編輯</h2>
-    <div id="questionCount">0 題</div>
+
+    <h2>
+      ✏️ 題目預覽與編輯
+    </h2>
+
+    <div id="questionCount">
+      0 題
+    </div>
+
   </div>
+
 
   <div id="questionEditor"></div>
 
+
   <div class="setup-actions">
 
-    <button class="reload-btn" id="reloadGoogleBtn">
+    <button
+      class="reload-btn"
+      id="reloadGoogleBtn">
       ☁️ 重新載入雲端題庫
     </button>
 
-    <button class="add-btn" id="addQuestionBtn">
+    <button
+      class="add-btn"
+      id="addQuestionBtn">
       ＋ 手動新增題目
     </button>
 
-    <button class="clear-btn" id="clearQuestionsBtn">
+    <button
+      class="clear-btn"
+      id="clearQuestionsBtn">
       🗑️ 清空
     </button>
 
-    <button class="start-btn" id="startGameBtn">
+    <button
+      class="start-btn"
+      id="startGameBtn">
       🔥 開始拔河！
     </button>
 
   </div>
 
+
   <div class="setup-info">
-    ⏱️ 每題 <strong>10 秒</strong>
+
+    ⏱️ 每題
+    <strong>10 秒</strong>
+
     ・
-    🏆 先拉動 <strong>5 次</strong> 獲勝
+
+    🏆 先拉動
+    <strong>5 次</strong>
+    獲勝
+
     ・
+
     💾 題目會自動保存在這台裝置
+
   </div>
 
 </div>
 </section>
 
 
-<!-- 遊戲 -->
+<!-- =========================
+     遊戲畫面
+========================= -->
 
 <section id="gameScreen">
 
@@ -1130,25 +985,37 @@ button{
 
 <header class="question-area">
 
-  <div class="progress" id="progress"></div>
+  <div
+    class="progress"
+    id="progress">
+  </div>
 
   <div class="game-title">
     🇻🇳 VIETNAMESE TUG OF WAR
   </div>
 
-  <div class="question" id="question"></div>
+  <div
+    class="question"
+    id="question">
+  </div>
 
-  <div class="timer" id="timer">
+  <div
+    class="timer"
+    id="timer">
     10
   </div>
 
   <div class="top-controls">
 
-    <button class="sound-btn" id="soundBtn">
+    <button
+      class="sound-btn"
+      id="soundBtn">
       🔊
     </button>
 
-    <button class="stop-btn" id="stopBtn">
+    <button
+      class="stop-btn"
+      id="stopBtn">
       ⏹ 停止遊戲
     </button>
 
@@ -1161,13 +1028,19 @@ button{
 
   <div class="center-line"></div>
 
-  <div class="status" id="status"></div>
+  <div
+    class="status"
+    id="status">
+  </div>
 
   <div class="tug-wrap">
+
     <img
       src="assets/tug-war.png"
       class="tug-image"
-      id="tugImage">
+      id="tugImage"
+      alt="拔河">
+
   </div>
 
   <div class="team-label red-label">
@@ -1216,7 +1089,9 @@ button{
 </section>
 
 
-<!-- 勝利 -->
+<!-- =========================
+     勝利畫面
+========================= -->
 
 <div id="winnerScreen">
 
@@ -1228,11 +1103,15 @@ button{
 
   <div class="winner-buttons">
 
-    <button class="restart" id="restartBtn">
+    <button
+      class="restart"
+      id="restartBtn">
       🔥 再玩一次
     </button>
 
-    <button class="edit-questions" id="editQuestionsBtn">
+    <button
+      class="edit-questions"
+      id="editQuestionsBtn">
       📚 回題庫
     </button>
 
@@ -1241,13 +1120,17 @@ button{
 </div>
 
 
-<!-- 停止 -->
+<!-- =========================
+     停止遊戲
+========================= -->
 
 <div id="stopModal">
 
 <div class="stop-box">
 
-  <h2>⏹ 停止遊戲？</h2>
+  <h2>
+    ⏹ 停止遊戲？
+  </h2>
 
   <p>
     題庫會保留，不會消失。
@@ -1255,11 +1138,15 @@ button{
 
   <div class="stop-actions">
 
-    <button class="continue-btn" id="continueBtn">
+    <button
+      class="continue-btn"
+      id="continueBtn">
       🔙 繼續比賽
     </button>
 
-    <button class="end-btn" id="endGameBtn">
+    <button
+      class="end-btn"
+      id="endGameBtn">
       ⏹ 結束遊戲
     </button>
 
@@ -1269,40 +1156,58 @@ button{
 </div>
 
 
-<!-- 音效 -->
+<!-- =========================
+     音效
+========================= -->
 
-<audio id="bgm" src="assets/bgm.mp3" loop></audio>
-<audio id="countdownSound" src="assets/countdown.mp3"></audio>
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
-<audio id="winSound" src="assets/win.mp3"></audio>
+<audio
+  id="bgm"
+  src="assets/bgm.mp3"
+  loop>
+</audio>
+
+<audio
+  id="countdownSound"
+  src="assets/countdown.mp3">
+</audio>
+
+<audio
+  id="correctSound"
+  src="assets/correct.mp3">
+</audio>
+
+<audio
+  id="wrongSound"
+  src="assets/wrong.mp3">
+</audio>
+
+<audio
+  id="winSound"
+  src="assets/win.mp3">
+</audio>
 
 
 <script>
 
-/* ======================================================
+/* =========================
    基本設定
-====================================================== */
+========================= */
 
 const GOOGLE_SHEET_ID =
 "18pSzxoVu-cZjwzPsM7J0E1MSnLezg_U_pNLLdLc2S5c";
 
 const GOOGLE_SHEET_GID = "0";
 
-/*
-  AI 後端網址
-  Cloudflare Worker 建好後，
-  把網址貼在兩個引號之間。
-*/
-const AI_ENDPOINT = "";
-
 const QUESTION_TIME = 10;
+
 const WIN_SCORE = 5;
+
 const STEP = 2.8;
 
 let questions = [];
 
 let currentQuestion = 0;
+
 let ropePosition = 0;
 
 let redAnswer = null;
@@ -1313,21 +1218,24 @@ let blueTime = null;
 
 let questionStartTime = null;
 
-let pauseStartedAt = null;
-let totalPauseTime = 0;
-
 let timeLeft = QUESTION_TIME;
 
 let timerInterval = null;
 
 let roundFinished = false;
+
 let soundEnabled = true;
+
 let gamePaused = false;
 
+let pauseStartedAt = null;
 
-/* ======================================================
+let totalPauseTime = 0;
+
+
+/* =========================
    DOM
-====================================================== */
+========================= */
 
 const setupScreen =
 document.getElementById("setupScreen");
@@ -1364,21 +1272,6 @@ document.getElementById("clearQuestionsBtn");
 
 const startGameBtn =
 document.getElementById("startGameBtn");
-
-const aiDescription =
-document.getElementById("aiDescription");
-
-const aiCount =
-document.getElementById("aiCount");
-
-const aiDifficulty =
-document.getElementById("aiDifficulty");
-
-const aiGenerateBtn =
-document.getElementById("aiGenerateBtn");
-
-const aiStatus =
-document.getElementById("aiStatus");
 
 const questionEl =
 document.getElementById("question");
@@ -1429,9 +1322,9 @@ const endGameBtn =
 document.getElementById("endGameBtn");
 
 
-/* ======================================================
+/* =========================
    音效
-====================================================== */
+========================= */
 
 const bgm =
 document.getElementById("bgm");
@@ -1449,9 +1342,13 @@ const winSound =
 document.getElementById("winSound");
 
 bgm.volume = 0.26;
+
 countdownSound.volume = 0.65;
+
 correctSound.volume = 0.75;
+
 wrongSound.volume = 0.75;
+
 winSound.volume = 0.9;
 
 
@@ -1466,6 +1363,7 @@ function stopAllSounds(){
   ].forEach(audio=>{
 
     audio.pause();
+
     audio.currentTime = 0;
 
   });
@@ -1522,271 +1420,18 @@ soundBtn.addEventListener(
       correctSound,
       wrongSound,
       winSound
-    ].forEach(audio=>audio.pause());
+    ].forEach(
+      audio=>audio.pause()
+    );
 
   }
 
 });
 
 
-/* ======================================================
-   AI 自動出題
-====================================================== */
-
-aiGenerateBtn.addEventListener(
-"click",
-generateAIQuestions
-);
-
-
-async function generateAIQuestions(){
-
-  const description =
-  aiDescription.value.trim();
-
-  const count =
-  Math.max(
-    1,
-    Math.min(
-      30,
-      Number(aiCount.value) || 10
-    )
-  );
-
-  const difficulty =
-  aiDifficulty.value;
-
-
-  if(!description){
-
-    showAIStatus(
-      "error",
-      "請先描述想生成的題目內容。"
-    );
-
-    aiDescription.focus();
-
-    return;
-
-  }
-
-
-  if(!AI_ENDPOINT){
-
-    showAIStatus(
-      "error",
-      "AI 功能介面已完成，目前還差 AI 後端網址。完成下方 Cloudflare Worker 設定後即可使用。"
-    );
-
-    return;
-
-  }
-
-
-  aiGenerateBtn.disabled = true;
-
-  aiGenerateBtn.textContent =
-  "🤖 AI 正在出題...";
-
-
-  showAIStatus(
-    "loading",
-    `✨ AI 正在生成 ${count} 題，請稍候...`
-  );
-
-
-  try{
-
-    const response =
-    await fetch(
-      AI_ENDPOINT,
-      {
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
-
-        body:JSON.stringify({
-          description,
-          count,
-          difficulty
-        })
-      }
-    );
-
-
-    const data =
-    await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "AI 題目生成失敗"
-      );
-
-    }
-
-
-    if(
-      !Array.isArray(data.questions) ||
-      data.questions.length === 0
-    ){
-
-      throw new Error(
-        "AI 沒有回傳有效題目"
-      );
-
-    }
-
-
-    const cleanQuestions =
-    data.questions
-    .map(normalizeAIQuestion)
-    .filter(Boolean);
-
-
-    if(cleanQuestions.length === 0){
-
-      throw new Error(
-        "AI 回傳格式不正確"
-      );
-
-    }
-
-
-    questions =
-    cleanQuestions;
-
-
-    saveQuestions();
-
-    renderEditor();
-
-
-    showAIStatus(
-      "success",
-      `✅ AI 已生成 ${questions.length} 題！請先檢查題目，確認後再開始拔河。`
-    );
-
-
-    document
-    .querySelector(".editor-heading")
-    .scrollIntoView({
-      behavior:"smooth"
-    });
-
-
-  }catch(error){
-
-    console.error(error);
-
-    showAIStatus(
-      "error",
-      "❌ " + error.message
-    );
-
-  }finally{
-
-    aiGenerateBtn.disabled = false;
-
-    aiGenerateBtn.textContent =
-    "✨ AI 幫我出題";
-
-  }
-
-}
-
-
-function normalizeAIQuestion(q){
-
-  if(!q) return null;
-
-  const question =
-  String(
-    q.question || ""
-  ).trim();
-
-
-  const answers =
-  Array.isArray(q.answers)
-  ?
-  q.answers
-    .slice(0,4)
-    .map(a=>String(a).trim())
-  :
-  [];
-
-
-  let correct = q.correct;
-
-
-  if(
-    typeof correct === "string"
-  ){
-
-    const map = {
-      "A":0,
-      "B":1,
-      "C":2,
-      "D":3,
-      "1":0,
-      "2":1,
-      "3":2,
-      "4":3
-    };
-
-    correct =
-    map[
-      correct.trim().toUpperCase()
-    ];
-
-  }
-
-
-  correct = Number(correct);
-
-
-  if(
-    !question ||
-    answers.length !== 4 ||
-    answers.some(a=>!a) ||
-    !Number.isInteger(correct) ||
-    correct < 0 ||
-    correct > 3
-  ){
-
-    return null;
-
-  }
-
-
-  return {
-    question,
-    answers,
-    correct
-  };
-
-}
-
-
-function showAIStatus(
-type,
-text
-){
-
-  aiStatus.className = type;
-  aiStatus.textContent = text;
-
-}
-
-
-/* ======================================================
+/* =========================
    Google Sheet 匯入
-====================================================== */
+========================= */
 
 googleImportBtn.addEventListener(
 "click",
@@ -1806,16 +1451,13 @@ async function loadGoogleQuestions(){
     "☁️ 正在讀取 Google 雲端題庫..."
   );
 
-
   try{
 
     const url =
     `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
 
-
     const response =
     await fetch(url);
-
 
     if(!response.ok){
 
@@ -1825,18 +1467,14 @@ async function loadGoogleQuestions(){
 
     }
 
-
     const text =
     await response.text();
-
 
     const rows =
     parseCSV(text);
 
-
     const imported =
     convertRowsToQuestions(rows);
-
 
     if(imported.length === 0){
 
@@ -1846,28 +1484,24 @@ async function loadGoogleQuestions(){
 
     }
 
-
     questions = imported;
 
     saveQuestions();
 
     renderEditor();
 
-
     showImportStatus(
       "success",
       `✅ Google 題庫載入成功！共 ${questions.length} 題`
     );
 
-
   }catch(error){
 
     console.error(error);
 
-
     showImportStatus(
       "error",
-      "❌ 無法讀取 Google 題庫。請確認試算表權限為「知道連結的任何人：檢視者」，並確認欄位格式正確。"
+      "❌ 無法讀取 Google 題庫。請確認試算表已公開，並確認欄位格式正確。"
     );
 
   }
@@ -1875,18 +1509,19 @@ async function loadGoogleQuestions(){
 }
 
 
-/* ======================================================
-   CSV
-====================================================== */
+/* =========================
+   CSV 解析
+========================= */
 
 function parseCSV(text){
 
   const rows = [];
 
   let row = [];
-  let field = "";
-  let insideQuotes = false;
 
+  let field = "";
+
+  let insideQuotes = false;
 
   for(
     let i=0;
@@ -1896,7 +1531,6 @@ function parseCSV(text){
 
     const char = text[i];
 
-
     if(char === '"'){
 
       if(
@@ -1905,6 +1539,7 @@ function parseCSV(text){
       ){
 
         field += '"';
+
         i++;
 
       }else{
@@ -1922,6 +1557,7 @@ function parseCSV(text){
     ){
 
       row.push(field);
+
       field = "";
 
     }
@@ -1938,12 +1574,12 @@ function parseCSV(text){
         char === "\r" &&
         text[i+1] === "\n"
       ){
+
         i++;
+
       }
 
-
       row.push(field);
-
 
       if(
         row.some(
@@ -1956,8 +1592,8 @@ function parseCSV(text){
 
       }
 
-
       row = [];
+
       field = "";
 
     }
@@ -1970,9 +1606,7 @@ function parseCSV(text){
 
   }
 
-
   row.push(field);
-
 
   if(
     row.some(
@@ -1985,15 +1619,14 @@ function parseCSV(text){
 
   }
 
-
   return rows;
 
 }
 
 
-/* ======================================================
-   表格轉題庫
-====================================================== */
+/* =========================
+   表格轉成題庫
+========================= */
 
 function convertRowsToQuestions(rows){
 
@@ -2006,12 +1639,10 @@ function convertRowsToQuestions(rows){
 
   }
 
-
   const headers =
   rows[0].map(
     h=>normalizeHeader(h)
   );
-
 
   const questionIndex =
   findHeaderIndex(
@@ -2019,13 +1650,11 @@ function convertRowsToQuestions(rows){
     ["題目","question","問題"]
   );
 
-
   const aIndex =
   findHeaderIndex(
     headers,
     ["a","選項a","答案a"]
   );
-
 
   const bIndex =
   findHeaderIndex(
@@ -2033,20 +1662,17 @@ function convertRowsToQuestions(rows){
     ["b","選項b","答案b"]
   );
 
-
   const cIndex =
   findHeaderIndex(
     headers,
     ["c","選項c","答案c"]
   );
 
-
   const dIndex =
   findHeaderIndex(
     headers,
     ["d","選項d","答案d"]
   );
-
 
   const correctIndex =
   findHeaderIndex(
@@ -2058,7 +1684,6 @@ function convertRowsToQuestions(rows){
       "correctanswer"
     ]
   );
-
 
   if(
     questionIndex === -1 ||
@@ -2073,9 +1698,7 @@ function convertRowsToQuestions(rows){
 
   }
 
-
   const result = [];
-
 
   for(
     let i=1;
@@ -2085,24 +1708,25 @@ function convertRowsToQuestions(rows){
 
     const row = rows[i];
 
-
     const question =
     getCell(
       row,
       questionIndex
     );
 
-
     const answers = [
+
       getCell(row,aIndex),
+
       getCell(row,bIndex),
+
       getCell(row,cIndex),
+
       getCell(row,dIndex)
+
     ];
 
-
     if(!question) continue;
-
 
     if(
       answers.some(
@@ -2114,7 +1738,6 @@ function convertRowsToQuestions(rows){
 
     }
 
-
     const correctText =
     getCell(
       row,
@@ -2123,18 +1746,19 @@ function convertRowsToQuestions(rows){
     .trim()
     .toUpperCase();
 
-
     const correctMap = {
+
       "A":0,
       "B":1,
       "C":2,
       "D":3,
+
       "1":0,
       "2":1,
       "3":2,
       "4":3
-    };
 
+    };
 
     if(
       correctMap[correctText] ===
@@ -2145,12 +1769,11 @@ function convertRowsToQuestions(rows){
 
     }
 
-
     result.push({
 
-      question,
+      question:question,
 
-      answers,
+      answers:answers,
 
       correct:
       correctMap[correctText]
@@ -2158,7 +1781,6 @@ function convertRowsToQuestions(rows){
     });
 
   }
-
 
   return result;
 
@@ -2190,7 +1812,6 @@ possibilities
       normalizeHeader(possibility)
     );
 
-
     if(index !== -1){
 
       return index;
@@ -2198,7 +1819,6 @@ possibilities
     }
 
   }
-
 
   return -1;
 
@@ -2217,9 +1837,9 @@ index
 }
 
 
-/* ======================================================
-   Excel / CSV
-====================================================== */
+/* =========================
+   Excel / CSV 上傳
+========================= */
 
 fileInput.addEventListener(
 "change",
@@ -2228,20 +1848,16 @@ async event=>{
   const file =
   event.target.files[0];
 
-
   if(!file) return;
-
 
   showImportStatus(
     "loading",
     "📂 正在讀取題庫..."
   );
 
-
   try{
 
     let rows = [];
-
 
     if(
       file.name
@@ -2259,16 +1875,13 @@ async event=>{
       const data =
       await file.arrayBuffer();
 
-
       const workbook =
       XLSX.read(data);
-
 
       const sheet =
       workbook.Sheets[
         workbook.SheetNames[0]
       ];
-
 
       rows =
       XLSX.utils.sheet_to_json(
@@ -2281,10 +1894,8 @@ async event=>{
 
     }
 
-
     const imported =
     convertRowsToQuestions(rows);
-
 
     if(imported.length === 0){
 
@@ -2294,24 +1905,20 @@ async event=>{
 
     }
 
-
     questions = imported;
 
     saveQuestions();
 
     renderEditor();
 
-
     showImportStatus(
       "success",
       `✅ 題庫匯入成功！共 ${questions.length} 題`
     );
 
-
   }catch(error){
 
     console.error(error);
-
 
     showImportStatus(
       "error",
@@ -2319,7 +1926,6 @@ async event=>{
     );
 
   }
-
 
   event.target.value = "";
 
@@ -2332,14 +1938,15 @@ text
 ){
 
   importStatus.className = type;
+
   importStatus.textContent = text;
 
 }
 
 
-/* ======================================================
+/* =========================
    本機儲存
-====================================================== */
+========================= */
 
 function saveQuestions(){
 
@@ -2358,7 +1965,6 @@ function loadSavedQuestions(){
     "vietnameseTugQuestions"
   );
 
-
   if(saved){
 
     try{
@@ -2366,13 +1972,13 @@ function loadSavedQuestions(){
       const data =
       JSON.parse(saved);
 
-
       if(
         Array.isArray(data) &&
         data.length
       ){
 
         questions = data;
+
         return;
 
       }
@@ -2381,15 +1987,14 @@ function loadSavedQuestions(){
 
   }
 
-
   questions = [];
 
 }
 
 
-/* ======================================================
-   編輯器
-====================================================== */
+/* =========================
+   題目編輯器
+========================= */
 
 function createBlankQuestion(){
 
@@ -2427,10 +2032,8 @@ function renderEditor(){
 
   questionEditor.innerHTML = "";
 
-
   questionCount.textContent =
   `${questions.length} 題`;
-
 
   if(
     questions.length === 0
@@ -2446,8 +2049,7 @@ function renderEditor(){
 
         可以使用
         <strong>Google 試算表</strong>、
-        <strong>Excel</strong>、
-        <strong>AI 自動出題</strong>
+        <strong>Excel / CSV</strong>
         或
         <strong>手動新增</strong>。
 
@@ -2455,11 +2057,9 @@ function renderEditor(){
 
     `;
 
-
     return;
 
   }
-
 
   questions.forEach(
   (q,index)=>{
@@ -2467,14 +2067,11 @@ function renderEditor(){
     const card =
     document.createElement("div");
 
-
     card.className =
     "question-card";
 
-
     const letters =
     ["A","B","C","D"];
-
 
     card.innerHTML = `
 
@@ -2492,7 +2089,6 @@ function renderEditor(){
 
       </div>
 
-
       <label class="field-label">
         題目
       </label>
@@ -2502,11 +2098,9 @@ function renderEditor(){
         data-question="${index}"
         value="${escapeHTML(q.question)}">
 
-
       <label class="field-label">
         選項
       </label>
-
 
       <div class="answers-editor">
 
@@ -2549,11 +2143,11 @@ function renderEditor(){
 
     `;
 
-
-    questionEditor.appendChild(card);
+    questionEditor.appendChild(
+      card
+    );
 
   });
-
 
   bindEditorEvents();
 
@@ -2577,10 +2171,8 @@ function bindEditorEvents(){
         input.dataset.question
       );
 
-
       questions[index].question =
       input.value;
-
 
       saveQuestions();
 
@@ -2604,17 +2196,14 @@ function bindEditorEvents(){
         input.dataset.answerQuestion
       );
 
-
       const aIndex =
       Number(
         input.dataset.answerIndex
       );
 
-
       questions[qIndex]
       .answers[aIndex] =
       input.value;
-
 
       saveQuestions();
 
@@ -2638,16 +2227,13 @@ function bindEditorEvents(){
         radio.dataset.correctQuestion
       );
 
-
       const aIndex =
       Number(
         radio.dataset.correctIndex
       );
 
-
       questions[qIndex].correct =
       aIndex;
-
 
       saveQuestions();
 
@@ -2671,12 +2257,10 @@ function bindEditorEvents(){
         button.dataset.delete
       );
 
-
       questions.splice(
         index,
         1
       );
-
 
       saveQuestions();
 
@@ -2689,9 +2273,9 @@ function bindEditorEvents(){
 }
 
 
-/* ======================================================
-   手動新增
-====================================================== */
+/* =========================
+   新增 / 清空
+========================= */
 
 function addBlankQuestion(){
 
@@ -2699,11 +2283,9 @@ function addBlankQuestion(){
     createBlankQuestion()
   );
 
-
   saveQuestions();
 
   renderEditor();
-
 
   setTimeout(()=>{
 
@@ -2722,7 +2304,6 @@ addQuestionBtn.addEventListener(
 "click",
 addBlankQuestion
 );
-
 
 manualAddTopBtn.addEventListener(
 "click",
@@ -2744,7 +2325,6 @@ clearQuestionsBtn.addEventListener(
 
   }
 
-
   questions = [];
 
   saveQuestions();
@@ -2754,9 +2334,9 @@ clearQuestionsBtn.addEventListener(
 });
 
 
-/* ======================================================
+/* =========================
    開始遊戲
-====================================================== */
+========================= */
 
 startGameBtn.addEventListener(
 "click",
@@ -2770,46 +2350,37 @@ startGameBtn.addEventListener(
 
   }
 
-
   saveQuestions();
 
   stopAllSounds();
 
-
   currentQuestion = 0;
+
   ropePosition = 0;
 
   redAnswer = null;
+
   blueAnswer = null;
 
   gamePaused = false;
+
   roundFinished = false;
 
-  totalPauseTime = 0;
   pauseStartedAt = null;
 
-
-  tugImage.style.setProperty(
-    "--x",
-    "0vw"
-  );
-
+  totalPauseTime = 0;
 
   tugImage.style.transform =
   "translateX(0)";
 
-
   setupScreen.style.display =
   "none";
-
 
   gameScreen.style.display =
   "block";
 
-
   document.body.style.overflow =
   "hidden";
-
 
   startBGM();
 
@@ -2832,15 +2403,14 @@ function validateQuestions(){
 
   }
 
-
   for(
     let i=0;
     i<questions.length;
     i++
   ){
 
-    const q = questions[i];
-
+    const q =
+    questions[i];
 
     if(
       !String(q.question).trim()
@@ -2853,7 +2423,6 @@ function validateQuestions(){
       return false;
 
     }
-
 
     if(
       q.answers.some(
@@ -2872,67 +2441,60 @@ function validateQuestions(){
 
   }
 
-
   return true;
 
 }
 
 
-/* ======================================================
+/* =========================
    載入題目
-====================================================== */
+========================= */
 
 function loadQuestion(){
 
-  clearInterval(timerInterval);
-
+  clearInterval(
+    timerInterval
+  );
 
   countdownSound.pause();
 
   countdownSound.currentTime = 0;
 
-
   roundFinished = false;
 
-
   redAnswer = null;
+
   blueAnswer = null;
 
   redTime = null;
+
   blueTime = null;
 
-
-  totalPauseTime = 0;
   pauseStartedAt = null;
 
+  totalPauseTime = 0;
 
-  timeLeft = QUESTION_TIME;
-
+  timeLeft =
+  QUESTION_TIME;
 
   const q =
   questions[currentQuestion];
 
-
   questionEl.textContent =
   q.question;
-
 
   progressEl.textContent =
   `Câu ${currentQuestion+1}/${questions.length}`;
 
-
   timerEl.textContent =
   timeLeft;
-
 
   timerEl.style.background =
   "#ef3340";
 
-
   timerEl.classList.remove(
     "danger"
   );
-
 
   createAnswers(
     redAnswersEl,
@@ -2940,44 +2502,39 @@ function loadQuestion(){
     q
   );
 
-
   createAnswers(
     blueAnswersEl,
     "blue",
     q
   );
 
-
   questionStartTime =
   performance.now();
-
 
   startTimer();
 
 }
 
 
-/* ======================================================
-   計時器
-====================================================== */
+/* =========================
+   倒數
+========================= */
 
 function startTimer(){
 
-  clearInterval(timerInterval);
-
+  clearInterval(
+    timerInterval
+  );
 
   timerInterval =
   setInterval(()=>{
 
     if(gamePaused) return;
 
-
     timeLeft--;
-
 
     timerEl.textContent =
     timeLeft;
-
 
     if(
       timeLeft <= 5
@@ -2986,13 +2543,11 @@ function startTimer(){
       timerEl.style.background =
       "#ff6500";
 
-
       timerEl.classList.add(
         "danger"
       );
 
     }
-
 
     if(
       timeLeft === 5
@@ -3004,7 +2559,6 @@ function startTimer(){
 
     }
 
-
     if(
       timeLeft <= 0
     ){
@@ -3013,20 +2567,18 @@ function startTimer(){
         timerInterval
       );
 
-
       finishRound();
 
     }
-
 
   },1000);
 
 }
 
 
-/* ======================================================
-   答案
-====================================================== */
+/* =========================
+   建立答案
+========================= */
 
 function createAnswers(
 container,
@@ -3036,10 +2588,8 @@ q
 
   container.innerHTML = "";
 
-
   const letters =
   ["A","B","C","D"];
-
 
   q.answers.forEach(
   (answer,index)=>{
@@ -3049,14 +2599,11 @@ q
       "button"
     );
 
-
     button.className =
     "answer-btn";
 
-
     button.innerHTML =
     `<strong>${letters[index]}.</strong> ${escapeHTML(answer)}`;
-
 
     button.addEventListener(
     "click",
@@ -3065,7 +2612,6 @@ q
       index,
       button
     ));
-
 
     container.appendChild(
       button
@@ -3076,9 +2622,9 @@ q
 }
 
 
-/* ======================================================
+/* =========================
    作答
-====================================================== */
+========================= */
 
 function getAnswerTime(){
 
@@ -3106,10 +2652,8 @@ button
 
   }
 
-
   const answerTime =
   getAnswerTime();
-
 
   if(team === "red"){
 
@@ -3121,23 +2665,19 @@ button
 
     }
 
-
     redAnswer = index;
 
     redTime = answerTime;
 
-
     lockTeam(
       redAnswersEl
     );
-
 
     button.classList.add(
       "selected"
     );
 
   }
-
 
   if(team === "blue"){
 
@@ -3149,23 +2689,19 @@ button
 
     }
 
-
     blueAnswer = index;
 
     blueTime = answerTime;
 
-
     lockTeam(
       blueAnswersEl
     );
-
 
     button.classList.add(
       "selected"
     );
 
   }
-
 
   if(
     redAnswer !== null &&
@@ -3192,49 +2728,40 @@ function lockTeam(container){
 }
 
 
-/* ======================================================
+/* =========================
    判定
-====================================================== */
+========================= */
 
 function finishRound(){
 
   if(roundFinished) return;
 
-
   roundFinished = true;
-
 
   clearInterval(
     timerInterval
   );
 
-
   countdownSound.pause();
 
   countdownSound.currentTime = 0;
-
 
   timerEl.classList.remove(
     "danger"
   );
 
-
   const q =
   questions[currentQuestion];
-
 
   revealAnswers(
     q.correct
   );
 
-
   const redCorrect =
   redAnswer === q.correct;
 
-
   const blueCorrect =
   blueAnswer === q.correct;
-
 
   if(
     redCorrect &&
@@ -3245,16 +2772,13 @@ function finishRound(){
       correctSound
     );
 
-
     showStatus(
       "🔴 ĐỘI ĐỎ KÉO!"
     );
 
-
     moveTug(-1);
 
   }
-
 
   else if(
     blueCorrect &&
@@ -3265,16 +2789,13 @@ function finishRound(){
       correctSound
     );
 
-
     showStatus(
       "ĐỘI XANH KÉO! 🔵"
     );
 
-
     moveTug(1);
 
   }
-
 
   else if(
     redCorrect &&
@@ -3285,12 +2806,10 @@ function finishRound(){
       correctSound
     );
 
-
     const difference =
     Math.abs(
       redTime - blueTime
     );
-
 
     if(
       difference < 50
@@ -3302,7 +2821,6 @@ function finishRound(){
 
     }
 
-
     else if(
       redTime < blueTime
     ){
@@ -3311,11 +2829,9 @@ function finishRound(){
         "⚡ ĐỘI ĐỎ NHANH HƠN!"
       );
 
-
       moveTug(-1);
 
     }
-
 
     else{
 
@@ -3323,13 +2839,11 @@ function finishRound(){
         "⚡ ĐỘI XANH NHANH HƠN!"
       );
 
-
       moveTug(1);
 
     }
 
   }
-
 
   else{
 
@@ -3337,13 +2851,11 @@ function finishRound(){
       wrongSound
     );
 
-
     showStatus(
       "😅 KHÔNG ĐỘI NÀO KÉO!"
     );
 
   }
-
 
   if(
     ropePosition <=
@@ -3359,7 +2871,6 @@ function finishRound(){
 
   }
 
-
   if(
     ropePosition >=
     WIN_SCORE
@@ -3374,36 +2885,38 @@ function finishRound(){
 
   }
 
-
   setTimeout(()=>{
 
     if(gamePaused) return;
 
-
-    currentQuestion++;
-
-
-    if(
-      currentQuestion >=
-      questions.length
-    ){
-
-      currentQuestion = 0;
-
-    }
-
-
-    loadQuestion();
-
+    nextQuestion();
 
   },2200);
 
 }
 
 
-/* ======================================================
-   顯示答案
-====================================================== */
+function nextQuestion(){
+
+  currentQuestion++;
+
+  if(
+    currentQuestion >=
+    questions.length
+  ){
+
+    currentQuestion = 0;
+
+  }
+
+  loadQuestion();
+
+}
+
+
+/* =========================
+   顯示正確答案
+========================= */
 
 function revealAnswers(correct){
 
@@ -3418,12 +2931,10 @@ function revealAnswers(correct){
       "button"
     );
 
-
     buttons.forEach(
     (button,index)=>{
 
       button.disabled = true;
-
 
       if(index === correct){
 
@@ -3437,7 +2948,6 @@ function revealAnswers(correct){
 
   });
 
-
   if(
     redAnswer !== null &&
     redAnswer !== correct
@@ -3450,7 +2960,6 @@ function revealAnswers(correct){
     );
 
   }
-
 
   if(
     blueAnswer !== null &&
@@ -3468,68 +2977,35 @@ function revealAnswers(correct){
 }
 
 
-/* ======================================================
-   拔河
-====================================================== */
+/* =========================
+   拔河移動
+========================= */
 
 function moveTug(direction){
 
   ropePosition += direction;
 
-
   const position =
   ropePosition * STEP;
-
-
-  tugImage.style.setProperty(
-    "--x",
-    position+"vw"
-  );
-
 
   tugImage.style.transform =
   `translateX(${position}vw)`;
 
-
-  tugImage.classList.remove(
-    "pull-left",
-    "pull-right"
-  );
-
-
-  void tugImage.offsetWidth;
-
-
-  if(direction < 0){
-
-    tugImage.classList.add(
-      "pull-left"
-    );
-
-  }else{
-
-    tugImage.classList.add(
-      "pull-right"
-    );
-
-  }
-
 }
 
 
-/* ======================================================
-   狀態提示
-====================================================== */
+/* =========================
+   狀態文字
+========================= */
 
 function showStatus(text){
 
-  statusEl.textContent = text;
-
+  statusEl.textContent =
+  text;
 
   statusEl.classList.add(
     "show"
   );
-
 
   setTimeout(()=>{
 
@@ -3542,9 +3018,9 @@ function showStatus(text){
 }
 
 
-/* ======================================================
+/* =========================
    勝利
-====================================================== */
+========================= */
 
 function showWinner(team){
 
@@ -3552,32 +3028,29 @@ function showWinner(team){
     timerInterval
   );
 
-
   bgm.pause();
+
   bgm.currentTime = 0;
 
-
   countdownSound.pause();
+
   countdownSound.currentTime = 0;
 
-
   correctSound.pause();
+
   correctSound.currentTime = 0;
 
-
   wrongSound.pause();
-  wrongSound.currentTime = 0;
 
+  wrongSound.currentTime = 0;
 
   playSound(
     winSound
   );
 
-
   winnerScreen.classList.add(
     "show"
   );
-
 
   winnerText.textContent =
   team === "red"
@@ -3589,9 +3062,9 @@ function showWinner(team){
 }
 
 
-/* ======================================================
-   再玩
-====================================================== */
+/* =========================
+   再玩一次
+========================= */
 
 restartBtn.addEventListener(
 "click",
@@ -3603,43 +3076,32 @@ function restartGame(){
 
   stopAllSounds();
 
-
   clearInterval(
     timerInterval
   );
-
 
   currentQuestion = 0;
 
   ropePosition = 0;
 
-
   redAnswer = null;
+
   blueAnswer = null;
 
-
   gamePaused = false;
+
   roundFinished = false;
 
-
-  totalPauseTime = 0;
   pauseStartedAt = null;
 
-
-  tugImage.style.setProperty(
-    "--x",
-    "0vw"
-  );
-
+  totalPauseTime = 0;
 
   tugImage.style.transform =
   "translateX(0)";
 
-
   winnerScreen.classList.remove(
     "show"
   );
-
 
   startBGM();
 
@@ -3648,9 +3110,9 @@ function restartGame(){
 }
 
 
-/* ======================================================
+/* =========================
    回題庫
-====================================================== */
+========================= */
 
 editQuestionsBtn.addEventListener(
 "click",
@@ -3658,39 +3120,30 @@ returnToSetup
 );
 
 
-/* ======================================================
-   暫停 / 停止
-====================================================== */
+/* =========================
+   停止遊戲
+========================= */
 
 stopBtn.addEventListener(
 "click",
 ()=>{
 
-  if(
-    roundFinished
-  ){
+  gamePaused = true;
 
-    gamePaused = true;
-
-  }else{
-
-    gamePaused = true;
+  if(!roundFinished){
 
     pauseStartedAt =
     performance.now();
 
   }
 
-
   clearInterval(
     timerInterval
   );
 
-
   bgm.pause();
 
   countdownSound.pause();
-
 
   stopModal.classList.add(
     "show"
@@ -3707,7 +3160,6 @@ continueBtn.addEventListener(
     "show"
   );
 
-
   if(
     pauseStartedAt !== null
   ){
@@ -3716,19 +3168,27 @@ continueBtn.addEventListener(
     performance.now() -
     pauseStartedAt;
 
-
     pauseStartedAt = null;
 
   }
 
-
   gamePaused = false;
-
 
   startBGM();
 
+  /*
+    如果是在作答中暫停：
+    繼續原本倒數。
 
-  if(!roundFinished){
+    如果是在公布答案時暫停：
+    直接進下一題，避免卡住。
+  */
+
+  if(roundFinished){
+
+    nextQuestion();
+
+  }else{
 
     startTimer();
 
@@ -3745,7 +3205,6 @@ endGameBtn.addEventListener(
     "show"
   );
 
-
   returnToSetup();
 
 });
@@ -3757,51 +3216,41 @@ function returnToSetup(){
     timerInterval
   );
 
-
   stopAllSounds();
-
 
   winnerScreen.classList.remove(
     "show"
   );
 
-
-  gamePaused = false;
-  roundFinished = false;
-
-
-  currentQuestion = 0;
-  ropePosition = 0;
-
-
-  totalPauseTime = 0;
-  pauseStartedAt = null;
-
-
-  tugImage.style.setProperty(
-    "--x",
-    "0vw"
+  stopModal.classList.remove(
+    "show"
   );
 
+  gamePaused = false;
+
+  roundFinished = false;
+
+  currentQuestion = 0;
+
+  ropePosition = 0;
+
+  pauseStartedAt = null;
+
+  totalPauseTime = 0;
 
   tugImage.style.transform =
   "translateX(0)";
 
-
   gameScreen.style.display =
   "none";
-
 
   setupScreen.style.display =
   "block";
 
-
   document.body.style.overflow =
   "auto";
 
-
   renderEditor();
-
 
   window.scrollTo({
     top:0,
@@ -3811,19 +3260,15 @@ function returnToSetup(){
 }
 
 
-/* ======================================================
+/* =========================
    啟動
-====================================================== */
+========================= */
 
 loadSavedQuestions();
 
 renderEditor();
 
-tugImage.style.setProperty(
-  "--x",
-  "0vw"
-);
-
 </script>
+
 </body>
 </html>
