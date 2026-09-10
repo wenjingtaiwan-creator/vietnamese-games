@@ -144,55 +144,47 @@ body{
 }
 
 /* 紅隊 */
-
 .red-team{
   position:absolute;
-  height:74%;
-  width:auto;
-  left:2%;
-  bottom:2%;
-  z-index:4;
-  object-fit:contain;
-  filter:drop-shadow(0 5px 5px rgba(0,0,0,.18));
-}
-
-
-/* =========================
-   藍隊
-========================= */
-
-.blue-team{
-  position:absolute;
-  height:74%;
-  width:auto;
-  right:2%;
-  bottom:2%;
-  z-index:4;
-  object-fit:contain;
-  filter:drop-shadow(0 5px 5px rgba(0,0,0,.18));
-}
-
-
-/* =========================
-   繩子
-========================= */
-
-.rope{
-  position:absolute;
-
-  /* 比人物更寬，讓兩端超出隊伍 */
-  width:98%;
+  width:45%;
   height:auto;
 
   left:1%;
+  bottom:3%;
 
-  /* 關鍵：從地面往上定位 */
-  bottom:29%;
+  z-index:4;
+  object-fit:contain;
+}
+
+/* 藍隊 */
+.blue-team{
+  position:absolute;
+  width:45%;
+  height:auto;
+
+  right:1%;
+  bottom:3%;
+
+  z-index:4;
+  object-fit:contain;
+}
+
+/* 拔河繩 */
+.rope{
+  position:absolute;
+
+  width:96%;
+  height:auto;
+
+  left:2%;
+
+  /* 先直接對準拳頭 */
+  top:62%;
+
+  transform:translateY(-50%);
 
   z-index:5;
   pointer-events:none;
-
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));
 }
 /* =========================
    隊伍名稱
