@@ -26,21 +26,15 @@ body{
   align-items:center;
 }
 
-/* =========================
-   整個遊戲
-========================= */
-
 #game{
   width:100vw;
   height:100vh;
   display:grid;
   grid-template-rows:18% 49% 33%;
-  background:white;
+  background:#fff;
 }
 
-/* =========================
-   題目區
-========================= */
+/* ===== 題目區 ===== */
 
 .question-area{
   position:relative;
@@ -80,7 +74,7 @@ body{
   justify-content:center;
   align-items:center;
   background:#ef3340;
-  color:white;
+  color:#fff;
   font-size:36px;
   font-weight:900;
   box-shadow:0 5px 15px rgba(0,0,0,.15);
@@ -96,9 +90,7 @@ body{
   font-weight:700;
 }
 
-/* =========================
-   拔河場景
-========================= */
+/* ===== 場景 ===== */
 
 .arena{
   position:relative;
@@ -114,9 +106,9 @@ body{
   position:absolute;
   left:50%;
   bottom:0;
-  height:50%;
+  height:52%;
   width:5px;
-  background:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.92);
   transform:translateX(-50%);
   z-index:2;
 }
@@ -130,67 +122,61 @@ body{
   width:18px;
   height:18px;
   border-radius:50%;
-  background:white;
+  background:#fff;
 }
 
-/* =========================
-   拔河系統
-========================= */
+/* ===== 完整拔河圖 ===== */
 
-.tug-system{
+.tug-wrap{
   position:absolute;
   inset:0;
-  transition:transform .75s cubic-bezier(.22,1.35,.36,1);
-}
-
-/* 紅隊 */
-.red-team{
-  position:absolute;
-  width:45%;
-  height:auto;
-
-  left:1%;
-  bottom:3%;
-
-  z-index:4;
-  object-fit:contain;
-}
-
-/* 藍隊 */
-.blue-team{
-  position:absolute;
-  width:45%;
-  height:auto;
-
-  right:1%;
-  bottom:3%;
-
-  z-index:4;
-  object-fit:contain;
-}
-
-/* 拔河繩 */
-.rope{
-  position:absolute;
-  width:96%;
-  height:auto;
-  left:2%;
-
-  top:68;
-
-  transform:translateY(-50%);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
   z-index:5;
   pointer-events:none;
 }
-/* =========================
-   隊伍名稱
-========================= */
+
+.tug-image{
+  width:96%;
+  height:auto;
+  max-height:88%;
+  object-fit:contain;
+  object-position:center bottom;
+  transform:translateX(0);
+  transition:transform .55s cubic-bezier(.22,1,.36,1);
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.16));
+}
+
+/* 拉動效果 */
+
+.tug-image.pull-left{
+  animation:pullLeft .5s ease;
+}
+
+.tug-image.pull-right{
+  animation:pullRight .5s ease;
+}
+
+@keyframes pullLeft{
+  0%{transform:translateX(var(--x));}
+  40%{transform:translateX(calc(var(--x) - 18px));}
+  100%{transform:translateX(var(--x));}
+}
+
+@keyframes pullRight{
+  0%{transform:translateX(var(--x));}
+  40%{transform:translateX(calc(var(--x) + 18px));}
+  100%{transform:translateX(var(--x));}
+}
+
+/* ===== 隊伍名稱 ===== */
 
 .team-label{
   position:absolute;
   bottom:4%;
   padding:9px 25px;
-  color:white;
+  color:#fff;
   border-radius:30px;
   font-weight:900;
   font-size:clamp(14px,1.5vw,25px);
@@ -208,35 +194,29 @@ body{
   background:#287ce0;
 }
 
-/* =========================
-   拉動動畫
-========================= */
+/* ===== 狀態提示 ===== */
 
-.pull-red{
-  animation:redPull .7s ease;
+.status{
+  position:absolute;
+  top:5%;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  background:rgba(255,255,255,.95);
+  padding:8px 20px;
+  border-radius:30px;
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 3px 12px rgba(0,0,0,.14);
+  opacity:0;
+  transition:.25s;
 }
 
-.pull-blue{
-  animation:bluePull .7s ease;
+.status.show{
+  opacity:1;
 }
 
-@keyframes redPull{
-  0%{transform:translateX(var(--rope-x));}
-  35%{transform:translateX(calc(var(--rope-x) - 20px));}
-  60%{transform:translateX(calc(var(--rope-x) + 7px));}
-  100%{transform:translateX(var(--rope-x));}
-}
-
-@keyframes bluePull{
-  0%{transform:translateX(var(--rope-x));}
-  35%{transform:translateX(calc(var(--rope-x) + 20px));}
-  60%{transform:translateX(calc(var(--rope-x) - 7px));}
-  100%{transform:translateX(var(--rope-x));}
-}
-
-/* =========================
-   答題區
-========================= */
+/* ===== 答題區 ===== */
 
 .answers{
   display:grid;
@@ -278,7 +258,7 @@ body{
 .answer-btn{
   min-height:58px;
   border-radius:15px;
-  background:white;
+  background:#fff;
   font-size:clamp(14px,1.35vw,22px);
   font-weight:800;
   cursor:pointer;
@@ -298,7 +278,6 @@ body{
 
 .answer-btn:hover{
   transform:translateY(-2px);
-  box-shadow:0 5px 12px rgba(0,0,0,.12);
 }
 
 .answer-btn:active{
@@ -327,90 +306,44 @@ body{
   cursor:default;
 }
 
-/* =========================
-   狀態訊息
-========================= */
-
-.status{
-  position:absolute;
-  top:5%;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:20;
-
-  background:rgba(255,255,255,.93);
-  padding:8px 20px;
-  border-radius:30px;
-
-  font-size:18px;
-  font-weight:900;
-
-  box-shadow:0 3px 12px rgba(0,0,0,.14);
-
-  opacity:0;
-  transition:.25s;
-}
-
-.status.show{
-  opacity:1;
-}
-
-/* =========================
-   勝利畫面
-========================= */
+/* ===== 勝利畫面 ===== */
 
 #winnerScreen{
   position:fixed;
   inset:0;
-  background:rgba(10,20,35,.82);
+  background:rgba(10,20,35,.84);
   z-index:100;
-
   display:none;
   justify-content:center;
   align-items:center;
   flex-direction:column;
-
-  color:white;
+  color:#fff;
   text-align:center;
 }
 
 #winnerScreen.show{
   display:flex;
-  animation:fadeIn .35s ease;
 }
 
 #winnerEmoji{
   font-size:100px;
-  animation:bounce 1s infinite;
 }
 
 #winnerText{
   font-size:clamp(40px,6vw,90px);
-  font-weight:1000;
+  font-weight:900;
   margin:15px;
 }
 
 .restart{
   border:none;
-  background:white;
+  background:#fff;
   padding:15px 35px;
   border-radius:30px;
   font-size:20px;
   font-weight:900;
   cursor:pointer;
 }
-
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
-
-@keyframes bounce{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-18px);}
-}
-
-/* 小螢幕 */
 
 @media(max-width:800px){
 
@@ -443,6 +376,11 @@ body{
   .answer-btn{
     min-height:48px;
   }
+
+  .tug-image{
+    width:98%;
+    max-height:90%;
+  }
 }
 </style>
 </head>
@@ -450,8 +388,6 @@ body{
 <body>
 
 <div id="game">
-
-  <!-- 題目 -->
 
   <header class="question-area">
 
@@ -473,9 +409,6 @@ body{
 
   </header>
 
-
-  <!-- 遊戲場景 -->
-
   <main class="arena">
 
     <div class="center-line"></div>
@@ -484,26 +417,13 @@ body{
       Chuẩn bị!
     </div>
 
-    <div class="tug-system" id="tugSystem">
-
+    <div class="tug-wrap">
       <img
-        src="assets/red-team.png"
-        class="red-team"
-        alt="Red Team"
+        src="assets/tug-war.png"
+        class="tug-image"
+        id="tugImage"
+        alt="Vietnamese Tug of War"
       >
-
-      <img
-        src="assets/rope.png"
-        class="rope"
-        alt="Tug of war rope"
-      >
-
-      <img
-        src="assets/blue-team.png"
-        class="blue-team"
-        alt="Blue Team"
-      >
-
     </div>
 
     <div class="team-label red-label">
@@ -516,9 +436,6 @@ body{
 
   </main>
 
-
-  <!-- 答題 -->
-
   <section class="answers">
 
     <div class="team-panel red-panel">
@@ -530,7 +447,6 @@ body{
       <div class="answer-grid" id="redAnswers"></div>
 
     </div>
-
 
     <div class="team-panel blue-panel">
 
@@ -546,9 +462,6 @@ body{
 
 </div>
 
-
-<!-- 勝利畫面 -->
-
 <div id="winnerScreen">
 
   <div id="winnerEmoji">
@@ -559,19 +472,15 @@ body{
     ĐỘI ĐỎ THẮNG!
   </div>
 
-  <button class="restart" onclick="restartGame()">
+  <button class="restart" id="restartBtn">
     Chơi lại
   </button>
 
 </div>
 
-
 <script>
 
-/* =====================================================
-   題庫
-   之後只要修改這裡即可
-===================================================== */
+/* ===== 題庫 ===== */
 
 const questions = [
 
@@ -644,33 +553,18 @@ const questions = [
 ];
 
 
-/* =====================================================
-   遊戲設定
-===================================================== */
+/* ===== 遊戲設定 ===== */
 
 const QUESTION_TIME = 20;
-
-/*
-需要拉幾格才勝利
-5 = 紅隊拉到 -5 或藍隊拉到 +5
-*/
-
 const WIN_SCORE = 5;
 
-/*
-每一格移動多少
-使用 vw 可以跟著螢幕大小調整
-*/
-
-const STEP = 4;
+/* 每答對一題，整張拔河圖移動的距離 */
+const STEP = 2.8;
 
 
-/* =====================================================
-   遊戲狀態
-===================================================== */
+/* ===== 遊戲狀態 ===== */
 
 let currentQuestion = 0;
-
 let ropePosition = 0;
 
 let redAnswer = null;
@@ -682,15 +576,12 @@ let blueTime = null;
 let questionStartTime = null;
 
 let timeLeft = QUESTION_TIME;
-
 let timerInterval = null;
 
 let roundFinished = false;
 
 
-/* =====================================================
-   DOM
-===================================================== */
+/* ===== DOM ===== */
 
 const questionEl =
 document.getElementById("question");
@@ -707,8 +598,8 @@ document.getElementById("redAnswers");
 const blueAnswersEl =
 document.getElementById("blueAnswers");
 
-const tugSystem =
-document.getElementById("tugSystem");
+const tugImage =
+document.getElementById("tugImage");
 
 const statusEl =
 document.getElementById("status");
@@ -719,52 +610,53 @@ document.getElementById("winnerScreen");
 const winnerText =
 document.getElementById("winnerText");
 
+const restartBtn =
+document.getElementById("restartBtn");
 
-/* =====================================================
-   載入題目
-===================================================== */
+
+/* ===== 載入題目 ===== */
 
 function loadQuestion(){
 
   clearInterval(timerInterval);
 
-  roundFinished=false;
+  roundFinished = false;
 
-  redAnswer=null;
-  blueAnswer=null;
+  redAnswer = null;
+  blueAnswer = null;
 
-  redTime=null;
-  blueTime=null;
+  redTime = null;
+  blueTime = null;
 
-  timeLeft=QUESTION_TIME;
+  timeLeft = QUESTION_TIME;
 
-  const q=questions[currentQuestion];
+  const q = questions[currentQuestion];
 
-  questionEl.textContent=q.question;
+  questionEl.textContent = q.question;
 
-  progressEl.textContent=
-  `Câu ${currentQuestion+1}/${questions.length}`;
+  progressEl.textContent =
+  `Câu ${currentQuestion + 1}/${questions.length}`;
 
-  timerEl.textContent=timeLeft;
+  timerEl.textContent = timeLeft;
 
   createAnswers(redAnswersEl,"red",q);
   createAnswers(blueAnswersEl,"blue",q);
 
-  questionStartTime=performance.now();
+  questionStartTime = performance.now();
 
-  timerInterval=setInterval(()=>{
+  timerInterval = setInterval(()=>{
 
     timeLeft--;
 
-    timerEl.textContent=timeLeft;
+    timerEl.textContent = timeLeft;
 
-    if(timeLeft<=5){
-      timerEl.style.background="#ff7a00";
+    if(timeLeft <= 5){
+      timerEl.style.background = "#ff7a00";
     }else{
-      timerEl.style.background="#ef3340";
+      timerEl.style.background = "#ef3340";
     }
 
-    if(timeLeft<=0){
+    if(timeLeft <= 0){
 
       clearInterval(timerInterval);
 
@@ -777,30 +669,28 @@ function loadQuestion(){
 }
 
 
-/* =====================================================
-   建立答案按鈕
-===================================================== */
+/* ===== 建立答案 ===== */
 
 function createAnswers(container,team,q){
 
-  container.innerHTML="";
+  container.innerHTML = "";
 
-  const letters=["A","B","C","D"];
+  const letters = ["A","B","C","D"];
 
   q.answers.forEach((answer,index)=>{
 
-    const button=document.createElement("button");
+    const button =
+    document.createElement("button");
 
-    button.className="answer-btn";
+    button.className = "answer-btn";
 
-    button.innerHTML=
+    button.innerHTML =
     `<strong>${letters[index]}.</strong> ${answer}`;
 
-    button.onclick=()=>{
-
-      chooseAnswer(team,index,button);
-
-    };
+    button.addEventListener(
+      "click",
+      ()=>chooseAnswer(team,index,button)
+    );
 
     container.appendChild(button);
 
@@ -809,50 +699,42 @@ function createAnswers(container,team,q){
 }
 
 
-/* =====================================================
-   作答
-===================================================== */
+/* ===== 作答 ===== */
 
 function chooseAnswer(team,index,button){
 
   if(roundFinished) return;
 
-  const now=
-  performance.now()-questionStartTime;
+  const answerTime =
+  performance.now() - questionStartTime;
 
-  if(team==="red"){
+  if(team === "red"){
 
-    if(redAnswer!==null) return;
+    if(redAnswer !== null) return;
 
-    redAnswer=index;
-    redTime=now;
+    redAnswer = index;
+    redTime = answerTime;
 
-    lockTeam("red");
-
+    lockTeam(redAnswersEl);
     button.classList.add("selected");
 
   }
 
-  if(team==="blue"){
+  if(team === "blue"){
 
-    if(blueAnswer!==null) return;
+    if(blueAnswer !== null) return;
 
-    blueAnswer=index;
-    blueTime=now;
+    blueAnswer = index;
+    blueTime = answerTime;
 
-    lockTeam("blue");
-
+    lockTeam(blueAnswersEl);
     button.classList.add("selected");
 
   }
-
-  /*
-  兩隊都作答後立即判定
-  */
 
   if(
-    redAnswer!==null &&
-    blueAnswer!==null
+    redAnswer !== null &&
+    blueAnswer !== null
   ){
 
     finishRound();
@@ -862,56 +744,45 @@ function chooseAnswer(team,index,button){
 }
 
 
-/* =====================================================
-   鎖定單隊答案
-===================================================== */
+/* ===== 鎖定答案 ===== */
 
-function lockTeam(team){
-
-  const container=
-  team==="red"
-  ? redAnswersEl
-  : blueAnswersEl;
+function lockTeam(container){
 
   container
   .querySelectorAll("button")
-  .forEach(btn=>btn.disabled=true);
+  .forEach(btn=>{
+    btn.disabled = true;
+  });
 
 }
 
 
-/* =====================================================
-   本回合結束
-===================================================== */
+/* ===== 回合判定 ===== */
 
 function finishRound(){
 
   if(roundFinished) return;
 
-  roundFinished=true;
+  roundFinished = true;
 
   clearInterval(timerInterval);
 
-  const q=questions[currentQuestion];
+  const q = questions[currentQuestion];
 
   revealAnswers(q.correct);
 
-  const redCorrect=
-  redAnswer===q.correct;
+  const redCorrect =
+  redAnswer === q.correct;
 
-  const blueCorrect=
-  blueAnswer===q.correct;
+  const blueCorrect =
+  blueAnswer === q.correct;
 
-
-  /* =========================
-     判定
-  ========================= */
 
   if(redCorrect && !blueCorrect){
 
     showStatus("🔴 ĐỘI ĐỎ KÉO!");
 
-    moveRope(-1);
+    moveTug(-1);
 
   }
 
@@ -919,35 +790,26 @@ function finishRound(){
 
     showStatus("ĐỘI XANH KÉO! 🔵");
 
-    moveRope(1);
+    moveTug(1);
 
   }
 
   else if(redCorrect && blueCorrect){
 
-    /*
-    兩隊都正確
-    比速度
-    */
+    const difference =
+    Math.abs(redTime - blueTime);
 
-    const difference=
-    Math.abs(redTime-blueTime);
+    if(difference < 50){
 
-    /*
-    50毫秒內視為平手
-    */
-
-    if(difference<50){
-
-      showStatus("⚡ HÒA! CẢ HAI QUÁ NHANH!");
+      showStatus("⚡ HÒA!");
 
     }
 
-    else if(redTime<blueTime){
+    else if(redTime < blueTime){
 
       showStatus("⚡ ĐỘI ĐỎ NHANH HƠN!");
 
-      moveRope(-1);
+      moveTug(-1);
 
     }
 
@@ -955,7 +817,7 @@ function finishRound(){
 
       showStatus("⚡ ĐỘI XANH NHANH HƠN!");
 
-      moveRope(1);
+      moveTug(1);
 
     }
 
@@ -968,50 +830,36 @@ function finishRound(){
   }
 
 
-  /* =========================
-     勝負判斷
-  ========================= */
-
-  if(ropePosition<=-WIN_SCORE){
+  if(ropePosition <= -WIN_SCORE){
 
     setTimeout(
       ()=>showWinner("red"),
-      1100
+      900
     );
 
     return;
 
   }
 
-  if(ropePosition>=WIN_SCORE){
+  if(ropePosition >= WIN_SCORE){
 
     setTimeout(
       ()=>showWinner("blue"),
-      1100
+      900
     );
 
     return;
 
   }
 
-
-  /* =========================
-     下一題
-  ========================= */
 
   setTimeout(()=>{
 
     currentQuestion++;
 
-    /*
-    題庫用完
-    從第一題重新開始
-    直到有人真的把繩子拉過去
-    */
+    if(currentQuestion >= questions.length){
 
-    if(currentQuestion>=questions.length){
-
-      currentQuestion=0;
+      currentQuestion = 0;
 
     }
 
@@ -1022,9 +870,7 @@ function finishRound(){
 }
 
 
-/* =====================================================
-   顯示答案
-===================================================== */
+/* ===== 顯示答案 ===== */
 
 function revealAnswers(correct){
 
@@ -1033,33 +879,26 @@ function revealAnswers(correct){
     blueAnswersEl
   ].forEach(container=>{
 
-    const buttons=
+    const buttons =
     container.querySelectorAll("button");
 
-    buttons.forEach(
-      (button,index)=>{
+    buttons.forEach((button,index)=>{
 
-        button.disabled=true;
+      button.disabled = true;
 
-        if(index===correct){
+      if(index === correct){
 
-          button.classList.add("correct");
-
-        }
+        button.classList.add("correct");
 
       }
-    );
+
+    });
 
   });
 
-
-  /*
-  顯示各隊答錯
-  */
-
   if(
-    redAnswer!==null &&
-    redAnswer!==correct
+    redAnswer !== null &&
+    redAnswer !== correct
   ){
 
     redAnswersEl
@@ -1069,8 +908,8 @@ function revealAnswers(correct){
   }
 
   if(
-    blueAnswer!==null &&
-    blueAnswer!==correct
+    blueAnswer !== null &&
+    blueAnswer !== correct
   ){
 
     blueAnswersEl
@@ -1082,68 +921,52 @@ function revealAnswers(correct){
 }
 
 
-/* =====================================================
-   移動拔河系統
-===================================================== */
+/* ===== 拔河移動 ===== */
 
-function moveRope(direction){
+function moveTug(direction){
 
-  ropePosition+=direction;
+  ropePosition += direction;
 
-  const position=
-  ropePosition*STEP;
+  const position =
+  ropePosition * STEP;
 
-  tugSystem.style.setProperty(
-    "--rope-x",
-    position+"vw"
+  tugImage.style.setProperty(
+    "--x",
+    position + "vw"
   );
 
-  tugSystem.style.transform=
+  tugImage.style.transform =
   `translateX(${position}vw)`;
 
 
-  /*
-  拉扯動畫
-  */
+  if(direction < 0){
 
-  if(direction<0){
+    tugImage.classList.remove("pull-right");
+    tugImage.classList.remove("pull-left");
 
-    tugSystem.classList.remove(
-      "pull-blue"
-    );
+    void tugImage.offsetWidth;
 
-    void tugSystem.offsetWidth;
+    tugImage.classList.add("pull-left");
 
-    tugSystem.classList.add(
-      "pull-red"
-    );
+  }else{
 
-  }
+    tugImage.classList.remove("pull-left");
+    tugImage.classList.remove("pull-right");
 
-  else{
+    void tugImage.offsetWidth;
 
-    tugSystem.classList.remove(
-      "pull-red"
-    );
-
-    void tugSystem.offsetWidth;
-
-    tugSystem.classList.add(
-      "pull-blue"
-    );
+    tugImage.classList.add("pull-right");
 
   }
 
 }
 
 
-/* =====================================================
-   狀態訊息
-===================================================== */
+/* ===== 狀態提示 ===== */
 
 function showStatus(text){
 
-  statusEl.textContent=text;
+  statusEl.textContent = text;
 
   statusEl.classList.add("show");
 
@@ -1156,9 +979,7 @@ function showStatus(text){
 }
 
 
-/* =====================================================
-   勝利
-===================================================== */
+/* ===== 勝利 ===== */
 
 function showWinner(team){
 
@@ -1166,16 +987,14 @@ function showWinner(team){
 
   winnerScreen.classList.add("show");
 
-  if(team==="red"){
+  if(team === "red"){
 
-    winnerText.textContent=
+    winnerText.textContent =
     "🔴 ĐỘI ĐỎ THẮNG!";
 
-  }
+  }else{
 
-  else{
-
-    winnerText.textContent=
+    winnerText.textContent =
     "ĐỘI XANH THẮNG! 🔵";
 
   }
@@ -1183,23 +1002,22 @@ function showWinner(team){
 }
 
 
-/* =====================================================
-   重新開始
-===================================================== */
+/* ===== 重玩 ===== */
 
 function restartGame(){
 
-  currentQuestion=0;
+  clearInterval(timerInterval);
 
-  ropePosition=0;
+  currentQuestion = 0;
+  ropePosition = 0;
 
-  tugSystem.style.transform=
-  "translateX(0)";
-
-  tugSystem.style.setProperty(
-    "--rope-x",
+  tugImage.style.setProperty(
+    "--x",
     "0vw"
   );
+
+  tugImage.style.transform =
+    "translateX(0)";
 
   winnerScreen.classList.remove("show");
 
@@ -1207,13 +1025,16 @@ function restartGame(){
 
 }
 
+restartBtn.addEventListener(
+  "click",
+  restartGame
+);
 
-/* =====================================================
-   開始遊戲
-===================================================== */
 
-tugSystem.style.setProperty(
-  "--rope-x",
+/* ===== 開始 ===== */
+
+tugImage.style.setProperty(
+  "--x",
   "0vw"
 );
 
