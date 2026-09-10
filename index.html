@@ -34,8 +34,6 @@ body{
   background:#fff;
 }
 
-/* ===== 題目區 ===== */
-
 .question-area{
   position:relative;
   display:flex;
@@ -90,7 +88,20 @@ body{
   font-weight:700;
 }
 
-/* ===== 場景 ===== */
+.sound-btn{
+  position:absolute;
+  right:1.5%;
+  top:10px;
+  z-index:30;
+  width:46px;
+  height:46px;
+  border:none;
+  border-radius:50%;
+  background:#ffffff;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
+  font-size:23px;
+  cursor:pointer;
+}
 
 .arena{
   position:relative;
@@ -99,8 +110,6 @@ body{
   background-size:cover;
   background-position:center;
 }
-
-/* 中央勝負線 */
 
 .center-line{
   position:absolute;
@@ -125,8 +134,6 @@ body{
   background:#fff;
 }
 
-/* ===== 完整拔河圖 ===== */
-
 .tug-wrap{
   position:absolute;
   inset:0;
@@ -148,8 +155,6 @@ body{
   filter:drop-shadow(0 5px 5px rgba(0,0,0,.16));
 }
 
-/* 拉動效果 */
-
 .tug-image.pull-left{
   animation:pullLeft .5s ease;
 }
@@ -169,8 +174,6 @@ body{
   40%{transform:translateX(calc(var(--x) + 18px));}
   100%{transform:translateX(var(--x));}
 }
-
-/* ===== 隊伍名稱 ===== */
 
 .team-label{
   position:absolute;
@@ -194,8 +197,6 @@ body{
   background:#287ce0;
 }
 
-/* ===== 狀態提示 ===== */
-
 .status{
   position:absolute;
   top:5%;
@@ -215,8 +216,6 @@ body{
 .status.show{
   opacity:1;
 }
-
-/* ===== 答題區 ===== */
 
 .answers{
   display:grid;
@@ -306,8 +305,6 @@ body{
   cursor:default;
 }
 
-/* ===== 勝利畫面 ===== */
-
 #winnerScreen{
   position:fixed;
   inset:0;
@@ -346,7 +343,6 @@ body{
 }
 
 @media(max-width:800px){
-
   #game{
     grid-template-rows:18% 44% 38%;
   }
@@ -407,6 +403,8 @@ body{
       20
     </div>
 
+    <button class="sound-btn" id="soundBtn">🔊</button>
+
   </header>
 
   <main class="arena">
@@ -439,23 +437,13 @@ body{
   <section class="answers">
 
     <div class="team-panel red-panel">
-
-      <div class="panel-title">
-        🔴 ĐỘI ĐỎ
-      </div>
-
+      <div class="panel-title">🔴 ĐỘI ĐỎ</div>
       <div class="answer-grid" id="redAnswers"></div>
-
     </div>
 
     <div class="team-panel blue-panel">
-
-      <div class="panel-title">
-        🔵 ĐỘI XANH
-      </div>
-
+      <div class="panel-title">🔵 ĐỘI XANH</div>
       <div class="answer-grid" id="blueAnswers"></div>
-
     </div>
 
   </section>
@@ -463,106 +451,55 @@ body{
 </div>
 
 <div id="winnerScreen">
-
-  <div id="winnerEmoji">
-    🏆
-  </div>
-
-  <div id="winnerText">
-    ĐỘI ĐỎ THẮNG!
-  </div>
-
-  <button class="restart" id="restartBtn">
-    Chơi lại
-  </button>
-
+  <div id="winnerEmoji">🏆</div>
+  <div id="winnerText">ĐỘI ĐỎ THẮNG!</div>
+  <button class="restart" id="restartBtn">Chơi lại</button>
 </div>
+
+<audio id="bgm" src="assets/bgm.mp3" loop></audio>
+<audio id="countdownSound" src="assets/countdown.mp3"></audio>
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="winSound" src="assets/win.mp3"></audio>
 
 <script>
 
-/* ===== 題庫 ===== */
-
 const questions = [
-
 {
   question:"Bạn tên là gì?",
-  answers:[
-    "你幾歲？",
-    "你叫什麼名字？",
-    "你住在哪裡？",
-    "你喜歡什麼？"
-  ],
+  answers:["你幾歲？","你叫什麼名字？","你住在哪裡？","你喜歡什麼？"],
   correct:1
 },
-
 {
   question:"“Xin chào” nghĩa là gì?",
-  answers:[
-    "再見",
-    "你好",
-    "謝謝",
-    "對不起"
-  ],
+  answers:["再見","你好","謝謝","對不起"],
   correct:1
 },
-
 {
   question:"“Màu đỏ” là màu gì?",
-  answers:[
-    "藍色",
-    "黃色",
-    "紅色",
-    "綠色"
-  ],
+  answers:["藍色","黃色","紅色","綠色"],
   correct:2
 },
-
 {
   question:"Bạn bao nhiêu tuổi?",
-  answers:[
-    "你幾歲？",
-    "你叫什麼名字？",
-    "你是哪國人？",
-    "你喜歡什麼？"
-  ],
+  answers:["你幾歲？","你叫什麼名字？","你是哪國人？","你喜歡什麼？"],
   correct:0
 },
-
 {
   question:"Tôi thích nghe nhạc.",
-  answers:[
-    "我喜歡看書",
-    "我喜歡聽音樂",
-    "我喜歡運動",
-    "我喜歡旅行"
-  ],
+  answers:["我喜歡看書","我喜歡聽音樂","我喜歡運動","我喜歡旅行"],
   correct:1
 },
-
 {
   question:"“Cảm ơn” nghĩa là gì?",
-  answers:[
-    "謝謝",
-    "對不起",
-    "你好",
-    "再見"
-  ],
+  answers:["謝謝","對不起","你好","再見"],
   correct:0
 }
-
 ];
-
-
-/* ===== 遊戲設定 ===== */
 
 const QUESTION_TIME = 20;
 const WIN_SCORE = 5;
-
-/* 每答對一題，整張拔河圖移動的距離 */
 const STEP = 2.8;
-
-
-/* ===== 遊戲狀態 ===== */
 
 let currentQuestion = 0;
 let ropePosition = 0;
@@ -580,45 +517,84 @@ let timerInterval = null;
 
 let roundFinished = false;
 
+let soundEnabled = true;
+let audioStarted = false;
 
-/* ===== DOM ===== */
+const questionEl = document.getElementById("question");
+const progressEl = document.getElementById("progress");
+const timerEl = document.getElementById("timer");
 
-const questionEl =
-document.getElementById("question");
+const redAnswersEl = document.getElementById("redAnswers");
+const blueAnswersEl = document.getElementById("blueAnswers");
 
-const progressEl =
-document.getElementById("progress");
+const tugImage = document.getElementById("tugImage");
+const statusEl = document.getElementById("status");
 
-const timerEl =
-document.getElementById("timer");
+const winnerScreen = document.getElementById("winnerScreen");
+const winnerText = document.getElementById("winnerText");
+const restartBtn = document.getElementById("restartBtn");
 
-const redAnswersEl =
-document.getElementById("redAnswers");
+const soundBtn = document.getElementById("soundBtn");
 
-const blueAnswersEl =
-document.getElementById("blueAnswers");
+const bgm = document.getElementById("bgm");
+const countdownSound = document.getElementById("countdownSound");
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+const winSound = document.getElementById("winSound");
 
-const tugImage =
-document.getElementById("tugImage");
+bgm.volume = 0.26;
+countdownSound.volume = 0.65;
+correctSound.volume = 0.75;
+wrongSound.volume = 0.75;
+winSound.volume = 0.9;
 
-const statusEl =
-document.getElementById("status");
+function startAudio(){
+  if(audioStarted || !soundEnabled) return;
 
-const winnerScreen =
-document.getElementById("winnerScreen");
+  audioStarted = true;
 
-const winnerText =
-document.getElementById("winnerText");
+  bgm.currentTime = 0;
+  bgm.play().catch(()=>{});
+}
 
-const restartBtn =
-document.getElementById("restartBtn");
+function playSound(audio){
+  if(!soundEnabled) return;
 
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
+}
 
-/* ===== 載入題目 ===== */
+soundBtn.addEventListener("click",()=>{
+
+  soundEnabled = !soundEnabled;
+
+  if(soundEnabled){
+    soundBtn.textContent = "🔊";
+
+    if(audioStarted){
+      bgm.play().catch(()=>{});
+    }else{
+      startAudio();
+    }
+
+  }else{
+    soundBtn.textContent = "🔇";
+    bgm.pause();
+
+    countdownSound.pause();
+    correctSound.pause();
+    wrongSound.pause();
+    winSound.pause();
+  }
+
+});
 
 function loadQuestion(){
 
   clearInterval(timerInterval);
+
+  countdownSound.pause();
+  countdownSound.currentTime = 0;
 
   roundFinished = false;
 
@@ -638,6 +614,7 @@ function loadQuestion(){
   `Câu ${currentQuestion + 1}/${questions.length}`;
 
   timerEl.textContent = timeLeft;
+  timerEl.style.background = "#ef3340";
 
   createAnswers(redAnswersEl,"red",q);
   createAnswers(blueAnswersEl,"blue",q);
@@ -656,20 +633,18 @@ function loadQuestion(){
       timerEl.style.background = "#ef3340";
     }
 
+    if(timeLeft === 5){
+      playSound(countdownSound);
+    }
+
     if(timeLeft <= 0){
-
       clearInterval(timerInterval);
-
       finishRound();
-
     }
 
   },1000);
 
 }
-
-
-/* ===== 建立答案 ===== */
 
 function createAnswers(container,team,q){
 
@@ -679,8 +654,7 @@ function createAnswers(container,team,q){
 
   q.answers.forEach((answer,index)=>{
 
-    const button =
-    document.createElement("button");
+    const button = document.createElement("button");
 
     button.className = "answer-btn";
 
@@ -698,10 +672,9 @@ function createAnswers(container,team,q){
 
 }
 
-
-/* ===== 作答 ===== */
-
 function chooseAnswer(team,index,button){
+
+  startAudio();
 
   if(roundFinished) return;
 
@@ -736,15 +709,10 @@ function chooseAnswer(team,index,button){
     redAnswer !== null &&
     blueAnswer !== null
   ){
-
     finishRound();
-
   }
 
 }
-
-
-/* ===== 鎖定答案 ===== */
 
 function lockTeam(container){
 
@@ -756,9 +724,6 @@ function lockTeam(container){
 
 }
 
-
-/* ===== 回合判定 ===== */
-
 function finishRound(){
 
   if(roundFinished) return;
@@ -767,18 +732,19 @@ function finishRound(){
 
   clearInterval(timerInterval);
 
+  countdownSound.pause();
+  countdownSound.currentTime = 0;
+
   const q = questions[currentQuestion];
 
   revealAnswers(q.correct);
 
-  const redCorrect =
-  redAnswer === q.correct;
-
-  const blueCorrect =
-  blueAnswer === q.correct;
-
+  const redCorrect = redAnswer === q.correct;
+  const blueCorrect = blueAnswer === q.correct;
 
   if(redCorrect && !blueCorrect){
+
+    playSound(correctSound);
 
     showStatus("🔴 ĐỘI ĐỎ KÉO!");
 
@@ -788,6 +754,8 @@ function finishRound(){
 
   else if(blueCorrect && !redCorrect){
 
+    playSound(correctSound);
+
     showStatus("ĐỘI XANH KÉO! 🔵");
 
     moveTug(1);
@@ -795,6 +763,8 @@ function finishRound(){
   }
 
   else if(redCorrect && blueCorrect){
+
+    playSound(correctSound);
 
     const difference =
     Math.abs(redTime - blueTime);
@@ -825,10 +795,11 @@ function finishRound(){
 
   else{
 
+    playSound(wrongSound);
+
     showStatus("😅 KHÔNG ĐỘI NÀO KÉO!");
 
   }
-
 
   if(ropePosition <= -WIN_SCORE){
 
@@ -838,7 +809,6 @@ function finishRound(){
     );
 
     return;
-
   }
 
   if(ropePosition >= WIN_SCORE){
@@ -849,18 +819,14 @@ function finishRound(){
     );
 
     return;
-
   }
-
 
   setTimeout(()=>{
 
     currentQuestion++;
 
     if(currentQuestion >= questions.length){
-
       currentQuestion = 0;
-
     }
 
     loadQuestion();
@@ -868,9 +834,6 @@ function finishRound(){
   },2200);
 
 }
-
-
-/* ===== 顯示答案 ===== */
 
 function revealAnswers(correct){
 
@@ -887,9 +850,7 @@ function revealAnswers(correct){
       button.disabled = true;
 
       if(index === correct){
-
         button.classList.add("correct");
-
       }
 
     });
@@ -900,28 +861,21 @@ function revealAnswers(correct){
     redAnswer !== null &&
     redAnswer !== correct
   ){
-
     redAnswersEl
     .children[redAnswer]
     .classList.add("wrong");
-
   }
 
   if(
     blueAnswer !== null &&
     blueAnswer !== correct
   ){
-
     blueAnswersEl
     .children[blueAnswer]
     .classList.add("wrong");
-
   }
 
 }
-
-
-/* ===== 拔河移動 ===== */
 
 function moveTug(direction){
 
@@ -937,7 +891,6 @@ function moveTug(direction){
 
   tugImage.style.transform =
   `translateX(${position}vw)`;
-
 
   if(direction < 0){
 
@@ -956,53 +909,44 @@ function moveTug(direction){
     void tugImage.offsetWidth;
 
     tugImage.classList.add("pull-right");
-
   }
 
 }
 
-
-/* ===== 狀態提示 ===== */
-
 function showStatus(text){
 
   statusEl.textContent = text;
-
   statusEl.classList.add("show");
 
   setTimeout(()=>{
-
     statusEl.classList.remove("show");
-
   },1700);
 
 }
-
-
-/* ===== 勝利 ===== */
 
 function showWinner(team){
 
   clearInterval(timerInterval);
 
+  bgm.pause();
+  bgm.currentTime = 0;
+
+  countdownSound.pause();
+  countdownSound.currentTime = 0;
+
+  playSound(winSound);
+
   winnerScreen.classList.add("show");
 
   if(team === "red"){
-
     winnerText.textContent =
     "🔴 ĐỘI ĐỎ THẮNG!";
-
   }else{
-
     winnerText.textContent =
     "ĐỘI XANH THẮNG! 🔵";
-
   }
 
 }
-
-
-/* ===== 重玩 ===== */
 
 function restartGame(){
 
@@ -1021,17 +965,18 @@ function restartGame(){
 
   winnerScreen.classList.remove("show");
 
-  loadQuestion();
+  if(soundEnabled){
+    bgm.currentTime = 0;
+    bgm.play().catch(()=>{});
+  }
 
+  loadQuestion();
 }
 
 restartBtn.addEventListener(
   "click",
   restartGame
 );
-
-
-/* ===== 開始 ===== */
 
 tugImage.style.setProperty(
   "--x",
