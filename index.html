@@ -1,310 +1,3829 @@
-export default {
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>越南語拔河大賽</title>
 
-  async fetch(request, env) {
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    const allowedOrigin =
-      "https://wenjingtaiwan-creator.github.io";
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    const origin =
-      request.headers.get("Origin") || "";
+html,body{
+  width:100%;
+  min-height:100%;
+  font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+  background:#eef3f8;
+}
 
-    const corsHeaders = {
-      "Access-Control-Allow-Origin":
-        allowedOrigin,
+button,input,textarea,select{
+  font-family:inherit;
+}
 
-      "Access-Control-Allow-Methods":
-        "POST, OPTIONS",
+button{
+  cursor:pointer;
+}
 
-      "Access-Control-Allow-Headers":
-        "Content-Type",
+/* =========================
+   題庫設定頁
+========================= */
 
-      "Content-Type":
-        "application/json; charset=UTF-8"
+#setupScreen{
+  min-height:100vh;
+  padding:28px 18px 60px;
+  background:
+    linear-gradient(rgba(255,255,255,.94),rgba(255,255,255,.94)),
+    url("assets/background.png");
+  background-size:cover;
+  background-position:center;
+}
+
+.setup-container{
+  width:min(1100px,96%);
+  margin:auto;
+}
+
+.setup-header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.setup-header h1{
+  font-size:clamp(30px,4vw,54px);
+  margin-bottom:7px;
+  color:#202124;
+}
+
+.setup-header p{
+  font-size:18px;
+  color:#666;
+}
+
+/* =========================
+   題庫來源
+========================= */
+
+.import-box{
+  background:#fff;
+  border-radius:24px;
+  padding:22px;
+  box-shadow:0 5px 22px rgba(0,0,0,.1);
+  margin-bottom:22px;
+}
+
+.import-title{
+  text-align:center;
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+
+.import-options{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.import-card{
+  border:2px solid #e4e8ee;
+  background:#fafbfd;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+}
+
+.import-icon{
+  font-size:40px;
+  margin-bottom:7px;
+}
+
+.import-card h3{
+  font-size:20px;
+  margin-bottom:7px;
+}
+
+.import-card p{
+  min-height:68px;
+  color:#777;
+  line-height:1.6;
+  font-size:14px;
+  margin-bottom:14px;
+}
+
+.google-btn,
+.file-label,
+.template-btn{
+  display:inline-block;
+  border:none;
+  border-radius:25px;
+  padding:12px 20px;
+  color:#fff;
+  font-weight:900;
+  font-size:16px;
+  text-decoration:none;
+  transition:.2s;
+}
+
+.google-btn{
+  background:#1fa463;
+}
+
+.file-label{
+  background:#367be8;
+}
+
+.template-btn{
+  margin-top:9px;
+  background:#687385;
+}
+
+.google-btn:hover,
+.file-label:hover,
+.template-btn:hover{
+  transform:translateY(-2px);
+}
+
+#fileInput{
+  display:none;
+}
+
+.format-tip{
+  margin-top:16px;
+  padding:12px;
+  border-radius:13px;
+  background:#f5f7fa;
+  color:#666;
+  font-size:14px;
+  text-align:center;
+  line-height:1.7;
+}
+
+#importStatus{
+  display:none;
+  margin-top:15px;
+  border-radius:14px;
+  padding:12px 18px;
+  text-align:center;
+  font-weight:800;
+}
+
+#importStatus.loading{
+  display:block;
+  background:#fff4ce;
+  color:#846300;
+}
+
+#importStatus.success{
+  display:block;
+  background:#dcf7e5;
+  color:#14753c;
+}
+
+#importStatus.error{
+  display:block;
+  background:#ffe3e5;
+  color:#b5232e;
+}
+
+/* =========================
+   AI 自動出題
+========================= */
+
+.ai-box{
+  margin-bottom:22px;
+  padding:24px;
+  border-radius:24px;
+  background:
+    linear-gradient(135deg,#f7f2ff,#edf6ff);
+  border:2px solid #ded3f6;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.ai-heading{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.ai-heading h2{
+  font-size:26px;
+  margin-bottom:6px;
+}
+
+.ai-heading p{
+  color:#6c657a;
+  line-height:1.6;
+}
+
+.ai-form{
+  display:grid;
+  grid-template-columns:2fr .7fr .9fr;
+  gap:13px;
+}
+
+.ai-field label{
+  display:block;
+  margin-bottom:7px;
+  font-weight:900;
+  color:#444;
+}
+
+.ai-field textarea,
+.ai-field input,
+.ai-field select{
+  width:100%;
+  border:2px solid #d9d1eb;
+  background:#fff;
+  border-radius:14px;
+  padding:12px 13px;
+  font-size:16px;
+  outline:none;
+}
+
+.ai-field textarea{
+  height:86px;
+  resize:vertical;
+}
+
+.ai-field textarea:focus,
+.ai-field input:focus,
+.ai-field select:focus{
+  border-color:#7957c8;
+}
+
+.ai-examples{
+  margin-top:10px;
+  color:#716b7b;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.ai-actions{
+  text-align:center;
+  margin-top:18px;
+}
+
+.ai-generate-btn{
+  border:none;
+  border-radius:30px;
+  padding:14px 32px;
+  background:linear-gradient(135deg,#6a43c7,#477ce5);
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 5px 14px rgba(83,71,190,.25);
+}
+
+.ai-generate-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+#aiStatus{
+  display:none;
+  margin-top:15px;
+  text-align:center;
+  padding:12px;
+  border-radius:14px;
+  font-weight:800;
+}
+
+#aiStatus.loading{
+  display:block;
+  background:#fff3cd;
+  color:#7d5d00;
+}
+
+#aiStatus.success{
+  display:block;
+  background:#dcf7e5;
+  color:#14753c;
+}
+
+#aiStatus.error{
+  display:block;
+  background:#ffe3e5;
+  color:#b5232e;
+}
+
+/* =========================
+   題目編輯
+========================= */
+
+.editor-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:25px 0 12px;
+}
+
+.editor-heading h2{
+  font-size:24px;
+}
+
+#questionCount{
+  background:#333;
+  color:#fff;
+  padding:7px 15px;
+  border-radius:20px;
+  font-weight:900;
+}
+
+.question-card{
+  background:#fff;
+  border:2px solid #edf0f5;
+  border-radius:20px;
+  padding:21px;
+  margin-bottom:15px;
+  box-shadow:0 4px 16px rgba(0,0,0,.09);
+}
+
+.card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:13px;
+}
+
+.card-title{
+  font-size:20px;
+  font-weight:900;
+}
+
+.delete-btn{
+  border:none;
+  border-radius:12px;
+  padding:8px 14px;
+  background:#ffe6e8;
+  color:#c52d3a;
+  font-weight:800;
+}
+
+.field-label{
+  display:block;
+  margin:10px 0 6px;
+  font-weight:800;
+  color:#444;
+}
+
+.question-input,
+.answer-input{
+  width:100%;
+  border:2px solid #dce2ea;
+  border-radius:12px;
+  padding:11px 13px;
+  font-size:17px;
+  outline:none;
+}
+
+.question-input:focus,
+.answer-input:focus{
+  border-color:#427ee9;
+}
+
+.answers-editor{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+  margin-top:10px;
+}
+
+.answer-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.answer-letter{
+  width:35px;
+  height:35px;
+  flex:0 0 35px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  color:#fff;
+  background:#667085;
+  font-weight:900;
+}
+
+.answer-row input[type="radio"]{
+  width:21px;
+  height:21px;
+  accent-color:#20a45a;
+}
+
+.correct-tip{
+  margin-top:12px;
+  color:#18864a;
+  font-size:14px;
+  font-weight:700;
+}
+
+.empty-editor{
+  background:#fff;
+  padding:35px;
+  border-radius:20px;
+  text-align:center;
+  line-height:1.8;
+  color:#777;
+  box-shadow:0 4px 14px rgba(0,0,0,.07);
+}
+
+.setup-actions{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:22px;
+}
+
+.add-btn,
+.reload-btn,
+.clear-btn,
+.start-btn{
+  border:none;
+  border-radius:30px;
+  padding:14px 25px;
+  font-size:17px;
+  font-weight:900;
+}
+
+.add-btn{
+  background:#fff;
+  color:#3371d6;
+  border:2px solid #3371d6;
+}
+
+.reload-btn{
+  background:#dff5e7;
+  color:#168148;
+  border:2px solid #28a862;
+}
+
+.clear-btn{
+  color:#666;
+  background:#e9edf2;
+}
+
+.start-btn{
+  background:linear-gradient(135deg,#ef3c48,#ff7b32);
+  color:#fff;
+  box-shadow:0 5px 16px rgba(239,60,72,.28);
+}
+
+.setup-info{
+  margin:24px auto 0;
+  background:#fff;
+  padding:15px 20px;
+  border-radius:18px;
+  text-align:center;
+  color:#666;
+  box-shadow:0 4px 14px rgba(0,0,0,.07);
+}
+
+.setup-info strong{
+  color:#ef3340;
+}
+
+/* =========================
+   遊戲
+========================= */
+
+#gameScreen{
+  display:none;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+}
+
+#game{
+  width:100vw;
+  height:100vh;
+  display:grid;
+  grid-template-rows:18% 49% 33%;
+  background:#fff;
+}
+
+.question-area{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:10px 150px;
+  background:#fff;
+  z-index:10;
+}
+
+.game-title{
+  margin-bottom:7px;
+  font-size:clamp(13px,1.2vw,20px);
+  letter-spacing:2px;
+  color:#777;
+}
+
+.question{
+  font-size:clamp(27px,3vw,52px);
+  font-weight:900;
+  text-align:center;
+  color:#202124;
+}
+
+.timer{
+  position:absolute;
+  right:5%;
+  top:50%;
+  transform:translateY(-50%);
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#ef3340;
+  color:#fff;
+  font-size:36px;
+  font-weight:900;
+  box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+.timer.danger{
+  animation:timerPulse .6s infinite alternate;
+}
+
+@keyframes timerPulse{
+  from{
+    transform:translateY(-50%) scale(1);
+  }
+  to{
+    transform:translateY(-50%) scale(1.12);
+  }
+}
+
+.progress{
+  position:absolute;
+  left:4%;
+  top:50%;
+  transform:translateY(-50%);
+  color:#777;
+  font-size:18px;
+  font-weight:700;
+}
+
+.top-controls{
+  position:absolute;
+  right:1.5%;
+  top:8px;
+  display:flex;
+  gap:8px;
+  z-index:30;
+}
+
+.sound-btn{
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
+  font-size:21px;
+}
+
+.stop-btn{
+  height:44px;
+  padding:0 15px;
+  border:none;
+  border-radius:22px;
+  background:#333;
+  color:#fff;
+  font-weight:900;
+}
+
+.arena{
+  position:relative;
+  overflow:hidden;
+  background-image:url("assets/background.png");
+  background-size:cover;
+  background-position:center;
+}
+
+.center-line{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  height:52%;
+  width:5px;
+  background:rgba(255,255,255,.92);
+  transform:translateX(-50%);
+  z-index:2;
+}
+
+.tug-wrap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  pointer-events:none;
+  z-index:5;
+}
+
+.tug-image{
+  width:96%;
+  max-height:88%;
+  object-fit:contain;
+  object-position:center bottom;
+  transform:translateX(0);
+  transition:transform .55s cubic-bezier(.22,1,.36,1);
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.16));
+}
+
+.tug-image.pull-left{
+  animation:pullLeft .5s ease;
+}
+
+.tug-image.pull-right{
+  animation:pullRight .5s ease;
+}
+
+@keyframes pullLeft{
+  0%{transform:translateX(var(--x));}
+  40%{transform:translateX(calc(var(--x) - 18px));}
+  100%{transform:translateX(var(--x));}
+}
+
+@keyframes pullRight{
+  0%{transform:translateX(var(--x));}
+  40%{transform:translateX(calc(var(--x) + 18px));}
+  100%{transform:translateX(var(--x));}
+}
+
+.team-label{
+  position:absolute;
+  bottom:4%;
+  padding:9px 25px;
+  color:#fff;
+  border-radius:30px;
+  font-size:clamp(14px,1.5vw,25px);
+  font-weight:900;
+  z-index:8;
+}
+
+.red-label{
+  left:3%;
+  background:#e93443;
+}
+
+.blue-label{
+  right:3%;
+  background:#287ce0;
+}
+
+.status{
+  position:absolute;
+  top:5%;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.96);
+  padding:8px 20px;
+  border-radius:30px;
+  font-size:18px;
+  font-weight:900;
+  opacity:0;
+  transition:.25s;
+  z-index:20;
+}
+
+.status.show{
+  opacity:1;
+}
+
+.answers{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  background:#f5f7fb;
+}
+
+.team-panel{
+  padding:10px 20px 14px;
+}
+
+.red-panel{
+  border-right:2px solid #dfe5ed;
+}
+
+.panel-title{
+  text-align:center;
+  font-size:clamp(17px,1.8vw,29px);
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.red-panel .panel-title{
+  color:#d93242;
+}
+
+.blue-panel .panel-title{
+  color:#2878d4;
+}
+
+.answer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.answer-btn{
+  min-height:58px;
+  border-radius:15px;
+  background:#fff;
+  font-size:clamp(14px,1.35vw,22px);
+  font-weight:800;
+  padding:8px 12px;
+}
+
+.red-panel .answer-btn{
+  border:3px solid #f3a4aa;
+  color:#bb3440;
+}
+
+.blue-panel .answer-btn{
+  border:3px solid #92bff1;
+  color:#2674c8;
+}
+
+.answer-btn.selected{
+  background:#fff2a8!important;
+  border-color:#f1b900!important;
+  color:#222!important;
+}
+
+.answer-btn.correct{
+  background:#dff7e5!important;
+  border-color:#38ad61!important;
+  color:#177438!important;
+}
+
+.answer-btn.wrong{
+  background:#ffe2e4!important;
+  border-color:#ef5963!important;
+  color:#b5222d!important;
+}
+
+/* =========================
+   勝利
+========================= */
+
+#winnerScreen{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:rgba(10,20,35,.88);
+  color:#fff;
+  text-align:center;
+  z-index:100;
+}
+
+#winnerScreen.show{
+  display:flex;
+}
+
+#winnerEmoji{
+  font-size:100px;
+}
+
+#winnerText{
+  margin:15px;
+  font-size:clamp(40px,6vw,90px);
+  font-weight:900;
+}
+
+.winner-buttons{
+  display:flex;
+  gap:12px;
+}
+
+.restart,
+.edit-questions{
+  border:none;
+  padding:15px 30px;
+  border-radius:30px;
+  font-size:19px;
+  font-weight:900;
+}
+
+.restart{
+  background:#fff;
+}
+
+.edit-questions{
+  background:#ffd84d;
+}
+
+/* =========================
+   停止視窗
+========================= */
+
+#stopModal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.65);
+  z-index:200;
+}
+
+#stopModal.show{
+  display:flex;
+}
+
+.stop-box{
+  width:min(440px,90%);
+  padding:30px;
+  border-radius:24px;
+  background:#fff;
+  text-align:center;
+}
+
+.stop-box h2{
+  margin-bottom:10px;
+}
+
+.stop-box p{
+  color:#666;
+  margin-bottom:20px;
+}
+
+.stop-actions{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+
+.continue-btn,
+.end-btn{
+  border:none;
+  border-radius:25px;
+  padding:12px 20px;
+  font-size:17px;
+  font-weight:900;
+}
+
+.continue-btn{
+  background:#e9edf3;
+}
+
+.end-btn{
+  background:#e93443;
+  color:#fff;
+}
+
+@media(max-width:900px){
+  .import-options{
+    grid-template-columns:1fr;
+  }
+
+  .ai-form{
+    grid-template-columns:1fr;
+  }
+
+  .import-card p{
+    min-height:auto;
+  }
+}
+
+@media(max-width:800px){
+  .answers-editor{
+    grid-template-columns:1fr;
+  }
+
+  #game{
+    grid-template-rows:18% 44% 38%;
+  }
+
+  .question-area{
+    padding:10px 70px;
+  }
+
+  .progress{
+    display:none;
+  }
+
+  .timer{
+    width:58px;
+    height:58px;
+    font-size:25px;
+  }
+
+  .team-panel{
+    padding:8px;
+  }
+
+  .answer-grid{
+    gap:5px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<section id="setupScreen">
+<div class="setup-container">
+
+  <div class="setup-header">
+    <h1>🇻🇳 越南語拔河大賽</h1>
+    <p>建立題庫後，紅隊與藍隊一起挑戰！</p>
+  </div>
+
+  <!-- 題庫來源 -->
+
+  <div class="import-box">
+
+    <div class="import-title">
+      📚 選擇題庫來源
+    </div>
+
+    <div class="import-options">
+
+      <div class="import-card">
+        <div class="import-icon">☁️</div>
+        <h3>Google 雲端題庫</h3>
+        <p>
+          直接載入公開 Google 試算表。
+          修改試算表後重新載入即可更新。
+        </p>
+
+        <button class="google-btn" id="googleImportBtn">
+          ☁️ 載入 Google 題庫
+        </button>
+      </div>
+
+      <div class="import-card">
+        <div class="import-icon">📂</div>
+        <h3>Excel / CSV 題庫</h3>
+
+        <p>
+          下載範本填寫完成後，
+          再將 Excel 或 CSV 上傳。
+        </p>
+
+        <label class="file-label">
+          📂 上傳題庫
+          <input
+            type="file"
+            id="fileInput"
+            accept=".xlsx,.xls,.csv">
+        </label>
+
+        <br>
+
+        <a
+          class="template-btn"
+          href="assets/越南語拔河遊戲_題庫範本.xlsx"
+          download>
+          📥 下載題庫範本
+        </a>
+      </div>
+
+      <div class="import-card">
+        <div class="import-icon">✏️</div>
+        <h3>自己輸入題目</h3>
+        <p>
+          不需要準備檔案，
+          可以在下面直接新增及修改題目。
+        </p>
+
+        <button class="google-btn" id="manualAddTopBtn">
+          ＋ 新增一題
+        </button>
+      </div>
+
+    </div>
+
+    <div class="format-tip">
+      Excel / Google Sheet 第一列格式：
+      <strong>題目｜A｜B｜C｜D｜正確答案</strong>
+      ，正確答案填
+      <strong>A、B、C 或 D</strong>
+    </div>
+
+    <div id="importStatus"></div>
+
+  </div>
+
+  <!-- AI 自動出題 -->
+
+  <div class="ai-box">
+
+    <div class="ai-heading">
+      <h2>🤖 AI 自動出題</h2>
+      <p>
+        告訴 AI 想教什麼，它會自動產生四選一題目。
+        生成後仍可由老師修改。
+      </p>
+    </div>
+
+    <div class="ai-form">
+
+      <div class="ai-field">
+        <label>想生成什麼題目？</label>
+
+        <textarea
+          id="aiDescription"
+          placeholder="例如：越南語初學者，主題是動物名稱，看中文選正確的越南語。選項簡單，適合國中生。"></textarea>
+
+        <div class="ai-examples">
+          例如：家庭稱謂、顏色、數字 1–20、自我介紹、
+          水果、交通工具、教室用品……
+        </div>
+      </div>
+
+      <div class="ai-field">
+        <label>題目數量</label>
+
+        <input
+          id="aiCount"
+          type="number"
+          min="1"
+          max="30"
+          value="10">
+      </div>
+
+      <div class="ai-field">
+        <label>難度</label>
+
+        <select id="aiDifficulty">
+          <option value="初級">🌱 初級</option>
+          <option value="中級">🌿 中級</option>
+          <option value="進階">🌳 進階</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="ai-actions">
+      <button class="ai-generate-btn" id="aiGenerateBtn">
+        ✨ AI 幫我出題
+      </button>
+    </div>
+
+    <div id="aiStatus"></div>
+
+  </div>
+
+  <!-- 編輯區 -->
+
+  <div class="editor-heading">
+    <h2>✏️ 題目預覽與編輯</h2>
+    <div id="questionCount">0 題</div>
+  </div>
+
+  <div id="questionEditor"></div>
+
+  <div class="setup-actions">
+
+    <button class="reload-btn" id="reloadGoogleBtn">
+      ☁️ 重新載入雲端題庫
+    </button>
+
+    <button class="add-btn" id="addQuestionBtn">
+      ＋ 手動新增題目
+    </button>
+
+    <button class="clear-btn" id="clearQuestionsBtn">
+      🗑️ 清空
+    </button>
+
+    <button class="start-btn" id="startGameBtn">
+      🔥 開始拔河！
+    </button>
+
+  </div>
+
+  <div class="setup-info">
+    ⏱️ 每題 <strong>10 秒</strong>
+    ・
+    🏆 先拉動 <strong>5 次</strong> 獲勝
+    ・
+    💾 題目會自動保存在這台裝置
+  </div>
+
+</div>
+</section>
+
+
+<!-- 遊戲 -->
+
+<section id="gameScreen">
+
+<div id="game">
+
+<header class="question-area">
+
+  <div class="progress" id="progress"></div>
+
+  <div class="game-title">
+    🇻🇳 VIETNAMESE TUG OF WAR
+  </div>
+
+  <div class="question" id="question"></div>
+
+  <div class="timer" id="timer">
+    10
+  </div>
+
+  <div class="top-controls">
+
+    <button class="sound-btn" id="soundBtn">
+      🔊
+    </button>
+
+    <button class="stop-btn" id="stopBtn">
+      ⏹ 停止遊戲
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="arena">
+
+  <div class="center-line"></div>
+
+  <div class="status" id="status"></div>
+
+  <div class="tug-wrap">
+    <img
+      src="assets/tug-war.png"
+      class="tug-image"
+      id="tugImage">
+  </div>
+
+  <div class="team-label red-label">
+    🔴 ĐỘI ĐỎ
+  </div>
+
+  <div class="team-label blue-label">
+    ĐỘI XANH 🔵
+  </div>
+
+</main>
+
+
+<section class="answers">
+
+  <div class="team-panel red-panel">
+
+    <div class="panel-title">
+      🔴 ĐỘI ĐỎ
+    </div>
+
+    <div
+      class="answer-grid"
+      id="redAnswers">
+    </div>
+
+  </div>
+
+
+  <div class="team-panel blue-panel">
+
+    <div class="panel-title">
+      🔵 ĐỘI XANH
+    </div>
+
+    <div
+      class="answer-grid"
+      id="blueAnswers">
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+</section>
+
+
+<!-- 勝利 -->
+
+<div id="winnerScreen">
+
+  <div id="winnerEmoji">
+    🏆
+  </div>
+
+  <div id="winnerText"></div>
+
+  <div class="winner-buttons">
+
+    <button class="restart" id="restartBtn">
+      🔥 再玩一次
+    </button>
+
+    <button class="edit-questions" id="editQuestionsBtn">
+      📚 回題庫
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- 停止 -->
+
+<div id="stopModal">
+
+<div class="stop-box">
+
+  <h2>⏹ 停止遊戲？</h2>
+
+  <p>
+    題庫會保留，不會消失。
+  </p>
+
+  <div class="stop-actions">
+
+    <button class="continue-btn" id="continueBtn">
+      🔙 繼續比賽
+    </button>
+
+    <button class="end-btn" id="endGameBtn">
+      ⏹ 結束遊戲
+    </button>
+
+  </div>
+
+</div>
+</div>
+
+
+<!-- 音效 -->
+
+<audio id="bgm" src="assets/bgm.mp3" loop></audio>
+<audio id="countdownSound" src="assets/countdown.mp3"></audio>
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="winSound" src="assets/win.mp3"></audio>
+
+
+<script>
+
+/* ======================================================
+   基本設定
+====================================================== */
+
+const GOOGLE_SHEET_ID =
+"18pSzxoVu-cZjwzPsM7J0E1MSnLezg_U_pNLLdLc2S5c";
+
+const GOOGLE_SHEET_GID = "0";
+
+/*
+  AI 後端網址
+  Cloudflare Worker 建好後，
+  把網址貼在兩個引號之間。
+*/
+const AI_ENDPOINT = "";
+
+const QUESTION_TIME = 10;
+const WIN_SCORE = 5;
+const STEP = 2.8;
+
+let questions = [];
+
+let currentQuestion = 0;
+let ropePosition = 0;
+
+let redAnswer = null;
+let blueAnswer = null;
+
+let redTime = null;
+let blueTime = null;
+
+let questionStartTime = null;
+
+let pauseStartedAt = null;
+let totalPauseTime = 0;
+
+let timeLeft = QUESTION_TIME;
+
+let timerInterval = null;
+
+let roundFinished = false;
+let soundEnabled = true;
+let gamePaused = false;
+
+
+/* ======================================================
+   DOM
+====================================================== */
+
+const setupScreen =
+document.getElementById("setupScreen");
+
+const gameScreen =
+document.getElementById("gameScreen");
+
+const questionEditor =
+document.getElementById("questionEditor");
+
+const questionCount =
+document.getElementById("questionCount");
+
+const googleImportBtn =
+document.getElementById("googleImportBtn");
+
+const reloadGoogleBtn =
+document.getElementById("reloadGoogleBtn");
+
+const fileInput =
+document.getElementById("fileInput");
+
+const importStatus =
+document.getElementById("importStatus");
+
+const addQuestionBtn =
+document.getElementById("addQuestionBtn");
+
+const manualAddTopBtn =
+document.getElementById("manualAddTopBtn");
+
+const clearQuestionsBtn =
+document.getElementById("clearQuestionsBtn");
+
+const startGameBtn =
+document.getElementById("startGameBtn");
+
+const aiDescription =
+document.getElementById("aiDescription");
+
+const aiCount =
+document.getElementById("aiCount");
+
+const aiDifficulty =
+document.getElementById("aiDifficulty");
+
+const aiGenerateBtn =
+document.getElementById("aiGenerateBtn");
+
+const aiStatus =
+document.getElementById("aiStatus");
+
+const questionEl =
+document.getElementById("question");
+
+const progressEl =
+document.getElementById("progress");
+
+const timerEl =
+document.getElementById("timer");
+
+const redAnswersEl =
+document.getElementById("redAnswers");
+
+const blueAnswersEl =
+document.getElementById("blueAnswers");
+
+const tugImage =
+document.getElementById("tugImage");
+
+const statusEl =
+document.getElementById("status");
+
+const winnerScreen =
+document.getElementById("winnerScreen");
+
+const winnerText =
+document.getElementById("winnerText");
+
+const restartBtn =
+document.getElementById("restartBtn");
+
+const editQuestionsBtn =
+document.getElementById("editQuestionsBtn");
+
+const soundBtn =
+document.getElementById("soundBtn");
+
+const stopBtn =
+document.getElementById("stopBtn");
+
+const stopModal =
+document.getElementById("stopModal");
+
+const continueBtn =
+document.getElementById("continueBtn");
+
+const endGameBtn =
+document.getElementById("endGameBtn");
+
+
+/* ======================================================
+   音效
+====================================================== */
+
+const bgm =
+document.getElementById("bgm");
+
+const countdownSound =
+document.getElementById("countdownSound");
+
+const correctSound =
+document.getElementById("correctSound");
+
+const wrongSound =
+document.getElementById("wrongSound");
+
+const winSound =
+document.getElementById("winSound");
+
+bgm.volume = 0.26;
+countdownSound.volume = 0.65;
+correctSound.volume = 0.75;
+wrongSound.volume = 0.75;
+winSound.volume = 0.9;
+
+
+function stopAllSounds(){
+
+  [
+    bgm,
+    countdownSound,
+    correctSound,
+    wrongSound,
+    winSound
+  ].forEach(audio=>{
+
+    audio.pause();
+    audio.currentTime = 0;
+
+  });
+
+}
+
+
+function playSound(audio){
+
+  if(!soundEnabled) return;
+
+  audio.currentTime = 0;
+
+  audio.play().catch(()=>{});
+
+}
+
+
+function startBGM(){
+
+  if(!soundEnabled) return;
+
+  bgm.play().catch(()=>{});
+
+}
+
+
+soundBtn.addEventListener(
+"click",
+()=>{
+
+  soundEnabled = !soundEnabled;
+
+  if(soundEnabled){
+
+    soundBtn.textContent = "🔊";
+
+    if(
+      !gamePaused &&
+      gameScreen.style.display === "block"
+    ){
+
+      bgm.play().catch(()=>{});
+
+    }
+
+  }else{
+
+    soundBtn.textContent = "🔇";
+
+    [
+      bgm,
+      countdownSound,
+      correctSound,
+      wrongSound,
+      winSound
+    ].forEach(audio=>audio.pause());
+
+  }
+
+});
+
+
+/* ======================================================
+   AI 自動出題
+====================================================== */
+
+aiGenerateBtn.addEventListener(
+"click",
+generateAIQuestions
+);
+
+
+async function generateAIQuestions(){
+
+  const description =
+  aiDescription.value.trim();
+
+  const count =
+  Math.max(
+    1,
+    Math.min(
+      30,
+      Number(aiCount.value) || 10
+    )
+  );
+
+  const difficulty =
+  aiDifficulty.value;
+
+
+  if(!description){
+
+    showAIStatus(
+      "error",
+      "請先描述想生成的題目內容。"
+    );
+
+    aiDescription.focus();
+
+    return;
+
+  }
+
+
+  if(!AI_ENDPOINT){
+
+    showAIStatus(
+      "error",
+      "AI 功能介面已完成，目前還差 AI 後端網址。完成下方 Cloudflare Worker 設定後即可使用。"
+    );
+
+    return;
+
+  }
+
+
+  aiGenerateBtn.disabled = true;
+
+  aiGenerateBtn.textContent =
+  "🤖 AI 正在出題...";
+
+
+  showAIStatus(
+    "loading",
+    `✨ AI 正在生成 ${count} 題，請稍候...`
+  );
+
+
+  try{
+
+    const response =
+    await fetch(
+      AI_ENDPOINT,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+
+        body:JSON.stringify({
+          description,
+          count,
+          difficulty
+        })
+      }
+    );
+
+
+    const data =
+    await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        "AI 題目生成失敗"
+      );
+
+    }
+
+
+    if(
+      !Array.isArray(data.questions) ||
+      data.questions.length === 0
+    ){
+
+      throw new Error(
+        "AI 沒有回傳有效題目"
+      );
+
+    }
+
+
+    const cleanQuestions =
+    data.questions
+    .map(normalizeAIQuestion)
+    .filter(Boolean);
+
+
+    if(cleanQuestions.length === 0){
+
+      throw new Error(
+        "AI 回傳格式不正確"
+      );
+
+    }
+
+
+    questions =
+    cleanQuestions;
+
+
+    saveQuestions();
+
+    renderEditor();
+
+
+    showAIStatus(
+      "success",
+      `✅ AI 已生成 ${questions.length} 題！請先檢查題目，確認後再開始拔河。`
+    );
+
+
+    document
+    .querySelector(".editor-heading")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showAIStatus(
+      "error",
+      "❌ " + error.message
+    );
+
+  }finally{
+
+    aiGenerateBtn.disabled = false;
+
+    aiGenerateBtn.textContent =
+    "✨ AI 幫我出題";
+
+  }
+
+}
+
+
+function normalizeAIQuestion(q){
+
+  if(!q) return null;
+
+  const question =
+  String(
+    q.question || ""
+  ).trim();
+
+
+  const answers =
+  Array.isArray(q.answers)
+  ?
+  q.answers
+    .slice(0,4)
+    .map(a=>String(a).trim())
+  :
+  [];
+
+
+  let correct = q.correct;
+
+
+  if(
+    typeof correct === "string"
+  ){
+
+    const map = {
+      "A":0,
+      "B":1,
+      "C":2,
+      "D":3,
+      "1":0,
+      "2":1,
+      "3":2,
+      "4":3
     };
 
+    correct =
+    map[
+      correct.trim().toUpperCase()
+    ];
 
-    if(request.method === "OPTIONS"){
-
-      return new Response(
-        null,
-        {
-          status:204,
-          headers:corsHeaders
-        }
-      );
-
-    }
+  }
 
 
-    if(request.method !== "POST"){
-
-      return new Response(
-        JSON.stringify({
-          error:"Method not allowed"
-        }),
-        {
-          status:405,
-          headers:corsHeaders
-        }
-      );
-
-    }
+  correct = Number(correct);
 
 
-    try{
+  if(
+    !question ||
+    answers.length !== 4 ||
+    answers.some(a=>!a) ||
+    !Number.isInteger(correct) ||
+    correct < 0 ||
+    correct > 3
+  ){
 
-      const body =
-      await request.json();
+    return null;
 
-
-      const description =
-      String(
-        body.description || ""
-      ).trim();
-
-
-      const difficulty =
-      String(
-        body.difficulty || "初級"
-      ).trim();
+  }
 
 
-      const count =
-      Math.max(
-        1,
-        Math.min(
-          30,
-          Number(body.count) || 10
-        )
-      );
+  return {
+    question,
+    answers,
+    correct
+  };
 
-
-      if(!description){
-
-        return new Response(
-          JSON.stringify({
-            error:"沒有提供題目內容"
-          }),
-          {
-            status:400,
-            headers:corsHeaders
-          }
-        );
-
-      }
-
-
-      const prompt = `
-你是一位專業的越南語教師與教學題庫設計師。
-
-請依照老師提供的需求，產生四選一選擇題。
-
-【老師需求】
-${description}
-
-【難度】
-${difficulty}
-
-【題目數量】
-${count} 題
-
-規則：
-
-1. 每一題都一定要有四個選項。
-2. 每一題只能有一個正確答案。
-3. 適合語言教學使用。
-4. 越南語必須拼寫正確並包含正確聲調。
-5. 避免模稜兩可的答案。
-6. 不要產生重複題目。
-7. 干擾選項要合理，但不要故意設計成有兩個都可能正確。
-8. 若老師要求初學者程度，詞彙與句型請簡單。
-9. correct 必須使用數字：
-   0=A
-   1=B
-   2=C
-   3=D
-
-只輸出 JSON。
-不要 Markdown。
-不要說明。
-不要使用 \`\`\`。
-
-格式必須完全是：
-
-{
-  "questions":[
-    {
-      "question":"兔子",
-      "answers":[
-        "Con mèo",
-        "Con thỏ",
-        "Con chó",
-        "Con cá"
-      ],
-      "correct":1
-    }
-  ]
 }
-`;
 
 
-      const openAIResponse =
-      await fetch(
-        "https://api.openai.com/v1/responses",
-        {
+function showAIStatus(
+type,
+text
+){
 
-          method:"POST",
+  aiStatus.className = type;
+  aiStatus.textContent = text;
 
-          headers:{
+}
 
-            "Authorization":
-              `Bearer ${env.OPENAI_API_KEY}`,
 
-            "Content-Type":
-              "application/json"
+/* ======================================================
+   Google Sheet 匯入
+====================================================== */
 
-          },
+googleImportBtn.addEventListener(
+"click",
+loadGoogleQuestions
+);
 
-          body:JSON.stringify({
+reloadGoogleBtn.addEventListener(
+"click",
+loadGoogleQuestions
+);
 
-            model:
-              "gpt-5.6-luna",
 
-            input:prompt
+async function loadGoogleQuestions(){
 
-          })
+  showImportStatus(
+    "loading",
+    "☁️ 正在讀取 Google 雲端題庫..."
+  );
 
-        }
+
+  try{
+
+    const url =
+    `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
+
+
+    const response =
+    await fetch(url);
+
+
+    if(!response.ok){
+
+      throw new Error(
+        "Google Sheet 無法讀取"
       );
 
-
-      const result =
-      await openAIResponse.json();
+    }
 
 
-      if(!openAIResponse.ok){
-
-        console.log(result);
-
-
-        throw new Error(
-          "OpenAI API request failed"
-        );
-
-      }
+    const text =
+    await response.text();
 
 
-      let outputText = "";
+    const rows =
+    parseCSV(text);
 
+
+    const imported =
+    convertRowsToQuestions(rows);
+
+
+    if(imported.length === 0){
+
+      throw new Error(
+        "找不到符合格式的題目"
+      );
+
+    }
+
+
+    questions = imported;
+
+    saveQuestions();
+
+    renderEditor();
+
+
+    showImportStatus(
+      "success",
+      `✅ Google 題庫載入成功！共 ${questions.length} 題`
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    showImportStatus(
+      "error",
+      "❌ 無法讀取 Google 題庫。請確認試算表權限為「知道連結的任何人：檢視者」，並確認欄位格式正確。"
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   CSV
+====================================================== */
+
+function parseCSV(text){
+
+  const rows = [];
+
+  let row = [];
+  let field = "";
+  let insideQuotes = false;
+
+
+  for(
+    let i=0;
+    i<text.length;
+    i++
+  ){
+
+    const char = text[i];
+
+
+    if(char === '"'){
 
       if(
-        Array.isArray(result.output)
+        insideQuotes &&
+        text[i+1] === '"'
       ){
 
-        for(
-          const item
-          of result.output
-        ){
+        field += '"';
+        i++;
 
-          if(
-            !Array.isArray(
-              item.content
-            )
-          ){
+      }else{
 
-            continue;
-
-          }
-
-
-          for(
-            const content
-            of item.content
-          ){
-
-            if(
-              typeof content.text ===
-              "string"
-            ){
-
-              outputText +=
-              content.text;
-
-            }
-
-          }
-
-        }
+        insideQuotes =
+        !insideQuotes;
 
       }
 
+    }
 
-      outputText =
-      outputText
-      .replace(
-        /^```json\s*/i,
-        ""
-      )
-      .replace(
-        /^```\s*/i,
-        ""
-      )
-      .replace(
-        /\s*```$/i,
-        ""
-      )
-      .trim();
+    else if(
+      char === "," &&
+      !insideQuotes
+    ){
+
+      row.push(field);
+      field = "";
+
+    }
+
+    else if(
+      (
+        char === "\n" ||
+        char === "\r"
+      ) &&
+      !insideQuotes
+    ){
+
+      if(
+        char === "\r" &&
+        text[i+1] === "\n"
+      ){
+        i++;
+      }
 
 
-      const parsed =
-      JSON.parse(
-        outputText
-      );
+      row.push(field);
 
 
       if(
-        !Array.isArray(
-          parsed.questions
+        row.some(
+          cell=>
+          String(cell).trim() !== ""
         )
       ){
 
-        throw new Error(
-          "Invalid AI response"
-        );
+        rows.push(row);
 
       }
 
 
-      return new Response(
-        JSON.stringify({
-          questions:
-          parsed.questions
-        }),
-        {
-          status:200,
-          headers:corsHeaders
-        }
-      );
+      row = [];
+      field = "";
 
+    }
 
-    }catch(error){
+    else{
 
-      console.error(error);
-
-
-      return new Response(
-        JSON.stringify({
-          error:
-          "AI 出題失敗，請稍後再試。"
-        }),
-        {
-          status:500,
-          headers:corsHeaders
-        }
-      );
+      field += char;
 
     }
 
   }
 
-};
+
+  row.push(field);
+
+
+  if(
+    row.some(
+      cell=>
+      String(cell).trim() !== ""
+    )
+  ){
+
+    rows.push(row);
+
+  }
+
+
+  return rows;
+
+}
+
+
+/* ======================================================
+   表格轉題庫
+====================================================== */
+
+function convertRowsToQuestions(rows){
+
+  if(
+    !rows ||
+    rows.length < 2
+  ){
+
+    return [];
+
+  }
+
+
+  const headers =
+  rows[0].map(
+    h=>normalizeHeader(h)
+  );
+
+
+  const questionIndex =
+  findHeaderIndex(
+    headers,
+    ["題目","question","問題"]
+  );
+
+
+  const aIndex =
+  findHeaderIndex(
+    headers,
+    ["a","選項a","答案a"]
+  );
+
+
+  const bIndex =
+  findHeaderIndex(
+    headers,
+    ["b","選項b","答案b"]
+  );
+
+
+  const cIndex =
+  findHeaderIndex(
+    headers,
+    ["c","選項c","答案c"]
+  );
+
+
+  const dIndex =
+  findHeaderIndex(
+    headers,
+    ["d","選項d","答案d"]
+  );
+
+
+  const correctIndex =
+  findHeaderIndex(
+    headers,
+    [
+      "正確答案",
+      "答案",
+      "correct",
+      "correctanswer"
+    ]
+  );
+
+
+  if(
+    questionIndex === -1 ||
+    aIndex === -1 ||
+    bIndex === -1 ||
+    cIndex === -1 ||
+    dIndex === -1 ||
+    correctIndex === -1
+  ){
+
+    return [];
+
+  }
+
+
+  const result = [];
+
+
+  for(
+    let i=1;
+    i<rows.length;
+    i++
+  ){
+
+    const row = rows[i];
+
+
+    const question =
+    getCell(
+      row,
+      questionIndex
+    );
+
+
+    const answers = [
+      getCell(row,aIndex),
+      getCell(row,bIndex),
+      getCell(row,cIndex),
+      getCell(row,dIndex)
+    ];
+
+
+    if(!question) continue;
+
+
+    if(
+      answers.some(
+        answer=>!answer
+      )
+    ){
+
+      continue;
+
+    }
+
+
+    const correctText =
+    getCell(
+      row,
+      correctIndex
+    )
+    .trim()
+    .toUpperCase();
+
+
+    const correctMap = {
+      "A":0,
+      "B":1,
+      "C":2,
+      "D":3,
+      "1":0,
+      "2":1,
+      "3":2,
+      "4":3
+    };
+
+
+    if(
+      correctMap[correctText] ===
+      undefined
+    ){
+
+      continue;
+
+    }
+
+
+    result.push({
+
+      question,
+
+      answers,
+
+      correct:
+      correctMap[correctText]
+
+    });
+
+  }
+
+
+  return result;
+
+}
+
+
+function normalizeHeader(text){
+
+  return String(text || "")
+  .trim()
+  .toLowerCase()
+  .replace(/\s/g,"");
+
+}
+
+
+function findHeaderIndex(
+headers,
+possibilities
+){
+
+  for(
+    const possibility
+    of possibilities
+  ){
+
+    const index =
+    headers.indexOf(
+      normalizeHeader(possibility)
+    );
+
+
+    if(index !== -1){
+
+      return index;
+
+    }
+
+  }
+
+
+  return -1;
+
+}
+
+
+function getCell(
+row,
+index
+){
+
+  return String(
+    row[index] ?? ""
+  ).trim();
+
+}
+
+
+/* ======================================================
+   Excel / CSV
+====================================================== */
+
+fileInput.addEventListener(
+"change",
+async event=>{
+
+  const file =
+  event.target.files[0];
+
+
+  if(!file) return;
+
+
+  showImportStatus(
+    "loading",
+    "📂 正在讀取題庫..."
+  );
+
+
+  try{
+
+    let rows = [];
+
+
+    if(
+      file.name
+      .toLowerCase()
+      .endsWith(".csv")
+    ){
+
+      rows =
+      parseCSV(
+        await file.text()
+      );
+
+    }else{
+
+      const data =
+      await file.arrayBuffer();
+
+
+      const workbook =
+      XLSX.read(data);
+
+
+      const sheet =
+      workbook.Sheets[
+        workbook.SheetNames[0]
+      ];
+
+
+      rows =
+      XLSX.utils.sheet_to_json(
+        sheet,
+        {
+          header:1,
+          defval:""
+        }
+      );
+
+    }
+
+
+    const imported =
+    convertRowsToQuestions(rows);
+
+
+    if(imported.length === 0){
+
+      throw new Error(
+        "格式不正確"
+      );
+
+    }
+
+
+    questions = imported;
+
+    saveQuestions();
+
+    renderEditor();
+
+
+    showImportStatus(
+      "success",
+      `✅ 題庫匯入成功！共 ${questions.length} 題`
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    showImportStatus(
+      "error",
+      "❌ 題庫讀取失敗，請確認欄位為：題目、A、B、C、D、正確答案。"
+    );
+
+  }
+
+
+  event.target.value = "";
+
+});
+
+
+function showImportStatus(
+type,
+text
+){
+
+  importStatus.className = type;
+  importStatus.textContent = text;
+
+}
+
+
+/* ======================================================
+   本機儲存
+====================================================== */
+
+function saveQuestions(){
+
+  localStorage.setItem(
+    "vietnameseTugQuestions",
+    JSON.stringify(questions)
+  );
+
+}
+
+
+function loadSavedQuestions(){
+
+  const saved =
+  localStorage.getItem(
+    "vietnameseTugQuestions"
+  );
+
+
+  if(saved){
+
+    try{
+
+      const data =
+      JSON.parse(saved);
+
+
+      if(
+        Array.isArray(data) &&
+        data.length
+      ){
+
+        questions = data;
+        return;
+
+      }
+
+    }catch(error){}
+
+  }
+
+
+  questions = [];
+
+}
+
+
+/* ======================================================
+   編輯器
+====================================================== */
+
+function createBlankQuestion(){
+
+  return {
+
+    question:"",
+
+    answers:[
+      "",
+      "",
+      "",
+      ""
+    ],
+
+    correct:0
+
+  };
+
+}
+
+
+function escapeHTML(text){
+
+  return String(text)
+
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;");
+
+}
+
+
+function renderEditor(){
+
+  questionEditor.innerHTML = "";
+
+
+  questionCount.textContent =
+  `${questions.length} 題`;
+
+
+  if(
+    questions.length === 0
+  ){
+
+    questionEditor.innerHTML = `
+
+      <div class="empty-editor">
+
+        尚未建立題庫 📝
+
+        <br>
+
+        可以使用
+        <strong>Google 試算表</strong>、
+        <strong>Excel</strong>、
+        <strong>AI 自動出題</strong>
+        或
+        <strong>手動新增</strong>。
+
+      </div>
+
+    `;
+
+
+    return;
+
+  }
+
+
+  questions.forEach(
+  (q,index)=>{
+
+    const card =
+    document.createElement("div");
+
+
+    card.className =
+    "question-card";
+
+
+    const letters =
+    ["A","B","C","D"];
+
+
+    card.innerHTML = `
+
+      <div class="card-top">
+
+        <div class="card-title">
+          題目 ${index+1}
+        </div>
+
+        <button
+          class="delete-btn"
+          data-delete="${index}">
+          🗑️ 刪除
+        </button>
+
+      </div>
+
+
+      <label class="field-label">
+        題目
+      </label>
+
+      <input
+        class="question-input"
+        data-question="${index}"
+        value="${escapeHTML(q.question)}">
+
+
+      <label class="field-label">
+        選項
+      </label>
+
+
+      <div class="answers-editor">
+
+        ${q.answers.map(
+          (answer,aIndex)=>`
+
+          <div class="answer-row">
+
+            <div class="answer-letter">
+              ${letters[aIndex]}
+            </div>
+
+            <input
+              class="answer-input"
+              data-answer-question="${index}"
+              data-answer-index="${aIndex}"
+              value="${escapeHTML(answer)}">
+
+            <input
+              type="radio"
+              title="設為正確答案"
+              name="correct-${index}"
+              data-correct-question="${index}"
+              data-correct-index="${aIndex}"
+              ${
+                q.correct === aIndex
+                ? "checked"
+                : ""
+              }>
+
+          </div>
+
+        `).join("")}
+
+      </div>
+
+      <div class="correct-tip">
+        ✓ 點選每個選項右方圓圈，可設定正確答案
+      </div>
+
+    `;
+
+
+    questionEditor.appendChild(card);
+
+  });
+
+
+  bindEditorEvents();
+
+}
+
+
+function bindEditorEvents(){
+
+  document
+  .querySelectorAll(
+    "[data-question]"
+  )
+  .forEach(input=>{
+
+    input.addEventListener(
+    "input",
+    ()=>{
+
+      const index =
+      Number(
+        input.dataset.question
+      );
+
+
+      questions[index].question =
+      input.value;
+
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll(
+    "[data-answer-question]"
+  )
+  .forEach(input=>{
+
+    input.addEventListener(
+    "input",
+    ()=>{
+
+      const qIndex =
+      Number(
+        input.dataset.answerQuestion
+      );
+
+
+      const aIndex =
+      Number(
+        input.dataset.answerIndex
+      );
+
+
+      questions[qIndex]
+      .answers[aIndex] =
+      input.value;
+
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll(
+    "[data-correct-question]"
+  )
+  .forEach(radio=>{
+
+    radio.addEventListener(
+    "change",
+    ()=>{
+
+      const qIndex =
+      Number(
+        radio.dataset.correctQuestion
+      );
+
+
+      const aIndex =
+      Number(
+        radio.dataset.correctIndex
+      );
+
+
+      questions[qIndex].correct =
+      aIndex;
+
+
+      saveQuestions();
+
+    });
+
+  });
+
+
+  document
+  .querySelectorAll(
+    "[data-delete]"
+  )
+  .forEach(button=>{
+
+    button.addEventListener(
+    "click",
+    ()=>{
+
+      const index =
+      Number(
+        button.dataset.delete
+      );
+
+
+      questions.splice(
+        index,
+        1
+      );
+
+
+      saveQuestions();
+
+      renderEditor();
+
+    });
+
+  });
+
+}
+
+
+/* ======================================================
+   手動新增
+====================================================== */
+
+function addBlankQuestion(){
+
+  questions.push(
+    createBlankQuestion()
+  );
+
+
+  saveQuestions();
+
+  renderEditor();
+
+
+  setTimeout(()=>{
+
+    document
+    .querySelector(".editor-heading")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+  },100);
+
+}
+
+
+addQuestionBtn.addEventListener(
+"click",
+addBlankQuestion
+);
+
+
+manualAddTopBtn.addEventListener(
+"click",
+addBlankQuestion
+);
+
+
+clearQuestionsBtn.addEventListener(
+"click",
+()=>{
+
+  if(
+    !confirm(
+      "確定要清空目前題庫嗎？"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  questions = [];
+
+  saveQuestions();
+
+  renderEditor();
+
+});
+
+
+/* ======================================================
+   開始遊戲
+====================================================== */
+
+startGameBtn.addEventListener(
+"click",
+()=>{
+
+  if(
+    !validateQuestions()
+  ){
+
+    return;
+
+  }
+
+
+  saveQuestions();
+
+  stopAllSounds();
+
+
+  currentQuestion = 0;
+  ropePosition = 0;
+
+  redAnswer = null;
+  blueAnswer = null;
+
+  gamePaused = false;
+  roundFinished = false;
+
+  totalPauseTime = 0;
+  pauseStartedAt = null;
+
+
+  tugImage.style.setProperty(
+    "--x",
+    "0vw"
+  );
+
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+
+  setupScreen.style.display =
+  "none";
+
+
+  gameScreen.style.display =
+  "block";
+
+
+  document.body.style.overflow =
+  "hidden";
+
+
+  startBGM();
+
+  loadQuestion();
+
+});
+
+
+function validateQuestions(){
+
+  if(
+    questions.length === 0
+  ){
+
+    alert(
+      "請先建立或載入題庫。"
+    );
+
+    return false;
+
+  }
+
+
+  for(
+    let i=0;
+    i<questions.length;
+    i++
+  ){
+
+    const q = questions[i];
+
+
+    if(
+      !String(q.question).trim()
+    ){
+
+      alert(
+        `第 ${i+1} 題沒有題目。`
+      );
+
+      return false;
+
+    }
+
+
+    if(
+      q.answers.some(
+        answer=>
+        !String(answer).trim()
+      )
+    ){
+
+      alert(
+        `第 ${i+1} 題有選項尚未填寫。`
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  return true;
+
+}
+
+
+/* ======================================================
+   載入題目
+====================================================== */
+
+function loadQuestion(){
+
+  clearInterval(timerInterval);
+
+
+  countdownSound.pause();
+
+  countdownSound.currentTime = 0;
+
+
+  roundFinished = false;
+
+
+  redAnswer = null;
+  blueAnswer = null;
+
+  redTime = null;
+  blueTime = null;
+
+
+  totalPauseTime = 0;
+  pauseStartedAt = null;
+
+
+  timeLeft = QUESTION_TIME;
+
+
+  const q =
+  questions[currentQuestion];
+
+
+  questionEl.textContent =
+  q.question;
+
+
+  progressEl.textContent =
+  `Câu ${currentQuestion+1}/${questions.length}`;
+
+
+  timerEl.textContent =
+  timeLeft;
+
+
+  timerEl.style.background =
+  "#ef3340";
+
+
+  timerEl.classList.remove(
+    "danger"
+  );
+
+
+  createAnswers(
+    redAnswersEl,
+    "red",
+    q
+  );
+
+
+  createAnswers(
+    blueAnswersEl,
+    "blue",
+    q
+  );
+
+
+  questionStartTime =
+  performance.now();
+
+
+  startTimer();
+
+}
+
+
+/* ======================================================
+   計時器
+====================================================== */
+
+function startTimer(){
+
+  clearInterval(timerInterval);
+
+
+  timerInterval =
+  setInterval(()=>{
+
+    if(gamePaused) return;
+
+
+    timeLeft--;
+
+
+    timerEl.textContent =
+    timeLeft;
+
+
+    if(
+      timeLeft <= 5
+    ){
+
+      timerEl.style.background =
+      "#ff6500";
+
+
+      timerEl.classList.add(
+        "danger"
+      );
+
+    }
+
+
+    if(
+      timeLeft === 5
+    ){
+
+      playSound(
+        countdownSound
+      );
+
+    }
+
+
+    if(
+      timeLeft <= 0
+    ){
+
+      clearInterval(
+        timerInterval
+      );
+
+
+      finishRound();
+
+    }
+
+
+  },1000);
+
+}
+
+
+/* ======================================================
+   答案
+====================================================== */
+
+function createAnswers(
+container,
+team,
+q
+){
+
+  container.innerHTML = "";
+
+
+  const letters =
+  ["A","B","C","D"];
+
+
+  q.answers.forEach(
+  (answer,index)=>{
+
+    const button =
+    document.createElement(
+      "button"
+    );
+
+
+    button.className =
+    "answer-btn";
+
+
+    button.innerHTML =
+    `<strong>${letters[index]}.</strong> ${escapeHTML(answer)}`;
+
+
+    button.addEventListener(
+    "click",
+    ()=>chooseAnswer(
+      team,
+      index,
+      button
+    ));
+
+
+    container.appendChild(
+      button
+    );
+
+  });
+
+}
+
+
+/* ======================================================
+   作答
+====================================================== */
+
+function getAnswerTime(){
+
+  return (
+    performance.now() -
+    questionStartTime -
+    totalPauseTime
+  );
+
+}
+
+
+function chooseAnswer(
+team,
+index,
+button
+){
+
+  if(
+    roundFinished ||
+    gamePaused
+  ){
+
+    return;
+
+  }
+
+
+  const answerTime =
+  getAnswerTime();
+
+
+  if(team === "red"){
+
+    if(
+      redAnswer !== null
+    ){
+
+      return;
+
+    }
+
+
+    redAnswer = index;
+
+    redTime = answerTime;
+
+
+    lockTeam(
+      redAnswersEl
+    );
+
+
+    button.classList.add(
+      "selected"
+    );
+
+  }
+
+
+  if(team === "blue"){
+
+    if(
+      blueAnswer !== null
+    ){
+
+      return;
+
+    }
+
+
+    blueAnswer = index;
+
+    blueTime = answerTime;
+
+
+    lockTeam(
+      blueAnswersEl
+    );
+
+
+    button.classList.add(
+      "selected"
+    );
+
+  }
+
+
+  if(
+    redAnswer !== null &&
+    blueAnswer !== null
+  ){
+
+    finishRound();
+
+  }
+
+}
+
+
+function lockTeam(container){
+
+  container
+  .querySelectorAll("button")
+  .forEach(button=>{
+
+    button.disabled = true;
+
+  });
+
+}
+
+
+/* ======================================================
+   判定
+====================================================== */
+
+function finishRound(){
+
+  if(roundFinished) return;
+
+
+  roundFinished = true;
+
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  countdownSound.pause();
+
+  countdownSound.currentTime = 0;
+
+
+  timerEl.classList.remove(
+    "danger"
+  );
+
+
+  const q =
+  questions[currentQuestion];
+
+
+  revealAnswers(
+    q.correct
+  );
+
+
+  const redCorrect =
+  redAnswer === q.correct;
+
+
+  const blueCorrect =
+  blueAnswer === q.correct;
+
+
+  if(
+    redCorrect &&
+    !blueCorrect
+  ){
+
+    playSound(
+      correctSound
+    );
+
+
+    showStatus(
+      "🔴 ĐỘI ĐỎ KÉO!"
+    );
+
+
+    moveTug(-1);
+
+  }
+
+
+  else if(
+    blueCorrect &&
+    !redCorrect
+  ){
+
+    playSound(
+      correctSound
+    );
+
+
+    showStatus(
+      "ĐỘI XANH KÉO! 🔵"
+    );
+
+
+    moveTug(1);
+
+  }
+
+
+  else if(
+    redCorrect &&
+    blueCorrect
+  ){
+
+    playSound(
+      correctSound
+    );
+
+
+    const difference =
+    Math.abs(
+      redTime - blueTime
+    );
+
+
+    if(
+      difference < 50
+    ){
+
+      showStatus(
+        "⚡ HÒA!"
+      );
+
+    }
+
+
+    else if(
+      redTime < blueTime
+    ){
+
+      showStatus(
+        "⚡ ĐỘI ĐỎ NHANH HƠN!"
+      );
+
+
+      moveTug(-1);
+
+    }
+
+
+    else{
+
+      showStatus(
+        "⚡ ĐỘI XANH NHANH HƠN!"
+      );
+
+
+      moveTug(1);
+
+    }
+
+  }
+
+
+  else{
+
+    playSound(
+      wrongSound
+    );
+
+
+    showStatus(
+      "😅 KHÔNG ĐỘI NÀO KÉO!"
+    );
+
+  }
+
+
+  if(
+    ropePosition <=
+    -WIN_SCORE
+  ){
+
+    setTimeout(
+      ()=>showWinner("red"),
+      900
+    );
+
+    return;
+
+  }
+
+
+  if(
+    ropePosition >=
+    WIN_SCORE
+  ){
+
+    setTimeout(
+      ()=>showWinner("blue"),
+      900
+    );
+
+    return;
+
+  }
+
+
+  setTimeout(()=>{
+
+    if(gamePaused) return;
+
+
+    currentQuestion++;
+
+
+    if(
+      currentQuestion >=
+      questions.length
+    ){
+
+      currentQuestion = 0;
+
+    }
+
+
+    loadQuestion();
+
+
+  },2200);
+
+}
+
+
+/* ======================================================
+   顯示答案
+====================================================== */
+
+function revealAnswers(correct){
+
+  [
+    redAnswersEl,
+    blueAnswersEl
+  ]
+  .forEach(container=>{
+
+    const buttons =
+    container.querySelectorAll(
+      "button"
+    );
+
+
+    buttons.forEach(
+    (button,index)=>{
+
+      button.disabled = true;
+
+
+      if(index === correct){
+
+        button.classList.add(
+          "correct"
+        );
+
+      }
+
+    });
+
+  });
+
+
+  if(
+    redAnswer !== null &&
+    redAnswer !== correct
+  ){
+
+    redAnswersEl
+    .children[redAnswer]
+    .classList.add(
+      "wrong"
+    );
+
+  }
+
+
+  if(
+    blueAnswer !== null &&
+    blueAnswer !== correct
+  ){
+
+    blueAnswersEl
+    .children[blueAnswer]
+    .classList.add(
+      "wrong"
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   拔河
+====================================================== */
+
+function moveTug(direction){
+
+  ropePosition += direction;
+
+
+  const position =
+  ropePosition * STEP;
+
+
+  tugImage.style.setProperty(
+    "--x",
+    position+"vw"
+  );
+
+
+  tugImage.style.transform =
+  `translateX(${position}vw)`;
+
+
+  tugImage.classList.remove(
+    "pull-left",
+    "pull-right"
+  );
+
+
+  void tugImage.offsetWidth;
+
+
+  if(direction < 0){
+
+    tugImage.classList.add(
+      "pull-left"
+    );
+
+  }else{
+
+    tugImage.classList.add(
+      "pull-right"
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   狀態提示
+====================================================== */
+
+function showStatus(text){
+
+  statusEl.textContent = text;
+
+
+  statusEl.classList.add(
+    "show"
+  );
+
+
+  setTimeout(()=>{
+
+    statusEl.classList.remove(
+      "show"
+    );
+
+  },1700);
+
+}
+
+
+/* ======================================================
+   勝利
+====================================================== */
+
+function showWinner(team){
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  bgm.pause();
+  bgm.currentTime = 0;
+
+
+  countdownSound.pause();
+  countdownSound.currentTime = 0;
+
+
+  correctSound.pause();
+  correctSound.currentTime = 0;
+
+
+  wrongSound.pause();
+  wrongSound.currentTime = 0;
+
+
+  playSound(
+    winSound
+  );
+
+
+  winnerScreen.classList.add(
+    "show"
+  );
+
+
+  winnerText.textContent =
+  team === "red"
+  ?
+  "🔴 ĐỘI ĐỎ THẮNG!"
+  :
+  "ĐỘI XANH THẮNG! 🔵";
+
+}
+
+
+/* ======================================================
+   再玩
+====================================================== */
+
+restartBtn.addEventListener(
+"click",
+restartGame
+);
+
+
+function restartGame(){
+
+  stopAllSounds();
+
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  currentQuestion = 0;
+
+  ropePosition = 0;
+
+
+  redAnswer = null;
+  blueAnswer = null;
+
+
+  gamePaused = false;
+  roundFinished = false;
+
+
+  totalPauseTime = 0;
+  pauseStartedAt = null;
+
+
+  tugImage.style.setProperty(
+    "--x",
+    "0vw"
+  );
+
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+
+  winnerScreen.classList.remove(
+    "show"
+  );
+
+
+  startBGM();
+
+  loadQuestion();
+
+}
+
+
+/* ======================================================
+   回題庫
+====================================================== */
+
+editQuestionsBtn.addEventListener(
+"click",
+returnToSetup
+);
+
+
+/* ======================================================
+   暫停 / 停止
+====================================================== */
+
+stopBtn.addEventListener(
+"click",
+()=>{
+
+  if(
+    roundFinished
+  ){
+
+    gamePaused = true;
+
+  }else{
+
+    gamePaused = true;
+
+    pauseStartedAt =
+    performance.now();
+
+  }
+
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  bgm.pause();
+
+  countdownSound.pause();
+
+
+  stopModal.classList.add(
+    "show"
+  );
+
+});
+
+
+continueBtn.addEventListener(
+"click",
+()=>{
+
+  stopModal.classList.remove(
+    "show"
+  );
+
+
+  if(
+    pauseStartedAt !== null
+  ){
+
+    totalPauseTime +=
+    performance.now() -
+    pauseStartedAt;
+
+
+    pauseStartedAt = null;
+
+  }
+
+
+  gamePaused = false;
+
+
+  startBGM();
+
+
+  if(!roundFinished){
+
+    startTimer();
+
+  }
+
+});
+
+
+endGameBtn.addEventListener(
+"click",
+()=>{
+
+  stopModal.classList.remove(
+    "show"
+  );
+
+
+  returnToSetup();
+
+});
+
+
+function returnToSetup(){
+
+  clearInterval(
+    timerInterval
+  );
+
+
+  stopAllSounds();
+
+
+  winnerScreen.classList.remove(
+    "show"
+  );
+
+
+  gamePaused = false;
+  roundFinished = false;
+
+
+  currentQuestion = 0;
+  ropePosition = 0;
+
+
+  totalPauseTime = 0;
+  pauseStartedAt = null;
+
+
+  tugImage.style.setProperty(
+    "--x",
+    "0vw"
+  );
+
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+
+  gameScreen.style.display =
+  "none";
+
+
+  setupScreen.style.display =
+  "block";
+
+
+  document.body.style.overflow =
+  "auto";
+
+
+  renderEditor();
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* ======================================================
+   啟動
+====================================================== */
+
+loadSavedQuestions();
+
+renderEditor();
+
+tugImage.style.setProperty(
+  "--x",
+  "0vw"
+);
+
+</script>
+</body>
+</html>
