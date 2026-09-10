@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>葉子教室遊戲室</title>
+
+<!-- Excel / CSV 讀取 -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+:root{
+  --ink:#223047;
+  --muted:#748095;
+  --paper:#ffffff;
+  --brand:#6d55f5;
+  --brand2:#8d6bff;
+  --red:#ef4b5a;
+  --blue:#338fe8;
+  --green:#29b36a;
+  --yellow:#ffd73f;
+  --shadow:0 12px 34px rgba(31,42,68,.14);
+  --radius:24px;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(135deg,#f5fbf4,#fff9d7,#fff0f4);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+a{text-decoration:none;color:inherit}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid #e8ebf1;
+}
+.topbar-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{
+  font-weight:1000;
+  font-size:20px;
+}
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:26px 18px 56px;
+}
+.hero{
+  text-align:center;
+  padding:28px 10px 20px;
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(36px,5vw,64px);
+}
+.hero p{
+  color:var(--muted);
+  font-size:18px;
+}
+.lang-select,.input,.select,textarea{
+  border:2px solid #e2e6ee;
+  border-radius:15px;
+  background:#fff;
+  padding:11px 13px;
+  outline:none;
+}
+.lang-select:focus,.input:focus,.select:focus,textarea:focus{
+  border-color:var(--brand);
+}
+.btn{
+  border:0;
+  border-radius:999px;
+  padding:11px 18px;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.btn.primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:#fff;
+}
+.btn.green{background:var(--green);color:#fff}
+.btn.blue-btn{background:var(--blue);color:#fff}
+.btn.red-btn{background:var(--red);color:#fff}
+.btn.ghost{background:#eef1f6;color:#39465b}
+.btn.small{padding:8px 13px;font-size:14px}
+.card,.section{
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:22px;
+}
+.game-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+.game-card{
+  min-height:240px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  border:2px solid transparent;
+  transition:.2s;
+}
+.game-card:hover{
+  transform:translateY(-4px);
+  border-color:#ddd7ff;
+}
+.game-icon{font-size:58px}
+.game-card h2{margin:10px 0 8px;font-size:29px}
+.game-card p{color:var(--muted);line-height:1.7}
+.section{margin:18px 0}
+.section h2{margin:0 0 14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:220px}
+.note{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.65;
+}
+.status{
+  margin-top:12px;
+  border-radius:14px;
+  padding:11px 13px;
+  display:none;
+  font-weight:800;
+}
+.status.show{display:block}
+.status.ok{background:#e2f8ea;color:#19713d}
+.status.err{background:#ffe6e9;color:#aa2632}
+.status.info{background:#fff5cc;color:#776000}
+.recent-list{display:grid;gap:9px;margin-top:10px}
+.recent-item{
+  background:#f7f8fb;
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.recent-item .name{
+  flex:1;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.qcard{
+  margin:12px 0;
+  padding:15px;
+  border:2px solid #edf0f5;
+  border-radius:18px;
+}
+.qhead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+.qhead strong{font-size:18px}
+.answer-edit{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:10px;
+}
+.answer-edit label{
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+.answer-edit input{width:100%}
+
+/* 共用遊戲殼 */
+.game-shell{
+  height:100vh;
+  min-height:100vh;
+  background:#101726;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.game-header{
+  background:#fff;
+  min-height:78px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:space-between;
+  z-index:10;
+}
+.game-header .center{
+  flex:1;
+  text-align:center;
+}
+.game-header .tiny-title{
+  font-weight:1000;
+  font-size:16px;
+}
+.game-header .game-question{
+  font-size:clamp(26px,3vw,50px);
+  font-weight:1000;
+  line-height:1.15;
+}
+.question-banner{
+  display:inline-block;
+  min-width:min(560px,62vw);
+  max-width:72vw;
+  padding:8px 22px;
+  border-radius:18px;
+  background:#fff7d6;
+  border:3px solid #ffd45c;
+  box-shadow:0 5px 16px rgba(53,65,90,.12);
+  color:#172238;
+}
+.game-brand{
+  font-size:15px;
+  white-space:nowrap;
+  color:#344055;
+}
+
+@media(max-height:760px){
+  .game-header{min-height:66px;padding:7px 12px}
+  .game-header .tiny-title{font-size:14px}
+  .game-header .game-question{font-size:clamp(18px,2.2vw,32px)}
+  .tug-team{padding:7px}
+  .tug-team h3{margin-bottom:5px}
+  .answer-btn{min-height:48px;padding:7px 9px}
+}
+.game-main{
+  flex:1;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+}
+.game-footer{
+  background:#fff;
+  min-height:82px;
+  padding:10px 14px;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  background:#eef1f6;
+  border-radius:999px;
+  font-weight:900;
+}
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:300;
+  background:rgba(8,14,25,.74);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal.show{display:flex}
+.modal-card{
+  width:min(560px,94vw);
+  background:#fff;
+  border-radius:26px;
+  padding:28px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+
+/* 拔河 */
+.tug-game-main{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  background:#fff;
+}
+.tug-arena{
+  flex:1 1 auto;
+  height:auto;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,.02)),
+    url("assets/background.png") center/cover no-repeat;
+}
+.tug-stage{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.tug-stage img{
+  width:min(96%,1180px);
+  max-height:94%;
+  object-fit:contain;
+  transition:transform .38s ease;
+  filter:drop-shadow(0 10px 9px rgba(0,0,0,.14));
+}
+.center-line{
+  position:absolute;
+  left:50%;
+  top:39%;
+  height:46%;
+  border-left:5px dashed rgba(255,255,255,.95);
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+
+.tug-countdown{
+  position:absolute;
+  inset:0;
+  z-index:25;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.tug-countdown .count-number{
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(15,22,36,.78);
+  color:#fff;
+  border:8px solid rgba(255,255,255,.97);
+  font-size:98px;
+  line-height:1;
+  font-weight:1000;
+  text-shadow:0 6px 15px rgba(0,0,0,.45);
+  box-shadow:0 18px 48px rgba(0,0,0,.34);
+}
+@keyframes countPop{
+  from{transform:scale(.68);opacity:.35}
+  to{transform:scale(1);opacity:1}
+}
+.tug-team-tag{
+  position:absolute;
+  bottom:10px;
+  font-weight:1000;
+  color:#fff;
+  padding:8px 17px;
+  border-radius:999px;
+  box-shadow:0 6px 14px rgba(0,0,0,.16);
+}
+.tug-team-tag.red{left:16px;background:var(--red)}
+.tug-team-tag.blue{right:16px;background:var(--blue)}
+.tug-answer-zone{
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  background:#fff;
+}
+.tug-team{
+  position:relative;
+  padding:10px;
+  background:#fff; /* 重要：維持原本白底，不出現整塊藍色 */
+}
+.tug-team:first-child{border-right:2px solid #e7eaf0}
+.tug-team h3{
+  margin:0 0 8px;
+  text-align:center;
+}
+.answer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.answer-btn{
+  min-height:56px;
+  padding:9px 10px;
+  border-radius:14px;
+  background:#fff;
+  font-weight:900;
+  border:3px solid #dde4ed;
+}
+.tug-team.red .answer-btn{border-color:#f2a7ae}
+.tug-team.blue .answer-btn{border-color:#a4cdf4}
+.answer-btn.good{background:#def7e6;border-color:#36ad63!important}
+.answer-btn.bad{background:#ffe4e7;border-color:#ef5b66!important}
+.dual-qbar{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  background:#f7f9fc;
+  padding:12px 18px;
+  border-bottom:1px solid #e7eaf0;
+}
+.dual-qbar>div{
+  min-height:76px;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-weight:1000;
+  font-size:clamp(28px,2.5vw,42px);
+  line-height:1.15;
+  border-radius:20px;
+  box-shadow:0 5px 14px rgba(30,44,70,.10);
+}
+.dual-qbar>div:first-child{
+  color:#9c2030;
+  background:#fff1f3;
+  border:3px solid #f3a0aa;
+}
+.dual-qbar>div:last-child{
+  color:#155a9c;
+  background:#eef7ff;
+  border:3px solid #9fcef7;
+}
+.penalty{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  background:rgba(17,24,38,.92);
+  color:#fff;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  font-weight:1000;
+}
+.penalty.show{display:flex}
+.penalty .count{font-size:64px}
+
+/* 會飛的字 */
+.fly-field{
+  position:relative;
+  height:100%;
+  min-height:430px;
+  overflow:hidden;
+  background:linear-gradient(135deg,#ffe400,#ffc72f);
+}
+.fly-word{
+  position:absolute;
+  border:3px solid rgba(255,255,255,.86);
+  border-radius:17px;
+  padding:14px 22px;
+  color:#fff;
+  font-size:clamp(18px,2vw,31px);
+  font-weight:1000;
+  box-shadow:0 12px 20px rgba(0,0,0,.18);
+  user-select:none;
+}
+.fly-word:disabled{opacity:.25}
+.fly-slots{
+  display:flex;
+  gap:9px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.fly-slot{
+  min-width:66px;
+  min-height:46px;
+  border:3px dashed #b8c1dc;
+  border-radius:15px;
+  background:#f7f8fd;
+  padding:7px 10px;
+  font-weight:900;
+  text-align:center;
+}
+
+.fly-battle{
+  height:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  background:#111827;
+}
+.fly-team-panel{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+}
+.fly-team-panel.red-side{border-right:4px solid #fff}
+.fly-team-head{
+  flex:0 0 auto;
+  min-height:82px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-weight:1000;
+}
+.fly-team-head.red-head{
+  background:#fff0f2;
+  border-bottom:3px solid #f39ca7;
+  color:#982434;
+}
+.fly-team-head.blue-head{
+  background:#eef7ff;
+  border-bottom:3px solid #9acaf4;
+  color:#175b99;
+}
+.fly-team-question{
+  flex:1;
+  text-align:center;
+  font-size:clamp(22px,2vw,34px);
+  line-height:1.15;
+}
+.fly-team-score{
+  white-space:nowrap;
+  background:#fff;
+  border-radius:999px;
+  padding:8px 12px;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.fly-team-field{
+  flex:1 1 auto;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#ffe500,#ffc82f);
+}
+.fly-team-slots{
+  flex:0 0 auto;
+  min-height:72px;
+  padding:9px 10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  background:#fff;
+}
+.fly-match-timer{
+  font-size:clamp(28px,2.5vw,42px);
+  font-weight:1000;
+  min-width:128px;
+  text-align:center;
+  background:#152036;
+  color:#fff;
+  border-radius:18px;
+  padding:9px 15px;
+  box-shadow:0 5px 14px rgba(0,0,0,.15);
+}
+.fly-finish-board{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:18px 0;
+}
+.fly-finish-team{
+  border-radius:18px;
+  padding:18px;
+  font-weight:1000;
+  font-size:22px;
+}
+.fly-finish-team.red{background:#fff0f2;border:3px solid #f39ca7}
+.fly-finish-team.blue{background:#eef7ff;border:3px solid #9acaf4}
+
+/* 左右擺頭 */
+.head-layout{
+  height:100%;
+  padding:24px;
+  display:grid;
+  grid-template-columns:1fr 280px 1fr;
+  gap:18px;
+  align-items:center;
+  background:linear-gradient(180deg,#fff,#f3f7fb);
+}
+.head-choice{
+  min-height:260px;
+  border:0;
+  border-radius:28px;
+  color:#fff;
+  font-weight:1000;
+  font-size:clamp(24px,3vw,46px);
+  padding:20px;
+}
+.head-choice.left{background:#2eaee4}
+.head-choice.right{background:#ff6c45}
+.cam-column{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+.cam-circle{
+  width:250px;
+  height:250px;
+  border-radius:50%;
+  overflow:hidden;
+  border:8px solid #58bc68;
+  background:#111621;
+}
+.cam-circle video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
+}
+.head-hint{
+  text-align:center;
+  font-weight:900;
+  line-height:1.5;
+}
+
+.head-status{
+  width:100%;
+  padding:10px 12px;
+  border-radius:16px;
+  background:#eef1f6;
+  text-align:center;
+  font-weight:1000;
+  font-size:18px;
+}
+.head-status.left-state{background:#e5f6ff;color:#0874a7}
+.head-status.right-state{background:#fff0e9;color:#b13d1d}
+.head-status.neutral-state{background:#eef7ef;color:#26723c}
+.head-status.wait-state{background:#fff7d8;color:#7f6200}
+.head-angle{
+  font-size:14px;
+  color:#657184;
+  font-variant-numeric:tabular-nums;
+}
+.head-control-row{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.head-choice.detecting{
+  outline:10px solid rgba(255,255,255,.78);
+  transform:scale(1.02);
+  box-shadow:0 0 0 8px rgba(255,215,64,.55),0 18px 36px rgba(0,0,0,.18);
+}
+.cam-circle.calibrating{
+  border-color:#ffd33d;
+  box-shadow:0 0 0 8px rgba(255,211,61,.20);
+}
+
+/* 探險 */
+.adventure-map{
+  height:100%;
+  overflow:auto;
+  padding:22px;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(255,255,255,.45),transparent 18%),
+    linear-gradient(#91defa,#d8f6cf 47%,#ecd098);
+}
+.adventure-path{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+}
+.adventure-cell{
+  aspect-ratio:1;
+  border-radius:22px;
+  background:#fff;
+  border:4px solid rgba(255,255,255,.65);
+  box-shadow:0 8px 15px rgba(0,0,0,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  font-size:27px;
+  font-weight:1000;
+}
+.adventure-cell.special{background:#fff1a9}
+.token{
+  position:absolute;
+  font-size:38px;
+  filter:drop-shadow(0 5px 3px rgba(0,0,0,.25));
+}
+.token.red-token{left:4px;bottom:0}
+.token.blue-token{right:4px;top:0}
+.dice-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+}
+.dice-face{font-size:52px}
+.option-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:15px;
+}
+.option-btn{
+  border:3px solid #e0e5ee;
+  background:#fff;
+  border-radius:16px;
+  padding:13px;
+  font-weight:900;
+}
+.option-btn.good{background:#def7e6;border-color:#38af65}
+.option-btn.bad{background:#ffe4e7;border-color:#ed5965}
+
+@media(max-width:820px){
+  .game-brand{display:none}
+  .fly-battle{grid-template-columns:1fr}
+  .fly-team-panel.red-side{border-right:0;border-bottom:4px solid #fff}
+  .fly-team-field{min-height:260px}
+  .fly-team-head{min-height:68px}
+  .fly-team-question{font-size:20px}
+  .question-banner{min-width:0;max-width:100%;padding:7px 12px}
+  .game-grid{grid-template-columns:1fr}
+  .answer-edit{grid-template-columns:1fr}
+  .tug-answer-zone{grid-template-columns:1fr}
+  .tug-team:first-child{border-right:0;border-bottom:2px solid #e7eaf0}
+  .tug-arena{min-height:260px}
+  .head-layout{grid-template-columns:1fr 1fr}
+  .cam-column{grid-column:1/-1;grid-row:1}
+  .cam-circle{width:150px;height:150px}
+  .head-choice{min-height:160px}
+  .head-status{font-size:16px}
+  .head-control-row .btn{font-size:13px;padding:8px 10px}
+  .adventure-path{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<!-- 聲音 -->
+<audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
+<audio id="countdownSound" src="assets/countdown.mp3" preload="auto"></audio>
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="winSound" src="assets/win.mp3" preload="auto"></audio>
+
+<!-- 大廳 -->
+<section id="lobbyView">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">🍃 葉子教室遊戲室</div>
+      <select id="lobbyLang" class="lang-select"></select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1>🍃 葉子教室遊戲室</h1>
+      <p data-i18n="chooseGame"></p>
+    </div>
+
+    <div class="game-grid">
+      <div class="card game-card" onclick="openSetup('tug')">
+        <div>
+          <div class="game-icon">🪢</div>
+          <h2 id="nameTug">拔河大賽</h2>
+          <p data-i18n="classic"></p>
+          <p data-i18n="dual"></p>
+        </div>
+        <button class="btn primary"><span data-i18n="start"></span></button>
+      </div>
+
+      <div class="card game-card" onclick="openSetup('fly')">
+        <div>
+          <div class="game-icon">💨</div>
+          <h2 id="nameFly">會飛的字</h2>
+          <p data-i18n="tapOrder"></p>
+        </div>
+        <button class="btn primary"><span data-i18n="start"></span></button>
+      </div>
+
+      <div class="card game-card" onclick="openSetup('head')">
+        <div>
+          <div class="game-icon">↔️</div>
+          <h2 id="nameHead">左右擺頭</h2>
+          <p data-i18n="headInstruction"></p>
+        </div>
+        <button class="btn primary"><span data-i18n="start"></span></button>
+      </div>
+
+      <div class="card game-card" onclick="openSetup('adventure')">
+        <div>
+          <div class="game-icon">🗺️</div>
+          <h2 id="nameAdventure">探險大挑戰</h2>
+          <p data-i18n="adventure"></p>
+        </div>
+        <button class="btn primary"><span data-i18n="start"></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 設定 -->
+<section id="setupView" class="hidden">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button class="btn ghost" onclick="backLobby()">← <span data-i18n="back"></span></button>
+      <div class="brand">🍃 葉子教室遊戲室</div>
+      <select id="setupLang" class="lang-select"></select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2 id="setupTitle"></h2>
+      <div id="modeArea"></div>
+      <p id="formatNote" class="note"></p>
+    </div>
+
+    <div class="section">
+      <h2>☁️ <span data-i18n="google"></span></h2>
+      <div class="row">
+        <input id="sheetUrl" class="input grow" data-i18n-placeholder="paste">
+        <input id="sheetName" class="input" data-i18n-placeholder="bankName">
+        <button id="loadSheetBtn" class="btn green">☁️ <span data-i18n="load"></span></button>
+      </div>
+      <div class="note" data-i18n="googleHelp"></div>
+      <div id="bankStatus" class="status"></div>
+      <h3>⭐ <span data-i18n="recent"></span></h3>
+      <div id="recentBanks" class="recent-list"></div>
+    </div>
+
+    <div class="section">
+      <h2>📂 <span data-i18n="excel"></span></h2>
+      <div class="row">
+        <label class="btn blue-btn">
+          📂 <span data-i18n="upload"></span>
+          <input id="bankFile" type="file" accept=".xlsx,.xls,.csv" hidden>
+        </label>
+        <button id="downloadTemplateBtn" class="btn ghost">⬇️ <span data-i18n="downloadTemplate"></span></button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>✏️ <span data-i18n="manual"></span></h2>
+      <div class="row">
+        <button id="addQuestionBtn" class="btn ghost">＋ <span data-i18n="add"></span></button>
+        <button id="clearQuestionsBtn" class="btn ghost">🗑️ <span data-i18n="clear"></span></button>
+        <span id="questionCount" class="pill"></span>
+      </div>
+      <div id="questionEditor"></div>
+    </div>
+
+    <div class="row" style="justify-content:center;margin-top:22px">
+      <button id="startGameBtn" class="btn primary" style="font-size:20px;padding:15px 30px">
+        ▶ <span data-i18n="start"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 遊戲 -->
+<section id="gameView" class="hidden"></section>
+
+<!-- 視窗 -->
+<div id="modal" class="modal">
+  <div id="modalCard" class="modal-card"></div>
+</div>
+
+<script>
+/* =========================================================
+   多語言
+========================================================= */
+const LANGS = {
+  zh:{
+    name:"中文",chooseGame:"選擇遊戲",start:"開始遊戲",back:"返回遊戲室",targetLang:"介面語言",
+    google:"Google Sheet 題庫",paste:"貼上已開放查看權限的 Google Sheet 連結",
+    bankName:"題庫名稱（選填）",load:"載入題庫",recent:"最近使用",use:"使用",remove:"移除",
+    excel:"Excel / CSV",upload:"上傳題庫",downloadTemplate:"下載題庫範本",
+    manual:"手動建立",add:"新增題目",clear:"清空",questions:"題",
+    mode:"遊戲模式",sound:"音效",winner:"勝利！",correct:"答對！",wrong:"答錯！",
+    red:"紅隊",blue:"藍隊",pause:"暫停",next:"下一題",score:"分數",camera:"攝影機",
+    click:"點擊",roll:"擲骰子",retry:"再玩一次",loading:"正在載入…",
+    invalid:"題庫格式不正確",loaded:"題庫載入成功",needBank:"請先載入題庫",
+    googleHelp:"試算表必須設定為「知道連結的任何人都可查看」。",
+    classic:"同題競速",dual:"雙線闖關",tapOrder:"依順序點擊字詞",
+    headInstruction:"向左或向右擺頭選答案",adventure:"擲骰子前進並回答問題",
+    turn:"回合",time:"時間",stop:"停止遊戲"
+  },
+  vi:{
+    name:"Tiếng Việt",chooseGame:"Chọn trò chơi",start:"Bắt đầu",back:"Về phòng trò chơi",targetLang:"Ngôn ngữ giao diện",
+    google:"Câu hỏi Google Sheet",paste:"Dán liên kết Google Sheet đã mở quyền xem",
+    bankName:"Tên bộ câu hỏi (không bắt buộc)",load:"Tải câu hỏi",recent:"Đã dùng gần đây",use:"Dùng",remove:"Xóa",
+    excel:"Excel / CSV",upload:"Tải tệp câu hỏi",downloadTemplate:"Tải mẫu câu hỏi",
+    manual:"Tạo thủ công",add:"Thêm câu",clear:"Xóa hết",questions:"câu",
+    mode:"Chế độ chơi",sound:"Âm thanh",winner:"CHIẾN THẮNG!",correct:"ĐÚNG!",wrong:"SAI!",
+    red:"ĐỘI ĐỎ",blue:"ĐỘI XANH",pause:"TẠM DỪNG",next:"Câu tiếp theo",score:"Điểm",camera:"Camera",
+    click:"Nhấn",roll:"Đổ xúc xắc",retry:"Chơi lại",loading:"Đang tải…",
+    invalid:"Định dạng câu hỏi không đúng",loaded:"Đã tải câu hỏi",needBank:"Hãy tải câu hỏi trước",
+    googleHelp:"Google Sheet phải cho phép bất kỳ ai có liên kết xem.",
+    classic:"Cùng câu đua nhanh",dual:"Hai đường độc lập",tapOrder:"Chạm từ theo đúng thứ tự",
+    headInstruction:"Nghiêng đầu trái hoặc phải để chọn",adventure:"Đổ xúc xắc, tiến lên và trả lời",
+    turn:"Lượt",time:"Thời gian",stop:"Dừng trò chơi"
+  },
+  en:{
+    name:"English",chooseGame:"Choose a game",start:"Start game",back:"Back to game room",targetLang:"Interface language",
+    google:"Google Sheet bank",paste:"Paste a viewable Google Sheet link",
+    bankName:"Bank name (optional)",load:"Load bank",recent:"Recent banks",use:"Use",remove:"Remove",
+    excel:"Excel / CSV",upload:"Upload bank",downloadTemplate:"Download template",
+    manual:"Create manually",add:"Add question",clear:"Clear",questions:"questions",
+    mode:"Game mode",sound:"Sound",winner:"WINS!",correct:"CORRECT!",wrong:"WRONG!",
+    red:"RED TEAM",blue:"BLUE TEAM",pause:"PAUSE",next:"Next question",score:"Score",camera:"Camera",
+    click:"Click",roll:"Roll dice",retry:"Play again",loading:"Loading…",
+    invalid:"Invalid question-bank format",loaded:"Question bank loaded",needBank:"Load a question bank first",
+    googleHelp:"The Sheet must be viewable by anyone with the link.",
+    classic:"Same-question race",dual:"Dual-track challenge",tapOrder:"Tap the words in the correct order",
+    headInstruction:"Tilt your head left or right to answer",adventure:"Roll, move, and answer questions",
+    turn:"Turn",time:"Time",stop:"Stop game"
+  },
+  id:{
+    name:"Bahasa Indonesia",chooseGame:"Pilih permainan",start:"Mulai permainan",back:"Kembali ke ruang permainan",targetLang:"Bahasa antarmuka",
+    google:"Bank Google Sheet",paste:"Tempel tautan Google Sheet yang dapat dilihat",
+    bankName:"Nama bank soal (opsional)",load:"Muat bank soal",recent:"Terakhir digunakan",use:"Gunakan",remove:"Hapus",
+    excel:"Excel / CSV",upload:"Unggah bank soal",downloadTemplate:"Unduh templat",
+    manual:"Buat manual",add:"Tambah soal",clear:"Kosongkan",questions:"soal",
+    mode:"Mode permainan",sound:"Suara",winner:"MENANG!",correct:"BENAR!",wrong:"SALAH!",
+    red:"TIM MERAH",blue:"TIM BIRU",pause:"JEDA",next:"Soal berikutnya",score:"Skor",camera:"Kamera",
+    click:"Klik",roll:"Lempar dadu",retry:"Main lagi",loading:"Memuat…",
+    invalid:"Format bank soal tidak valid",loaded:"Bank soal berhasil dimuat",needBank:"Muat bank soal terlebih dahulu",
+    googleHelp:"Sheet harus dapat dilihat oleh siapa pun yang memiliki tautan.",
+    classic:"Balapan soal sama",dual:"Tantangan dua jalur",tapOrder:"Ketuk kata sesuai urutan",
+    headInstruction:"Miringkan kepala ke kiri atau kanan",adventure:"Lempar dadu, maju, lalu jawab",
+    turn:"Giliran",time:"Waktu",stop:"Hentikan permainan"
+  },
+  th:{
+    name:"ภาษาไทย",chooseGame:"เลือกเกม",start:"เริ่มเกม",back:"กลับห้องเกม",targetLang:"ภาษาอินเทอร์เฟซ",
+    google:"คลัง Google Sheet",paste:"วางลิงก์ Google Sheet ที่เปิดให้ดูได้",
+    bankName:"ชื่อชุดคำถาม (ไม่บังคับ)",load:"โหลดคำถาม",recent:"ใช้ล่าสุด",use:"ใช้",remove:"ลบ",
+    excel:"Excel / CSV",upload:"อัปโหลดคำถาม",downloadTemplate:"ดาวน์โหลดแม่แบบ",
+    manual:"สร้างเอง",add:"เพิ่มคำถาม",clear:"ล้าง",questions:"ข้อ",
+    mode:"โหมดเกม",sound:"เสียง",winner:"ชนะ!",correct:"ถูกต้อง!",wrong:"ผิด!",
+    red:"ทีมสีแดง",blue:"ทีมสีน้ำเงิน",pause:"หยุด",next:"ข้อต่อไป",score:"คะแนน",camera:"กล้อง",
+    click:"คลิก",roll:"ทอยลูกเต๋า",retry:"เล่นอีกครั้ง",loading:"กำลังโหลด…",
+    invalid:"รูปแบบคำถามไม่ถูกต้อง",loaded:"โหลดคำถามแล้ว",needBank:"กรุณาโหลดคำถามก่อน",
+    googleHelp:"Sheet ต้องเปิดให้ทุกคนที่มีลิงก์ดูได้",
+    classic:"แข่งคำถามเดียวกัน",dual:"สองเส้นทาง",tapOrder:"แตะคำตามลำดับที่ถูกต้อง",
+    headInstruction:"เอียงศีรษะซ้ายหรือขวาเพื่อตอบ",adventure:"ทอยลูกเต๋า เดินหน้า และตอบ",
+    turn:"ตา",time:"เวลา",stop:"หยุดเกม"
+  },
+  ja:{
+    name:"日本語",chooseGame:"ゲームを選ぶ",start:"ゲーム開始",back:"ゲーム室に戻る",targetLang:"表示言語",
+    google:"Google Sheet 問題集",paste:"閲覧可能な Google Sheet のリンクを貼り付け",
+    bankName:"問題集名（任意）",load:"読み込む",recent:"最近使用",use:"使用",remove:"削除",
+    excel:"Excel / CSV",upload:"問題集をアップロード",downloadTemplate:"問題集テンプレート",
+    manual:"手動作成",add:"問題を追加",clear:"クリア",questions:"問",
+    mode:"ゲームモード",sound:"音",winner:"勝利！",correct:"正解！",wrong:"不正解！",
+    red:"赤チーム",blue:"青チーム",pause:"一時停止",next:"次の問題",score:"得点",camera:"カメラ",
+    click:"クリック",roll:"サイコロを振る",retry:"もう一度遊ぶ",loading:"読み込み中…",
+    invalid:"問題集の形式が正しくありません",loaded:"問題集を読み込みました",needBank:"先に問題集を読み込んでください",
+    googleHelp:"リンクを知っている全員が閲覧できる設定にしてください。",
+    classic:"同じ問題で競争",dual:"2ライン挑戦",tapOrder:"正しい順番で単語をタップ",
+    headInstruction:"頭を左右に傾けて答える",adventure:"サイコロで進み問題に答える",
+    turn:"ターン",time:"時間",stop:"ゲーム停止"
+  },
+  ko:{
+    name:"한국어",chooseGame:"게임 선택",start:"게임 시작",back:"게임방으로",targetLang:"인터페이스 언어",
+    google:"Google Sheet 문제",paste:"보기 권한이 열린 Google Sheet 링크 붙여넣기",
+    bankName:"문제집 이름 (선택)",load:"문제 불러오기",recent:"최근 사용",use:"사용",remove:"삭제",
+    excel:"Excel / CSV",upload:"문제 업로드",downloadTemplate:"문제 템플릿 다운로드",
+    manual:"직접 만들기",add:"문제 추가",clear:"비우기",questions:"문제",
+    mode:"게임 모드",sound:"소리",winner:"승리!",correct:"정답!",wrong:"오답!",
+    red:"빨간 팀",blue:"파란 팀",pause:"일시정지",next:"다음 문제",score:"점수",camera:"카메라",
+    click:"클릭",roll:"주사위 굴리기",retry:"다시 하기",loading:"불러오는 중…",
+    invalid:"문제 형식이 올바르지 않습니다",loaded:"문제를 불러왔습니다",needBank:"먼저 문제를 불러오세요",
+    googleHelp:"링크가 있는 모든 사용자가 볼 수 있도록 설정하세요.",
+    classic:"같은 문제 속도전",dual:"두 경로 도전",tapOrder:"올바른 순서로 단어를 누르세요",
+    headInstruction:"고개를 왼쪽/오른쪽으로 기울여 답하세요",adventure:"주사위를 굴려 이동하고 답하세요",
+    turn:"차례",time:"시간",stop:"게임 정지"
+  },
+  fr:{
+    name:"Français",chooseGame:"Choisir un jeu",start:"Commencer",back:"Retour à la salle de jeux",targetLang:"Langue de l’interface",
+    google:"Banque Google Sheets",paste:"Collez un lien Google Sheets accessible en lecture",
+    bankName:"Nom de la banque (facultatif)",load:"Charger",recent:"Utilisés récemment",use:"Utiliser",remove:"Supprimer",
+    excel:"Excel / CSV",upload:"Importer la banque",downloadTemplate:"Télécharger le modèle",
+    manual:"Créer manuellement",add:"Ajouter une question",clear:"Effacer",questions:"questions",
+    mode:"Mode de jeu",sound:"Son",winner:"GAGNE !",correct:"CORRECT !",wrong:"FAUX !",
+    red:"ÉQUIPE ROUGE",blue:"ÉQUIPE BLEUE",pause:"PAUSE",next:"Question suivante",score:"Score",camera:"Caméra",
+    click:"Cliquer",roll:"Lancer le dé",retry:"Rejouer",loading:"Chargement…",
+    invalid:"Format de banque invalide",loaded:"Banque chargée",needBank:"Chargez d’abord une banque",
+    googleHelp:"La feuille doit être visible par toute personne disposant du lien.",
+    classic:"Course sur la même question",dual:"Défi à deux parcours",tapOrder:"Touchez les mots dans le bon ordre",
+    headInstruction:"Inclinez la tête à gauche ou à droite",adventure:"Lancez le dé, avancez et répondez",
+    turn:"Tour",time:"Temps",stop:"Arrêter"
+  },
+  de:{
+    name:"Deutsch",chooseGame:"Spiel auswählen",start:"Spiel starten",back:"Zurück zum Spielzimmer",targetLang:"Oberflächensprache",
+    google:"Google-Sheets-Fragenbank",paste:"Freigegebenen Google-Sheets-Link einfügen",
+    bankName:"Name der Fragenbank (optional)",load:"Laden",recent:"Zuletzt verwendet",use:"Verwenden",remove:"Entfernen",
+    excel:"Excel / CSV",upload:"Fragenbank hochladen",downloadTemplate:"Vorlage herunterladen",
+    manual:"Manuell erstellen",add:"Frage hinzufügen",clear:"Leeren",questions:"Fragen",
+    mode:"Spielmodus",sound:"Ton",winner:"GEWINNT!",correct:"RICHTIG!",wrong:"FALSCH!",
+    red:"ROTES TEAM",blue:"BLAUES TEAM",pause:"PAUSE",next:"Nächste Frage",score:"Punkte",camera:"Kamera",
+    click:"Klicken",roll:"Würfeln",retry:"Noch einmal spielen",loading:"Wird geladen…",
+    invalid:"Ungültiges Fragenformat",loaded:"Fragenbank geladen",needBank:"Bitte zuerst eine Fragenbank laden",
+    googleHelp:"Das Sheet muss für alle mit dem Link sichtbar sein.",
+    classic:"Gleiche-Frage-Rennen",dual:"Zwei-Spuren-Challenge",tapOrder:"Wörter in der richtigen Reihenfolge antippen",
+    headInstruction:"Kopf nach links oder rechts neigen",adventure:"Würfeln, ziehen und antworten",
+    turn:"Runde",time:"Zeit",stop:"Spiel stoppen"
+  },
+  es:{
+    name:"Español",chooseGame:"Elegir juego",start:"Empezar",back:"Volver a la sala de juegos",targetLang:"Idioma de la interfaz",
+    google:"Banco de Google Sheets",paste:"Pega un enlace de Google Sheets con permiso de lectura",
+    bankName:"Nombre del banco (opcional)",load:"Cargar",recent:"Usados recientemente",use:"Usar",remove:"Eliminar",
+    excel:"Excel / CSV",upload:"Subir banco",downloadTemplate:"Descargar plantilla",
+    manual:"Crear manualmente",add:"Añadir pregunta",clear:"Vaciar",questions:"preguntas",
+    mode:"Modo de juego",sound:"Sonido",winner:"¡GANA!",correct:"¡CORRECTO!",wrong:"¡INCORRECTO!",
+    red:"EQUIPO ROJO",blue:"EQUIPO AZUL",pause:"PAUSA",next:"Siguiente pregunta",score:"Puntuación",camera:"Cámara",
+    click:"Clic",roll:"Lanzar dado",retry:"Jugar otra vez",loading:"Cargando…",
+    invalid:"Formato de preguntas no válido",loaded:"Banco cargado",needBank:"Carga primero un banco de preguntas",
+    googleHelp:"La hoja debe ser visible para cualquier persona con el enlace.",
+    classic:"Carrera con la misma pregunta",dual:"Reto de dos rutas",tapOrder:"Toca las palabras en el orden correcto",
+    headInstruction:"Inclina la cabeza a izquierda o derecha",adventure:"Lanza el dado, avanza y responde",
+    turn:"Turno",time:"Tiempo",stop:"Detener juego"
+  }
+};
+
+const LANG_ORDER=["zh","vi","en","id","th","ja","ko","fr","de","es"];
+let lang=localStorage.getItem("yeziGameLanguage")||"zh";
+
+function t(key){
+  return (LANGS[lang]&&LANGS[lang][key]) || LANGS.zh[key] || key;
+}
+function renderLangSelect(select){
+  select.innerHTML=LANG_ORDER.map(k=>`<option value="${k}" ${k===lang?"selected":""}>${LANGS[k].name}</option>`).join("");
+  select.onchange=()=>{
+    lang=select.value;
+    localStorage.setItem("yeziGameLanguage",lang);
+    syncLanguage();
+  };
+}
+function syncLanguage(){
+  document.documentElement.lang=lang==="zh"?"zh-Hant":lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>el.placeholder=t(el.dataset.i18nPlaceholder));
+  lobbyLang.value=lang;
+  setupLang.value=lang;
+  renderGameNames();
+  if(selectedGame) renderQuestionEditor();
+  renderRecentBanks();
+  updateSoundButton();
+}
+function renderGameNames(){
+  const names={
+    zh:["拔河大賽","會飛的字","左右擺頭","探險大挑戰"],
+    vi:["Kéo co","Từ bay","Lắc đầu trái–phải","Phiêu lưu"],
+    en:["Tug of War","Flying Words","Head Tilt","Adventure"],
+    id:["Tarik Tambang","Kata Terbang","Miring Kepala","Petualangan"],
+    th:["ชักเย่อ","คำบิน","เอียงศีรษะ","ผจญภัย"],
+    ja:["綱引き","飛ぶ単語","左右ヘッドチルト","アドベンチャー"],
+    ko:["줄다리기","날아다니는 단어","고개 기울이기","모험"],
+    fr:["Tir à la corde","Mots volants","Inclinaison de tête","Aventure"],
+    de:["Tauziehen","Fliegende Wörter","Kopfneigen","Abenteuer"],
+    es:["Tira y afloja","Palabras voladoras","Inclinar la cabeza","Aventura"]
+  };
+  const a=names[lang]||names.zh;
+  nameTug.textContent=a[0];
+  nameFly.textContent=a[1];
+  nameHead.textContent=a[2];
+  nameAdventure.textContent=a[3];
+}
+
+/* =========================================================
+   聲音
+========================================================= */
+const bgm=document.getElementById("bgm");
+const countdownSound=document.getElementById("countdownSound");
+const correctSound=document.getElementById("correctSound");
+const wrongSound=document.getElementById("wrongSound");
+const winSound=document.getElementById("winSound");
+
+bgm.volume=.26;
+countdownSound.volume=.65;
+correctSound.volume=.75;
+wrongSound.volume=.75;
+winSound.volume=.9;
+
+let soundEnabled=localStorage.getItem("yeziSound")!=="off";
+
+function playFx(audio){
+  if(!soundEnabled||!audio)return;
+  try{
+    audio.pause();
+    audio.currentTime=0;
+    audio.play().catch(()=>{});
+  }catch{}
+}
+function startBgm(){
+  if(!soundEnabled)return;
+  try{
+    if(bgm.paused) bgm.play().catch(()=>{});
+  }catch{}
+}
+function stopAllSounds(){
+  [bgm,countdownSound,correctSound,wrongSound,winSound].forEach(a=>{
+    try{a.pause();a.currentTime=0}catch{}
+  });
+}
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  localStorage.setItem("yeziSound",soundEnabled?"on":"off");
+  updateSoundButton();
+  if(soundEnabled){
+    if(!gameView.classList.contains("hidden")) bgm.play().catch(()=>{});
+  }else{
+    stopAllSounds();
+  }
+}
+function updateSoundButton(){
+  const b=document.getElementById("soundToggle");
+  if(b)b.textContent=soundEnabled?"🔊":"🔇";
+}
+
+/* =========================================================
+   共用資料
+========================================================= */
+let selectedGame=null;
+let questions=[];
+let cleanupFns=[];
+
+function esc(s){
+  return String(s??"").replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function shuffle(a){
+  a=[...a];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function cleanupGame(){
+  cleanupFns.forEach(fn=>{try{fn()}catch{}});
+  cleanupFns=[];
+  stopAllSounds();
+  modal.classList.remove("show");
+}
+function backLobby(){
+  cleanupGame();
+  setupView.classList.add("hidden");
+  gameView.classList.add("hidden");
+  lobbyView.classList.remove("hidden");
+}
+function exitGame(){
+  cleanupGame();
+  gameView.classList.add("hidden");
+  setupView.classList.remove("hidden");
+  renderQuestionEditor();
+}
+function fullScreen(){
+  if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+function gameHeader(question="",extraRight=""){
+  return `
+    <div class="game-header">
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="btn ghost" onclick="exitGame()">← <span data-i18n="back">${t("back")}</span></button>
+        <div class="brand game-brand">🍃 葉子教室遊戲室</div>
+      </div>
+      <div class="center">
+        <div class="game-question question-banner" id="gameQuestion">${esc(question)}</div>
+      </div>
+      ${extraRight}
+      <button id="soundToggle" class="btn ghost" onclick="toggleSound()">${soundEnabled?"🔊":"🔇"}</button>
+      <button class="btn ghost" onclick="fullScreen()">⛶</button>
+    </div>`;
+}
+function showWinner(text){
+  try{bgm.pause()}catch{}
+  playFx(winSound);
+  modalCard.innerHTML=`
+    <div style="font-size:78px">🏆</div>
+    <h1>${esc(text)}</h1>
+    <button class="btn primary" onclick="modal.classList.remove('show');exitGame()">${t("retry")}</button>`;
+  modal.classList.add("show");
+}
+
+/* =========================================================
+   題庫讀取
+========================================================= */
+function parseCSV(text){
+  const rows=[];
+  let row=[],field="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){
+      if(quoted&&text[i+1]==='"'){field+='"';i++}
+      else quoted=!quoted;
+    }else if(c===","&&!quoted){
+      row.push(field);field="";
+    }else if((c==="\n"||c==="\r")&&!quoted){
+      if(c==="\r"&&text[i+1]==="\n")i++;
+      row.push(field);
+      if(row.some(x=>String(x).trim()))rows.push(row);
+      row=[];field="";
+    }else field+=c;
+  }
+  row.push(field);
+  if(row.some(x=>String(x).trim()))rows.push(row);
+  return rows;
+}
+function norm(s){
+  return String(s??"").trim().toLowerCase().replace(/\s/g,"");
+}
+function rowsToQuestions(rows){
+  if(!rows||rows.length<2)return [];
+  const h=rows[0].map(norm);
+  const findIndex=(names)=>{
+    for(const n of names){
+      const i=h.indexOf(norm(n));
+      if(i>=0)return i;
+    }
+    return -1;
+  };
+  const qi=findIndex(["題目","問題","question","prompt","提示"]);
+  const ai=findIndex(["a","選項a","答案a","詞塊1"]);
+  const bi=findIndex(["b","選項b","答案b","詞塊2"]);
+  const ci=findIndex(["c","選項c","答案c","詞塊3"]);
+  const di=findIndex(["d","選項d","答案d","詞塊4"]);
+  const ei=findIndex(["e","詞塊5"]);
+  const fi=findIndex(["f","詞塊6"]);
+  const gi=findIndex(["g","詞塊7"]);
+  const hi=findIndex(["h","詞塊8"]);
+  const ii=findIndex(["i","詞塊9"]);
+  const ji=findIndex(["j","詞塊10"]);
+  const ki=findIndex(["k","詞塊11"]);
+  const li=findIndex(["l","詞塊12"]);
+  const ri=findIndex(["正確答案","答案","correct","correctanswer","順序","order"]);
+
+  if(qi<0||ai<0||bi<0)return [];
+
+  const allAns=[ai,bi,ci,di,ei,fi,gi,hi,ii,ji,ki,li];
+
+  const out=[];
+  for(let r=1;r<rows.length;r++){
+    const row=rows[r];
+    const q=String(row[qi]??"").trim();
+    if(!q)continue;
+
+    const answers=allAns
+      .filter(i=>i>=0)
+      .map(i=>String(row[i]??"").trim());
+
+    const raw=ri>=0?String(row[ri]??"").trim().toUpperCase():"";
+    let correct=null;
+    let order=null;
+
+    const map={A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7,I:8,J:9,K:10,L:11,
+               "1":0,"2":1,"3":2,"4":3,"5":4,"6":5,"7":6,"8":7,"9":8,"10":9,"11":10,"12":11};
+
+    if(raw && map[raw]!==undefined){
+      correct=map[raw];
+    }else if(raw){
+      const toks=raw.split(/[,\s>→\-]+/).filter(Boolean);
+      if(toks.length>1 && toks.every(x=>map[x]!==undefined)){
+        order=toks.map(x=>map[x]);
+      }
+    }
+    out.push({question:q,answers,correct,order});
+  }
+  return out;
+}
+function saveQuestions(){
+  localStorage.setItem("yeziQuestions",JSON.stringify(questions));
+}
+function loadSavedQuestions(){
+  try{return JSON.parse(localStorage.getItem("yeziQuestions")||"[]")}catch{return []}
+}
+function extractSheet(url){
+  const m=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if(!m)return null;
+  const gid=(url.match(/[?#&]gid=(\d+)/)||[])[1]||"0";
+  return {id:m[1],gid};
+}
+async function loadGoogleSheet(url){
+  const info=extractSheet(url);
+  if(!info)throw new Error("bad-url");
+  const csv=`https://docs.google.com/spreadsheets/d/${info.id}/gviz/tq?tqx=out:csv&gid=${info.gid}&t=${Date.now()}`;
+  const res=await fetch(csv);
+  if(!res.ok)throw new Error("fetch");
+  const qs=rowsToQuestions(parseCSV(await res.text()));
+  if(!qs.length)throw new Error("format");
+  return qs;
+}
+function getRecentBanks(){
+  try{return JSON.parse(localStorage.getItem("yeziRecentBanks")||"[]")}catch{return []}
+}
+function rememberBank(url,name){
+  let a=getRecentBanks().filter(x=>x.url!==url);
+  a.unshift({url,name:(name||"Google Sheet").trim(),time:Date.now()});
+  a=a.slice(0,5);
+  localStorage.setItem("yeziRecentBanks",JSON.stringify(a));
+}
+function removeRecentBank(url){
+  const a=getRecentBanks().filter(x=>x.url!==url);
+  localStorage.setItem("yeziRecentBanks",JSON.stringify(a));
+  renderRecentBanks();
+}
+function showStatus(type,msg){
+  bankStatus.className=`status show ${type}`;
+  bankStatus.textContent=msg;
+}
+function renderRecentBanks(){
+  if(!window.recentBanks)return;
+  recentBanks.innerHTML="";
+  const a=getRecentBanks();
+  if(!a.length){
+    recentBanks.innerHTML='<div class="note">—</div>';
+    return;
+  }
+  a.forEach(it=>{
+    const div=document.createElement("div");
+    div.className="recent-item";
+    div.innerHTML=`
+      <div class="name">☁️ ${esc(it.name)}</div>
+      <button class="btn small green">${t("use")}</button>
+      <button class="btn small ghost">×</button>`;
+    div.children[1].onclick=async()=>{
+      sheetUrl.value=it.url;
+      sheetName.value=it.name;
+      await loadSheetFromUI(it.url,it.name);
+    };
+    div.children[2].onclick=()=>removeRecentBank(it.url);
+    recentBanks.appendChild(div);
+  });
+}
+async function loadSheetFromUI(url,name){
+  showStatus("info",t("loading"));
+  try{
+    questions=await loadGoogleSheet(url);
+    saveQuestions();
+    rememberBank(url,name||"Google Sheet");
+    renderQuestionEditor();
+    renderRecentBanks();
+    showStatus("ok",`${t("loaded")}：${questions.length}`);
+  }catch{
+    showStatus("err",`${t("invalid")}。${t("googleHelp")}`);
+  }
+}
+function renderQuestionEditor(){
+  if(!window.questionEditor)return;
+  questionCount.textContent=`${questions.length} ${t("questions")}`;
+  questionEditor.innerHTML="";
+
+  questions.forEach((q,i)=>{
+    const card=document.createElement("div");
+    card.className="qcard";
+
+    const maxAnswers=selectedGame==="fly"?12:4;
+    const answerHtml=Array.from({length:maxAnswers},(_,j)=>{
+      const letter=String.fromCharCode(65+j);
+      return `
+        <label>
+          <b>${letter}</b>
+          <input class="input" data-answer="${j}" value="${esc(q.answers?.[j]||"")}">
+        </label>`;
+    }).join("");
+
+    card.innerHTML=`
+      <div class="qhead">
+        <strong>#${i+1}</strong>
+        <button class="btn small ghost" data-delete>🗑️</button>
+      </div>
+
+      <input class="input" data-question style="width:100%;margin-top:10px" value="${esc(q.question||"")}">
+
+      <div class="answer-edit">${answerHtml}</div>
+
+      ${selectedGame==="fly" ? `
+        <div class="note" style="margin-top:10px">✅ A → B → C → D… 即為正確排列順序</div>
+      ` : `
+        <div class="row" style="margin-top:10px">
+          <label>Correct / Order</label>
+          <input class="input grow" data-correct value="${
+            q.order ? q.order.map(x=>String.fromCharCode(65+x)).join(",") :
+            q.correct!=null ? String.fromCharCode(65+q.correct) : ""
+          }">
+        </div>
+      `}`;
+
+    card.querySelector("[data-delete]").onclick=()=>{
+      questions.splice(i,1);
+      saveQuestions();
+      renderQuestionEditor();
+    };
+    card.querySelector("[data-question]").oninput=e=>{
+      q.question=e.target.value;
+      saveQuestions();
+    };
+    card.querySelectorAll("[data-answer]").forEach(el=>{
+      el.oninput=e=>{
+        q.answers=q.answers||[];
+        q.answers[+el.dataset.answer]=e.target.value;
+        saveQuestions();
+      };
+    });
+    const correctInput=card.querySelector("[data-correct]");
+    if(correctInput){
+      correctInput.oninput=e=>{
+        const raw=e.target.value.trim().toUpperCase();
+        const map={A:0,B:1,C:2,D:3,E:4,F:5,G:6,H:7,I:8,J:9,K:10,L:11};
+        if(map[raw]!==undefined){
+          q.correct=map[raw];
+          q.order=null;
+        }else{
+          const toks=raw.split(/[,\s>→\-]+/).filter(Boolean);
+          if(toks.length>1&&toks.every(x=>map[x]!==undefined)){
+            q.order=toks.map(x=>map[x]);
+            q.correct=null;
+          }else{
+            q.order=null;
+            q.correct=null;
+          }
+        }
+        saveQuestions();
+      };
+    }
+    questionEditor.appendChild(card);
+  });
+}
+function downloadTemplate(){
+  let rows;
+  if(selectedGame==="fly"){
+    rows=[["題目","A","B","C","D","E","F","G","H","I","J","K","L"],
+          ["越南首都是？","Hà","Nội","là","thủ","đô","của","Việt","Nam","","","",""]];
+  }else if(selectedGame==="head"){
+    rows=[["題目","A","B","正確答案"],["大學","đại học","trung học","A"]];
+  }else{
+    rows=[["題目","A","B","C","D","正確答案"],["兔子","Con mèo","Con thỏ","Con chó","Con gà","B"]];
+  }
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,"題庫範本");
+  XLSX.writeFile(wb,"葉子教室遊戲室_題庫範本.xlsx");
+}
+
+/* =========================================================
+   設定畫面
+========================================================= */
+function openSetup(game){
+  selectedGame=game;
+  questions=loadSavedQuestions();
+  lobbyView.classList.add("hidden");
+  gameView.classList.add("hidden");
+  setupView.classList.remove("hidden");
+
+  const titleMap={
+    tug:"🪢 拔河大賽",
+    fly:"💨 會飛的字",
+    head:"↔️ 左右擺頭",
+    adventure:"🗺️ 探險大挑戰"
+  };
+  setupTitle.textContent=titleMap[game];
+
+  if(game==="tug"){
+    modeArea.innerHTML=`
+      <div class="row">
+        <strong>${t("mode")}：</strong>
+        <label><input type="radio" name="gameMode" value="classic" checked> ${t("classic")}</label>
+        <label><input type="radio" name="gameMode" value="dual"> ${t("dual")}</label>
+      </div>`;
+    formatNote.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。";
+  }else if(game==="fly"){
+    modeArea.innerHTML=`
+      <div class="row">
+        <strong>比賽時間：</strong>
+        <select id="flyMatchMinutes" class="select">
+          <option value="1">1 分鐘</option>
+          <option value="2">2 分鐘</option>
+          <option value="3" selected>3 分鐘</option>
+          <option value="5">5 分鐘</option>
+          <option value="10">10 分鐘</option>
+        </select>
+        <span class="note">兩組同時作答；時間到，以完成題數較多者獲勝。</span>
+      </div>`;
+    formatNote.textContent="題庫：題目｜A～L 字詞。A→B→C→D… 就是正確句子順序，遊戲會自動打亂飛出，不需要再填「正確答案」。";
+  }else if(game==="head"){
+    modeArea.innerHTML=`
+      <div class="row">
+        <strong>${t("mode")}：</strong>
+        <label><input type="radio" name="inputMode" value="click" checked> 👆 ${t("click")}</label>
+        <label><input type="radio" name="inputMode" value="camera"> 📷 ${t("camera")}</label>
+      </div>`;
+    formatNote.textContent="題庫：題目｜A（左）｜B（右）｜正確答案（A/B）。攝影機不支援時仍可點擊左右答案。";
+  }else{
+    modeArea.innerHTML="";
+    formatNote.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。兩隊輪流擲骰子，答錯會退回擲骰前的位置。";
+  }
+
+  renderQuestionEditor();
+  renderRecentBanks();
+  syncLanguage();
+}
+
+/* =========================================================
+   遊戲 1：拔河
+========================================================= */
+function startTug(){
+  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
+  if(!qs.length){alert(t("invalid"));return}
+
+  const mode=document.querySelector('input[name="gameMode"]:checked')?.value||"classic";
+
+  setupView.classList.add("hidden");
+  gameView.classList.remove("hidden");
+
+  gameView.innerHTML=`
+    <div class="game-shell">
+      ${gameHeader("")}
+
+      <div id="dualBar" class="dual-qbar hidden">
+        <div id="redQuestion"></div>
+        <div id="blueQuestion"></div>
+      </div>
+
+      <div class="game-main tug-game-main">
+        <div class="tug-arena">
+          <div id="tugCountdown" class="tug-countdown hidden">
+            <div class="count-number" id="tugTimer">3</div>
+          </div>
+          <div class="center-line"></div>
+          <div class="tug-stage">
+            <img id="tugImage" src="assets/tug-war.png" alt="">
+          </div>
+          <div class="tug-team-tag red">🔴 <span id="redTag">${t("red")}</span></div>
+          <div class="tug-team-tag blue"><span id="blueTag">${t("blue")}</span> 🔵</div>
+        </div>
+
+        <div class="tug-answer-zone">
+          <div class="tug-team red">
+            <h3>🔴 ${t("red")}</h3>
+            <div id="redAnswers" class="answer-grid"></div>
+            <div id="redPenalty" class="penalty"><div>${t("pause")}</div><div id="redPenaltyN" class="count">3</div></div>
+          </div>
+
+          <div class="tug-team blue">
+            <h3>🔵 ${t("blue")}</h3>
+            <div id="blueAnswers" class="answer-grid"></div>
+            <div id="bluePenalty" class="penalty"><div>${t("pause")}</div><div id="bluePenaltyN" class="count">3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  updateSoundButton();
+  startBgm();
+
+  const tugImage=document.getElementById("tugImage");
+  const redAnswers=document.getElementById("redAnswers");
+  const blueAnswers=document.getElementById("blueAnswers");
+  const gameQuestion=document.getElementById("gameQuestion");
+  const dualBar=document.getElementById("dualBar");
+  const redQuestion=document.getElementById("redQuestion");
+  const blueQuestion=document.getElementById("blueQuestion");
+  const tugCountdown=document.getElementById("tugCountdown");
+  const tugTimer=document.getElementById("tugTimer");
+
+  let rope=0;
+  const WIN=5;
+  const STEP=3.0;
+
+  function moveRope(dir){
+    rope+=dir;
+    tugImage.style.transform=`translateX(${rope*STEP}vw)`;
+    if(Math.abs(rope)>=WIN){
+      const team=rope<0?t("red"):t("blue");
+      setTimeout(()=>showWinner(`${team} ${t("winner")}`),350);
+      return true;
+    }
+    return false;
+  }
+
+  function renderAnswers(box,q,handler){
+    box.innerHTML="";
+    q.answers.slice(0,4).forEach((ans,i)=>{
+      if(!ans)return;
+      const b=document.createElement("button");
+      b.className="answer-btn";
+      b.textContent=`${String.fromCharCode(65+i)}. ${ans}`;
+      b.onclick=()=>handler(i,b);
+      box.appendChild(b);
+    });
+  }
+
+  if(mode==="classic"){
+    let index=0;
+    let redChoice=null;
+    let blueChoice=null;
+    let redTime=0;
+    let blueTime=0;
+    let startedAt=0;
+    let timerId=null;
+    let remain=10;
+
+    function loadQuestion(){
+      redChoice=null;
+      blueChoice=null;
+      const q=qs[index%qs.length];
+      gameQuestion.textContent=q.question;
+      renderAnswers(redAnswers,q,(i,b)=>choose("red",i,b));
+      renderAnswers(blueAnswers,q,(i,b)=>choose("blue",i,b));
+
+      remain=10;
+      tugTimer.textContent="3";
+      tugCountdown.classList.add("hidden");
+      startedAt=performance.now();
+
+      clearInterval(timerId);
+      timerId=setInterval(()=>{
+        remain--;
+        tugTimer.textContent=Math.max(0,remain);
+        if(remain<=3 && remain>0) playFx(countdownSound);
+        if(remain<=0){
+          clearInterval(timerId);
+          if(redChoice==null) redChoice=-1;
+          if(blueChoice==null) blueChoice=-1;
+          finishQuestion();
+        }
+      },1000);
+    }
+
+    function choose(team,i,b){
+      if(team==="red"&&redChoice!=null)return;
+      if(team==="blue"&&blueChoice!=null)return;
+
+      if(team==="red"){
+        redChoice=i;
+        redTime=performance.now()-startedAt;
+        [...redAnswers.children].forEach(x=>x.disabled=true);
+      }else{
+        blueChoice=i;
+        blueTime=performance.now()-startedAt;
+        [...blueAnswers.children].forEach(x=>x.disabled=true);
+      }
+
+      b.classList.add(i===qs[index%qs.length].correct?"good":"bad");
+
+      if(redChoice!=null&&blueChoice!=null){
+        clearInterval(timerId);
+        tugCountdown.classList.add("hidden");
+        finishQuestion();
+      }
+    }
+
+    function finishQuestion(){
+      const q=qs[index%qs.length];
+      const rc=redChoice===q.correct;
+      const bc=blueChoice===q.correct;
+
+      [redAnswers,blueAnswers].forEach(box=>{
+        [...box.children].forEach((btn,i)=>{
+          if(i===q.correct)btn.classList.add("good");
+          else if(btn.disabled)btn.classList.add("bad");
+        });
+      });
+
+      if(rc||bc)playFx(correctSound);
+      else playFx(wrongSound);
+
+      let won=false;
+      if(rc&&!bc)won=moveRope(-1);
+      else if(bc&&!rc)won=moveRope(1);
+      else if(rc&&bc&&Math.abs(redTime-blueTime)>=50){
+        won=moveRope(redTime<blueTime?-1:1);
+      }
+
+      if(won)return;
+      setTimeout(()=>{
+        index=(index+1)%qs.length;
+        loadQuestion();
+      },1400);
+    }
+
+    loadQuestion();
+    cleanupFns.push(()=>clearInterval(timerId));
+
+  }else{
+    dualBar.classList.remove("hidden");
+    tugCountdown.classList.add("hidden");
+
+    let redOrder=shuffle(qs.map((_,i)=>i));
+    let blueOrder=shuffle(qs.map((_,i)=>i));
+    if(qs.length>1&&redOrder[0]===blueOrder[0]){
+      [blueOrder[0],blueOrder[1]]=[blueOrder[1],blueOrder[0]];
+    }
+    let ri=0,bi=0;
+    let redLocked=false,blueLocked=false;
+    let redAdvancePending=false,blueAdvancePending=false;
+    let redAdvanceTimeout=null,blueAdvanceTimeout=null;
+
+    function currentQ(team){
+      return team==="red"?qs[redOrder[ri]]:qs[blueOrder[bi]];
+    }
+
+    function loadDual(team){
+      const q=currentQ(team);
+      if(team==="red"){
+        redQuestion.textContent=q.question;
+        renderAnswers(redAnswers,q,(i,b)=>chooseDual("red",i,b));
+      }else{
+        blueQuestion.textContent=q.question;
+        renderAnswers(blueAnswers,q,(i,b)=>chooseDual("blue",i,b));
+      }
+    }
+
+    function nextDual(team){
+      if(team==="red"){
+        redAdvancePending=false;
+        ri++;
+        if(ri>=redOrder.length){redOrder=shuffle(qs.map((_,i)=>i));ri=0}
+        loadDual("red");
+      }else{
+        blueAdvancePending=false;
+        bi++;
+        if(bi>=blueOrder.length){blueOrder=shuffle(qs.map((_,i)=>i));bi=0}
+        loadDual("blue");
+      }
+    }
+
+    function chooseDual(team,i,b){
+      const locked=team==="red"?redLocked:blueLocked;
+      if(locked)return;
+
+      const q=currentQ(team);
+      const box=team==="red"?redAnswers:blueAnswers;
+
+      if(i===q.correct){
+        playFx(correctSound);
+        b.classList.add("good");
+        [...box.children].forEach(x=>x.disabled=true);
+
+        if(moveRope(team==="red"?-1:1))return;
+
+        if(team==="red"){
+          redAdvancePending=true;
+          clearTimeout(redAdvanceTimeout);
+          redAdvanceTimeout=setTimeout(()=>nextDual("red"),380);
+        }else{
+          blueAdvancePending=true;
+          clearTimeout(blueAdvanceTimeout);
+          blueAdvanceTimeout=setTimeout(()=>nextDual("blue"),380);
+        }
+      }else{
+        playFx(wrongSound);
+        b.classList.add("bad");
+        penalty(team);
+      }
+    }
+
+    function penalty(team){
+      const box=team==="red"?redAnswers:blueAnswers;
+      const layer=team==="red"?redPenalty:bluePenalty;
+      const num=team==="red"?redPenaltyN:bluePenaltyN;
+
+      if(team==="red")redLocked=true;
+      else blueLocked=true;
+
+      let n=3;
+      layer.classList.add("show");
+      num.textContent=n;
+
+      const id=setInterval(()=>{
+        n--;
+        if(n<=0){
+          clearInterval(id);
+          layer.classList.remove("show");
+
+          if(team==="red")redLocked=false;
+          else blueLocked=false;
+
+          [...box.children].forEach(x=>{
+            x.disabled=false;
+            x.classList.remove("bad");
+          });
+        }else{
+          num.textContent=n;
+        }
+      },1000);
+
+      cleanupFns.push(()=>clearInterval(id));
+    }
+
+    loadDual("red");
+    loadDual("blue");
+
+    cleanupFns.push(()=>{
+      clearTimeout(redAdvanceTimeout);
+      clearTimeout(blueAdvanceTimeout);
+    });
+  }
+}
+
+/* =========================================================
+   遊戲 2：會飛的字
+========================================================= */
+function startFly(){
+  const qs=questions
+    .filter(q=>q.question&&q.answers?.filter(Boolean).length>=2)
+    .map(q=>{
+      const compact=q.answers.map((x,i)=>({x:String(x||"").trim(),i})).filter(o=>o.x);
+      return {
+        ...q,
+        answers:compact.map(o=>o.x),
+        order:compact.map((_,i)=>i)
+      };
+    });
+  if(!qs.length){
+    alert("會飛的字至少需要題目與 2 個以上的字詞。");
+    return;
+  }
+
+  const minutes=Math.max(1,Number(document.getElementById("flyMatchMinutes")?.value||3));
+  const totalSeconds=minutes*60;
+
+  setupView.classList.add("hidden");
+  gameView.classList.remove("hidden");
+
+  gameView.innerHTML=`
+    <div class="game-shell">
+      <div class="game-header">
+        <div class="row" style="flex-wrap:nowrap">
+          <button class="btn ghost" onclick="exitGame()">← <span data-i18n="back">${t("back")}</span></button>
+          <div class="brand game-brand">🍃 葉子教室遊戲室</div>
+        </div>
+        <div class="center">
+          <div class="fly-match-timer">⏱ <span id="flyMatchClock"></span></div>
+        </div>
+        <button id="soundToggle" class="btn ghost" onclick="toggleSound()">${soundEnabled?"🔊":"🔇"}</button>
+        <button class="btn ghost" onclick="fullScreen()">⛶</button>
+      </div>
+
+      <div class="game-main">
+        <div class="fly-battle">
+          <section class="fly-team-panel red-side">
+            <div class="fly-team-head red-head">
+              <span>🔴 ${t("red")}</span>
+              <div id="flyRedQuestion" class="fly-team-question"></div>
+              <span class="fly-team-score">${t("questions")}：<b id="flyRedScore">0</b></span>
+            </div>
+            <div id="flyRedField" class="fly-team-field"></div>
+            <div id="flyRedSlots" class="fly-team-slots"></div>
+          </section>
+
+          <section class="fly-team-panel">
+            <div class="fly-team-head blue-head">
+              <span>🔵 ${t("blue")}</span>
+              <div id="flyBlueQuestion" class="fly-team-question"></div>
+              <span class="fly-team-score">${t("questions")}：<b id="flyBlueScore">0</b></span>
+            </div>
+            <div id="flyBlueField" class="fly-team-field"></div>
+            <div id="flyBlueSlots" class="fly-team-slots"></div>
+          </section>
+        </div>
+      </div>
+    </div>`;
+
+  updateSoundButton();
+  startBgm();
+
+  const clock=document.getElementById("flyMatchClock");
+  const redField=document.getElementById("flyRedField");
+  const blueField=document.getElementById("flyBlueField");
+  const redSlots=document.getElementById("flyRedSlots");
+  const blueSlots=document.getElementById("flyBlueSlots");
+  const redQ=document.getElementById("flyRedQuestion");
+  const blueQ=document.getElementById("flyBlueQuestion");
+  const redScoreEl=document.getElementById("flyRedScore");
+  const blueScoreEl=document.getElementById("flyBlueScore");
+
+  let redScore=0,blueScore=0;
+  let redOrder=shuffle(qs.map((_,i)=>i));
+  let blueOrder=shuffle(qs.map((_,i)=>i));
+  if(qs.length>1&&redOrder[0]===blueOrder[0]){
+    [blueOrder[0],blueOrder[1]]=[blueOrder[1],blueOrder[0]];
+  }
+  let redIndex=0,blueIndex=0;
+  let remain=totalSeconds;
+  let matchTimer=null;
+  let raf=null;
+  let flyingItems=[];
+  let ended=false;
+
+  const palette=["#633ad5","#e54d86","#22b7c7","#da8b2f","#3988df","#22b98a","#f25b58","#6e55e7","#19a6a1","#b06bdc","#e28e2d","#3676c8"];
+
+  const state={
+    red:{chosen:0,locked:false},
+    blue:{chosen:0,locked:false}
+  };
+
+  function formatClock(s){
+    const m=Math.floor(s/60);
+    const sec=s%60;
+    return `${m}:${String(sec).padStart(2,"0")}`;
+  }
+
+  function current(team){
+    if(team==="red")return qs[redOrder[redIndex]];
+    return qs[blueOrder[blueIndex]];
+  }
+
+  function teamEls(team){
+    return team==="red"
+      ? {field:redField,slots:redSlots,q:redQ,score:redScoreEl}
+      : {field:blueField,slots:blueSlots,q:blueQ,score:blueScoreEl};
+  }
+
+  function makeFlyingQuestion(team){
+    const st=state[team];
+    st.chosen=0;
+    st.locked=false;
+
+    const q=current(team);
+    const e=teamEls(team);
+
+    e.field.innerHTML="";
+    e.slots.innerHTML="";
+    e.q.textContent=q.question;
+
+    q.order.forEach(()=>{
+      const s=document.createElement("div");
+      s.className="fly-slot";
+      e.slots.appendChild(s);
+    });
+
+    q.answers.forEach((txt,i)=>{
+      if(!txt)return;
+
+      const b=document.createElement("button");
+      b.className="fly-word";
+      b.textContent=txt;
+      b.style.background=palette[i%palette.length];
+      e.field.appendChild(b);
+
+      flyingItems.push({
+        el:b,
+        field:e.field,
+        x:Math.random()*Math.max(1,e.field.clientWidth-150),
+        y:Math.random()*Math.max(1,e.field.clientHeight-80),
+        vx:(Math.random()*1.35+.65)*(Math.random()<.5?-1:1),
+        vy:(Math.random()*1.05+.55)*(Math.random()<.5?-1:1)
+      });
+
+      b.onclick=()=>pick(team,i,b);
+    });
+  }
+
+  function pick(team,i,b){
+    if(ended||state[team].locked)return;
+
+    const st=state[team];
+    const q=current(team);
+    const expected=q.order[st.chosen];
+
+    if(i!==expected){
+      playFx(wrongSound);
+      b.animate([
+        {filter:"brightness(1)"},
+        {filter:"brightness(.65) saturate(2)"},
+        {filter:"brightness(1)"}
+      ],{duration:300});
+      return;
+    }
+
+    playFx(correctSound);
+    b.disabled=true;
+
+    const e=teamEls(team);
+    e.slots.children[st.chosen].textContent=q.answers[i];
+    st.chosen++;
+
+    if(st.chosen===q.order.length){
+      st.locked=true;
+
+      if(team==="red"){
+        redScore++;
+        redScoreEl.textContent=redScore;
+      }else{
+        blueScore++;
+        blueScoreEl.textContent=blueScore;
+      }
+
+      setTimeout(()=>{
+        if(ended)return;
+
+        if(team==="red"){
+          redIndex++;
+          if(redIndex>=redOrder.length){
+            redOrder=shuffle(qs.map((_,i)=>i));
+            redIndex=0;
+          }
+        }else{
+          blueIndex++;
+          if(blueIndex>=blueOrder.length){
+            blueOrder=shuffle(qs.map((_,i)=>i));
+            blueIndex=0;
+          }
+        }
+
+        flyingItems=flyingItems.filter(o=>o.field!==e.field);
+        makeFlyingQuestion(team);
+      },500);
+    }
+  }
+
+  function animate(){
+    if(ended)return;
+
+    flyingItems=flyingItems.filter(o=>document.body.contains(o.el));
+
+    for(const o of flyingItems){
+      const w=o.field.clientWidth;
+      const h=o.field.clientHeight;
+      const ew=o.el.offsetWidth;
+      const eh=o.el.offsetHeight;
+
+      o.x+=o.vx;
+      o.y+=o.vy;
+
+      if(o.x<=0||o.x>=w-ew){
+        o.vx*=-1;
+        o.x=Math.max(0,Math.min(o.x,w-ew));
+      }
+      if(o.y<=0||o.y>=h-eh){
+        o.vy*=-1;
+        o.y=Math.max(0,Math.min(o.y,h-eh));
+      }
+      o.el.style.transform=`translate(${o.x}px,${o.y}px)`;
+    }
+
+    raf=requestAnimationFrame(animate);
+  }
+
+  function finishMatch(){
+    if(ended)return;
+    ended=true;
+    clearInterval(matchTimer);
+    if(raf)cancelAnimationFrame(raf);
+    try{bgm.pause()}catch{}
+    playFx(winSound);
+
+    let title;
+    if(redScore>blueScore)title=`${t("red")} ${t("winner")}`;
+    else if(blueScore>redScore)title=`${t("blue")} ${t("winner")}`;
+    else title="平手！";
+
+    modalCard.innerHTML=`
+      <div style="font-size:76px">🏆</div>
+      <h1>${esc(title)}</h1>
+      <div class="fly-finish-board">
+        <div class="fly-finish-team red">🔴 ${t("red")}<br><span style="font-size:42px">${redScore}</span> ${t("questions")}</div>
+        <div class="fly-finish-team blue">🔵 ${t("blue")}<br><span style="font-size:42px">${blueScore}</span> ${t("questions")}</div>
+      </div>
+      <button class="btn primary" onclick="modal.classList.remove('show');exitGame()">${t("retry")}</button>`;
+    modal.classList.add("show");
+  }
+
+  clock.textContent=formatClock(remain);
+
+  matchTimer=setInterval(()=>{
+    remain--;
+    clock.textContent=formatClock(Math.max(0,remain));
+
+    if(remain<=3&&remain>0)playFx(countdownSound);
+
+    if(remain<=0)finishMatch();
+  },1000);
+
+  makeFlyingQuestion("red");
+  makeFlyingQuestion("blue");
+  animate();
+
+  cleanupFns.push(()=>{
+    ended=true;
+    clearInterval(matchTimer);
+    if(raf)cancelAnimationFrame(raf);
+  });
+}
+
+/* =========================================================
+   遊戲 3：左右擺頭
+========================================================= */
+function startHead(){
+  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&(q.correct===0||q.correct===1));
+  if(!qs.length){alert(t("invalid"));return}
+
+  const inputMode=document.querySelector('input[name="inputMode"]:checked')?.value||"click";
+
+  setupView.classList.add("hidden");
+  gameView.classList.remove("hidden");
+
+  gameView.innerHTML=`
+    <div class="game-shell">
+      ${gameHeader("")}
+
+      <div class="game-main">
+        <div class="head-layout">
+          <button id="leftChoice" class="head-choice left"></button>
+
+          <div class="cam-column">
+            <div id="camCircle" class="cam-circle">
+              <video id="headVideo" autoplay muted playsinline></video>
+            </div>
+
+            <div id="headStatus" class="head-status wait-state">📷 準備中…</div>
+            <div id="headAngle" class="head-angle">角度：--°</div>
+            <div id="headHint" class="head-hint">${t("headInstruction")}</div>
+
+            <div class="head-control-row">
+              <button id="recalibrateBtn" class="btn ghost">🎯 重新校正</button>
+              <button id="reverseTiltBtn" class="btn ghost">↔ 反轉方向：關</button>
+            </div>
+
+            <span class="pill">${t("score")}：<b id="headScore">0</b></span>
+          </div>
+
+          <button id="rightChoice" class="head-choice right"></button>
+        </div>
+      </div>
+    </div>`;
+
+  updateSoundButton();
+  startBgm();
+
+  const gameQuestion=document.getElementById("gameQuestion");
+  const leftChoice=document.getElementById("leftChoice");
+  const rightChoice=document.getElementById("rightChoice");
+  const headVideo=document.getElementById("headVideo");
+  const camCircle=document.getElementById("camCircle");
+  const headHint=document.getElementById("headHint");
+  const headStatus=document.getElementById("headStatus");
+  const headAngle=document.getElementById("headAngle");
+  const headScore=document.getElementById("headScore");
+  const recalibrateBtn=document.getElementById("recalibrateBtn");
+  const reverseTiltBtn=document.getElementById("reverseTiltBtn");
+
+  let index=0;
+  let score=0;
+  let busy=false;
+  let disposed=false;
+
+  let stream=null;
+  let faceLandmarker=null;
+  let visionRAF=null;
+  let lastVideoTime=-1;
+
+  let baselineAngle=0;
+  let calibrationSamples=[];
+  let calibrating=false;
+  let calibrationStart=0;
+
+  let tiltCandidate=null;
+  let tiltSince=0;
+  let neutralReady=true;
+  let reverseDirection=localStorage.getItem("yeziHeadReverse")==="1";
+
+  const ENTER_THRESHOLD=7.5;  // 超過基準約 7.5° 開始判斷
+  const NEUTRAL_THRESHOLD=4.0;// 回到 ±4° 才算回正
+  const HOLD_MS=350;         // 維持 0.35 秒才作答
+
+  function setStatus(kind,text){
+    headStatus.className="head-status "+kind;
+    headStatus.textContent=text;
+  }
+
+  function clearDetecting(){
+    leftChoice.classList.remove("detecting");
+    rightChoice.classList.remove("detecting");
+  }
+
+  function loadQuestion(){
+    busy=false;
+    clearDetecting();
+    const q=qs[index];
+    gameQuestion.textContent=q.question;
+    leftChoice.textContent=`👈 ${q.answers[0]}`;
+    rightChoice.textContent=`${q.answers[1]} 👉`;
+  }
+
+  function answer(side){
+    if(busy||disposed)return;
+    busy=true;
+    clearDetecting();
+
+    const ok=side===qs[index].correct;
+    if(ok){
+      score++;
+      headScore.textContent=score;
+      playFx(correctSound);
+      (side===0?leftChoice:rightChoice).style.filter="brightness(1.25)";
+      setStatus("neutral-state","✅ "+t("correct"));
+    }else{
+      playFx(wrongSound);
+      (side===0?leftChoice:rightChoice).style.filter="grayscale(.75)";
+      setStatus("wait-state","❌ "+t("wrong"));
+    }
+
+    setTimeout(()=>{
+      if(disposed)return;
+      leftChoice.style.filter="";
+      rightChoice.style.filter="";
+      index++;
+
+      if(index>=qs.length){
+        try{stream?.getTracks().forEach(t=>t.stop())}catch{}
+        showWinner(`${t("score")}：${score} / ${qs.length}`);
+      }else{
+        neutralReady=false; // 下一題必須先回正
+        loadQuestion();
+        setStatus("wait-state","😐 請先把頭回到中間");
+      }
+    },700);
+  }
+
+  // 相機失敗時，仍能點擊答案
+  leftChoice.onclick=()=>answer(0);
+  rightChoice.onclick=()=>answer(1);
+
+  function beginCalibration(){
+    calibrationSamples=[];
+    calibrating=true;
+    calibrationStart=performance.now();
+    neutralReady=false;
+    tiltCandidate=null;
+    tiltSince=0;
+    clearDetecting();
+    camCircle.classList.add("calibrating");
+    setStatus("wait-state","🎯 請看著鏡頭並保持頭部自然正中");
+    headHint.textContent="正在自動校正中央位置…";
+  }
+
+  recalibrateBtn.onclick=()=>beginCalibration();
+
+  function refreshReverseButton(){
+    reverseTiltBtn.textContent=`↔ 反轉方向：${reverseDirection?"開":"關"}`;
+  }
+  refreshReverseButton();
+
+  reverseTiltBtn.onclick=()=>{
+    reverseDirection=!reverseDirection;
+    localStorage.setItem("yeziHeadReverse",reverseDirection?"1":"0");
+    refreshReverseButton();
+    beginCalibration();
+  };
+
+  function getRawRollAngle(lm){
+    /*
+      以雙眼外側 landmark 33 與 263 的連線估算頭部 roll。
+      這對「把頭歪向左 / 右」比單純看鼻子水平位移穩定。
+    */
+    const p1=lm[33];
+    const p2=lm[263];
+    if(!p1||!p2)return null;
+
+    let angle=Math.atan2(
+      p2.y-p1.y,
+      p2.x-p1.x
+    )*180/Math.PI;
+
+    /*
+      前鏡頭畫面使用 CSS 鏡像顯示，因此先反轉，
+      再允許使用者用「反轉方向」開關因應個別裝置差異。
+    */
+    angle=-angle;
+    if(reverseDirection)angle=-angle;
+    return angle;
+  }
+
+  function processAngle(rawAngle){
+    if(rawAngle==null||!Number.isFinite(rawAngle))return;
+
+    headAngle.textContent=`角度：${rawAngle.toFixed(1)}°　基準：${baselineAngle.toFixed(1)}°`;
+
+    if(calibrating){
+      calibrationSamples.push(rawAngle);
+
+      const elapsed=performance.now()-calibrationStart;
+      if(elapsed>=1200 && calibrationSamples.length>=8){
+        const sorted=[...calibrationSamples].sort((a,b)=>a-b);
+        baselineAngle=sorted[Math.floor(sorted.length/2)];
+        calibrating=false;
+        camCircle.classList.remove("calibrating");
+        neutralReady=true;
+        setStatus("neutral-state","😐 中間・校正完成");
+        headHint.textContent=`${t("headInstruction")}（維持約 ${HOLD_MS/1000} 秒）`;
+      }
+      return;
+    }
+
+    const delta=rawAngle-baselineAngle;
+
+    if(Math.abs(delta)<=NEUTRAL_THRESHOLD){
+      neutralReady=true;
+      tiltCandidate=null;
+      tiltSince=0;
+      clearDetecting();
+      setStatus("neutral-state","😐 中間");
+      return;
+    }
+
+    if(busy){
+      clearDetecting();
+      return;
+    }
+
+    if(!neutralReady){
+      clearDetecting();
+      setStatus("wait-state","😐 請先回到中間");
+      return;
+    }
+
+    let side=null;
+
+    /*
+      畫面中的玩家往左歪 → 左答案
+      往右歪 → 右答案
+    */
+    if(delta>=ENTER_THRESHOLD)side=0;
+    else if(delta<=-ENTER_THRESHOLD)side=1;
+
+    if(side===null){
+      tiltCandidate=null;
+      tiltSince=0;
+      clearDetecting();
+      setStatus("neutral-state","😐 中間");
+      return;
+    }
+
+    clearDetecting();
+    (side===0?leftChoice:rightChoice).classList.add("detecting");
+
+    if(side===0)setStatus("left-state","⬅️ 偵測：左");
+    else setStatus("right-state","➡️ 偵測：右");
+
+    if(tiltCandidate!==side){
+      tiltCandidate=side;
+      tiltSince=performance.now();
+      return;
+    }
+
+    if(performance.now()-tiltSince>=HOLD_MS){
+      neutralReady=false;
+      tiltCandidate=null;
+      tiltSince=0;
+      answer(side);
+    }
+  }
+
+  async function startVisionCamera(){
+    setStatus("wait-state","📷 正在開啟攝影機…");
+
+    try{
+      if(!navigator.mediaDevices?.getUserMedia){
+        throw new Error("getUserMedia unavailable");
+      }
+
+      stream=await navigator.mediaDevices.getUserMedia({
+        video:{
+          facingMode:"user",
+          width:{ideal:640},
+          height:{ideal:480}
+        },
+        audio:false
+      });
+
+      headVideo.srcObject=stream;
+      await headVideo.play();
+
+      setStatus("wait-state","🧠 正在載入頭部辨識模型…");
+
+      /*
+        Google MediaPipe Tasks Vision Face Landmarker
+        VIDEO 模式會對攝影機每個新影格取得臉部 landmarks。
+      */
+      const visionModule=await import(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs"
+      );
+
+      const {FaceLandmarker,FilesetResolver}=visionModule;
+
+      const vision=await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+      );
+
+      faceLandmarker=await FaceLandmarker.createFromOptions(vision,{
+        baseOptions:{
+          modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+        },
+        runningMode:"VIDEO",
+        numFaces:1,
+        minFaceDetectionConfidence:.45,
+        minFacePresenceConfidence:.45,
+        minTrackingConfidence:.45
+      });
+
+      beginCalibration();
+      detectLoop();
+
+    }catch(err){
+      console.error("Head tilt vision error:",err);
+      camCircle.classList.remove("calibrating");
+      setStatus("wait-state","⚠️ 視訊辨識無法啟動");
+      headHint.textContent="仍可直接點擊左、右答案";
+    }
+  }
+
+  function detectLoop(){
+    if(disposed)return;
+
+    if(faceLandmarker && headVideo.readyState>=2 && headVideo.currentTime!==lastVideoTime){
+      lastVideoTime=headVideo.currentTime;
+
+      try{
+        const result=faceLandmarker.detectForVideo(
+          headVideo,
+          performance.now()
+        );
+
+        const lm=result.faceLandmarks?.[0];
+
+        if(lm&&lm.length>263){
+          processAngle(getRawRollAngle(lm));
+        }else{
+          clearDetecting();
+          setStatus("wait-state","👤 沒有偵測到臉，請面向鏡頭");
+        }
+      }catch(err){
+        console.warn("Face frame detection:",err);
+      }
+    }
+
+    visionRAF=requestAnimationFrame(detectLoop);
+  }
+
+  if(inputMode==="camera"){
+    startVisionCamera();
+  }else{
+    camCircle.style.opacity=".28";
+    setStatus("neutral-state","👆 點擊模式");
+    headHint.textContent="請直接點擊左邊或右邊的答案";
+  }
+
+  loadQuestion();
+
+  cleanupFns.push(()=>{
+    disposed=true;
+    if(visionRAF)cancelAnimationFrame(visionRAF);
+    try{faceLandmarker?.close()}catch{}
+    try{stream?.getTracks().forEach(t=>t.stop())}catch{}
+  });
+}
+
+/* =========================================================
+   遊戲 4：探險
+========================================================= */
+function startAdventure(){
+  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
+  if(!qs.length){alert(t("invalid"));return}
+
+  setupView.classList.add("hidden");
+  gameView.classList.remove("hidden");
+
+  gameView.innerHTML=`
+    <div class="game-shell">
+      ${gameHeader("")}
+
+      <div class="game-main">
+        <div class="adventure-map">
+          <div id="adventurePath" class="adventure-path"></div>
+        </div>
+      </div>
+
+      <div class="game-footer">
+        <div class="dice-row">
+          <span id="turnLabel" class="pill"></span>
+          <div id="diceFace" class="dice-face">🎲</div>
+          <button id="rollDiceBtn" class="btn primary" style="font-size:20px">
+            🎲 ${t("roll")}
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  updateSoundButton();
+  startBgm();
+
+  const path=document.getElementById("adventurePath");
+  const diceFace=document.getElementById("diceFace");
+  const rollDiceBtn=document.getElementById("rollDiceBtn");
+  const turnLabel=document.getElementById("turnLabel");
+
+  const TOTAL=30;
+  const special={
+    5:{icon:"⭐",move:1},
+    9:{icon:"🌧️",move:-1},
+    14:{icon:"🚀",move:2},
+    19:{icon:"🕸️",move:-2},
+    24:{icon:"🎁",move:1}
+  };
+
+  let redPos=0;
+  let bluePos=0;
+  let turn="red";
+  let qIndex=0;
+  let busy=false;
+  let cells=[];
+
+  function buildBoard(){
+    path.innerHTML="";
+    cells=[];
+    for(let i=0;i<TOTAL;i++){
+      const c=document.createElement("div");
+      c.className="adventure-cell"+(special[i]?" special":"");
+      c.innerHTML=i===TOTAL-1?"🏰":(special[i]?special[i].icon:(i+1));
+      path.appendChild(c);
+      cells.push(c);
+    }
+  }
+
+  function renderTokens(){
+    cells.forEach(c=>c.querySelectorAll(".token").forEach(x=>x.remove()));
+
+    const rt=document.createElement("div");
+    rt.className="token red-token";
+    rt.textContent="🔴";
+    cells[redPos].appendChild(rt);
+
+    const bt=document.createElement("div");
+    bt.className="token blue-token";
+    bt.textContent="🔵";
+    cells[bluePos].appendChild(bt);
+
+    turnLabel.textContent=`${t("turn")}：${turn==="red"?t("red"):t("blue")}`;
+  }
+
+  function roll(){
+    if(busy)return;
+    busy=true;
+
+    const oldPos=turn==="red"?redPos:bluePos;
+    const n=Math.floor(Math.random()*6)+1;
+    diceFace.textContent=["⚀","⚁","⚂","⚃","⚄","⚅"][n-1];
+
+    let moved=0;
+    const moveTimer=setInterval(()=>{
+      if(moved>=n){
+        clearInterval(moveTimer);
+        askQuestion(oldPos);
+        return;
+      }
+
+      if(turn==="red"){
+        if(redPos<TOTAL-1)redPos++;
+      }else{
+        if(bluePos<TOTAL-1)bluePos++;
+      }
+
+      moved++;
+      renderTokens();
+
+      const p=turn==="red"?redPos:bluePos;
+      if(p>=TOTAL-1){
+        clearInterval(moveTimer);
+        showWinner(`${turn==="red"?t("red"):t("blue")} ${t("winner")}`);
+      }
+    },250);
+
+    cleanupFns.push(()=>clearInterval(moveTimer));
+  }
+
+  function askQuestion(oldPos){
+    const q=qs[qIndex%qs.length];
+    qIndex++;
+
+    modalCard.innerHTML=`
+      <h2>${esc(q.question)}</h2>
+      <div id="advOptions" class="option-grid"></div>`;
+    modal.classList.add("show");
+
+    const box=document.getElementById("advOptions");
+
+    q.answers.slice(0,4).forEach((a,i)=>{
+      if(!a)return;
+      const b=document.createElement("button");
+      b.className="option-btn";
+      b.textContent=`${String.fromCharCode(65+i)}. ${a}`;
+
+      b.onclick=()=>{
+        [...box.children].forEach(x=>x.disabled=true);
+
+        if(i===q.correct){
+          playFx(correctSound);
+          b.classList.add("good");
+
+          setTimeout(()=>{
+            modal.classList.remove("show");
+
+            let p=turn==="red"?redPos:bluePos;
+            if(special[p]){
+              p=Math.max(0,Math.min(TOTAL-1,p+special[p].move));
+              if(turn==="red")redPos=p;
+              else bluePos=p;
+              renderTokens();
+            }
+
+            if(p>=TOTAL-1){
+              showWinner(`${turn==="red"?t("red"):t("blue")} ${t("winner")}`);
+              return;
+            }
+
+            turn=turn==="red"?"blue":"red";
+            busy=false;
+            renderTokens();
+          },650);
+
+        }else{
+          playFx(wrongSound);
+          b.classList.add("bad");
+
+          if(turn==="red")redPos=oldPos;
+          else bluePos=oldPos;
+
+          setTimeout(()=>{
+            modal.classList.remove("show");
+            turn=turn==="red"?"blue":"red";
+            busy=false;
+            renderTokens();
+          },700);
+        }
+      };
+      box.appendChild(b);
+    });
+  }
+
+  buildBoard();
+  renderTokens();
+  rollDiceBtn.onclick=roll;
+}
+
+/* =========================================================
+   啟動
+========================================================= */
+renderLangSelect(lobbyLang);
+renderLangSelect(setupLang);
+
+questions=loadSavedQuestions();
+
+loadSheetBtn.onclick=()=>loadSheetFromUI(
+  sheetUrl.value.trim(),
+  sheetName.value.trim()
+);
+
+bankFile.onchange=async e=>{
+  const f=e.target.files[0];
+  if(!f)return;
+
+  showStatus("info",t("loading"));
+
+  try{
+    let rows;
+    if(f.name.toLowerCase().endsWith(".csv")){
+      rows=parseCSV(await f.text());
+    }else{
+      const wb=XLSX.read(await f.arrayBuffer());
+      rows=XLSX.utils.sheet_to_json(
+        wb.Sheets[wb.SheetNames[0]],
+        {header:1,defval:""}
+      );
+    }
+
+    const imported=rowsToQuestions(rows);
+    if(!imported.length)throw new Error();
+
+    questions=imported;
+    saveQuestions();
+    renderQuestionEditor();
+    showStatus("ok",`${t("loaded")}：${questions.length}`);
+  }catch{
+    showStatus("err",t("invalid"));
+  }
+
+  e.target.value="";
+};
+
+addQuestionBtn.onclick=()=>{
+  const max=selectedGame==="fly"?12:4;
+  questions.push({
+    question:"",
+    answers:Array(max).fill(""),
+    correct:selectedGame==="fly"?null:0,
+    order:null
+  });
+  saveQuestions();
+  renderQuestionEditor();
+};
+
+clearQuestionsBtn.onclick=()=>{
+  if(confirm(t("clear")+"?")){
+    questions=[];
+    saveQuestions();
+    renderQuestionEditor();
+  }
+};
+
+downloadTemplateBtn.onclick=downloadTemplate;
+
+startGameBtn.onclick=()=>{
+  if(!questions.length){
+    alert(t("needBank"));
+    return;
+  }
+
+  /* 在真正的使用者點擊事件中直接啟動 BGM，避免 Chrome / Edge 阻擋 */
+  if(soundEnabled){
+    try{
+      bgm.currentTime=0;
+      bgm.play().catch(()=>{});
+    }catch{}
+  }
+
+  if(selectedGame==="tug")startTug();
+  else if(selectedGame==="fly")startFly();
+  else if(selectedGame==="head")startHead();
+  else if(selectedGame==="adventure")startAdventure();
+};
+
+syncLanguage();
+</script>
+
+</body>
+</html>
