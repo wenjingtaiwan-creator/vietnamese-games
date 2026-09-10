@@ -1,27 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>越南語拔河大賽</title>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
   padding:0;
 }
 
-html,body{
+html,
+body{
   width:100%;
   min-height:100%;
-  font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+  font-family:
+  "Noto Sans TC",
+  "Microsoft JhengHei",
+  Arial,
+  sans-serif;
   background:#eef3f8;
 }
 
-button,input,textarea,select{
+button,
+input,
+select{
   font-family:inherit;
 }
 
@@ -29,1327 +40,3093 @@ button{
   cursor:pointer;
 }
 
-/* =========================
-   題庫設定頁
-========================= */
+
+/* ==================================================
+   設定頁
+================================================== */
 
 #setupScreen{
+
   min-height:100vh;
-  padding:28px 18px 60px;
+
+  padding:
+  28px
+  18px
+  60px;
+
   background:
-    linear-gradient(rgba(255,255,255,.94),rgba(255,255,255,.94)),
-    url("assets/background.png");
+  linear-gradient(
+    rgba(255,255,255,.94),
+    rgba(255,255,255,.94)
+  ),
+  url("assets/background.png");
+
   background-size:cover;
+
   background-position:center;
+
 }
+
 
 .setup-container{
-  width:min(1100px,96%);
+
+  width:min(
+    1100px,
+    96%
+  );
+
   margin:auto;
+
 }
+
 
 .setup-header{
+
   text-align:center;
+
   margin-bottom:24px;
+
 }
+
 
 .setup-header h1{
-  font-size:clamp(30px,4vw,54px);
+
+  font-size:
+  clamp(
+    30px,
+    4vw,
+    54px
+  );
+
   margin-bottom:7px;
+
   color:#202124;
+
 }
+
 
 .setup-header p{
+
   font-size:18px;
+
   color:#666;
+
 }
 
-/* =========================
+
+/* ==================================================
+   遊戲模式
+================================================== */
+
+.mode-box{
+
+  background:#fff;
+
+  border-radius:24px;
+
+  padding:24px;
+
+  margin-bottom:22px;
+
+  box-shadow:
+  0
+  5px
+  22px
+  rgba(0,0,0,.1);
+
+}
+
+
+.mode-title{
+
+  text-align:center;
+
+  font-size:25px;
+
+  font-weight:900;
+
+  margin-bottom:18px;
+
+}
+
+
+.mode-options{
+
+  display:grid;
+
+  grid-template-columns:
+  1fr
+  1fr;
+
+  gap:15px;
+
+}
+
+
+.mode-card{
+
+  position:relative;
+
+  border:
+  3px
+  solid
+  #e3e7ed;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+  background:#fafbfd;
+
+}
+
+
+.mode-card:hover{
+
+  transform:
+  translateY(-2px);
+
+}
+
+
+.mode-card.active{
+
+  border-color:#f04b54;
+
+  background:#fff5f5;
+
+  box-shadow:
+  0
+  4px
+  14px
+  rgba(240,75,84,.15);
+
+}
+
+
+.mode-card input{
+
+  position:absolute;
+
+  opacity:0;
+
+}
+
+
+.mode-icon{
+
+  font-size:38px;
+
+  margin-bottom:8px;
+
+}
+
+
+.mode-card h3{
+
+  font-size:21px;
+
+  margin-bottom:8px;
+
+}
+
+
+.mode-card p{
+
+  color:#666;
+
+  line-height:1.7;
+
+  font-size:15px;
+
+}
+
+
+.mode-badge{
+
+  display:inline-block;
+
+  margin-top:10px;
+
+  padding:
+  5px
+  11px;
+
+  border-radius:20px;
+
+  background:#edf1f5;
+
+  font-size:13px;
+
+  font-weight:800;
+
+}
+
+
+/* ==================================================
    題庫來源
-========================= */
+================================================== */
 
 .import-box{
+
   background:#fff;
+
   border-radius:24px;
+
   padding:22px;
-  box-shadow:0 5px 22px rgba(0,0,0,.1);
+
+  box-shadow:
+  0
+  5px
+  22px
+  rgba(0,0,0,.1);
+
   margin-bottom:22px;
+
 }
+
 
 .import-title{
+
   text-align:center;
+
   font-size:24px;
+
   font-weight:900;
+
   margin-bottom:18px;
+
 }
+
 
 .import-options{
+
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+
+  grid-template-columns:
+  repeat(
+    3,
+    1fr
+  );
+
   gap:14px;
+
 }
+
 
 .import-card{
-  border:2px solid #e4e8ee;
+
+  border:
+  2px
+  solid
+  #e4e8ee;
+
   background:#fafbfd;
+
   border-radius:20px;
+
   padding:20px;
+
   text-align:center;
+
 }
+
 
 .import-icon{
+
   font-size:40px;
+
   margin-bottom:7px;
+
 }
+
 
 .import-card h3{
+
   font-size:20px;
+
   margin-bottom:7px;
+
 }
 
+
 .import-card p{
+
   min-height:68px;
+
   color:#777;
+
   line-height:1.6;
+
   font-size:14px;
+
   margin-bottom:14px;
+
 }
+
 
 .google-btn,
 .file-label,
 .template-btn{
+
   display:inline-block;
+
   border:none;
+
   border-radius:25px;
-  padding:12px 20px;
+
+  padding:
+  12px
+  20px;
+
   color:#fff;
+
   font-weight:900;
+
   font-size:16px;
+
   text-decoration:none;
+
   transition:.2s;
+
 }
+
 
 .google-btn{
+
   background:#1fa463;
+
 }
+
 
 .file-label{
+
   background:#367be8;
+
 }
 
+
 .template-btn{
+
   margin-top:9px;
+
   background:#687385;
+
 }
+
 
 .google-btn:hover,
 .file-label:hover,
 .template-btn:hover{
-  transform:translateY(-2px);
+
+  transform:
+  translateY(-2px);
+
 }
+
 
 #fileInput{
+
   display:none;
+
 }
+
 
 .format-tip{
+
   margin-top:16px;
+
   padding:12px;
+
   border-radius:13px;
+
   background:#f5f7fa;
+
   color:#666;
+
   font-size:14px;
+
   text-align:center;
+
   line-height:1.7;
+
 }
+
 
 #importStatus{
+
   display:none;
+
   margin-top:15px;
+
   border-radius:14px;
-  padding:12px 18px;
+
+  padding:
+  12px
+  18px;
+
   text-align:center;
+
   font-weight:800;
+
 }
+
 
 #importStatus.loading{
+
   display:block;
+
   background:#fff4ce;
+
   color:#846300;
+
 }
+
 
 #importStatus.success{
+
   display:block;
+
   background:#dcf7e5;
+
   color:#14753c;
+
 }
+
 
 #importStatus.error{
+
   display:block;
+
   background:#ffe3e5;
+
   color:#b5232e;
+
 }
 
-/* =========================
+
+/* ==================================================
    題目編輯
-========================= */
+================================================== */
 
 .editor-heading{
+
   display:flex;
+
   align-items:center;
-  justify-content:space-between;
-  margin:25px 0 12px;
+
+  justify-content:
+  space-between;
+
+  margin:
+  25px
+  0
+  12px;
+
 }
+
 
 .editor-heading h2{
+
   font-size:24px;
+
 }
+
 
 #questionCount{
+
   background:#333;
+
   color:#fff;
-  padding:7px 15px;
+
+  padding:
+  7px
+  15px;
+
   border-radius:20px;
+
   font-weight:900;
+
 }
+
 
 .question-card{
+
   background:#fff;
-  border:2px solid #edf0f5;
+
+  border:
+  2px
+  solid
+  #edf0f5;
+
   border-radius:20px;
+
   padding:21px;
+
   margin-bottom:15px;
-  box-shadow:0 4px 16px rgba(0,0,0,.09);
+
+  box-shadow:
+  0
+  4px
+  16px
+  rgba(0,0,0,.09);
+
 }
+
 
 .card-top{
+
   display:flex;
+
   align-items:center;
-  justify-content:space-between;
+
+  justify-content:
+  space-between;
+
   margin-bottom:13px;
+
 }
+
 
 .card-title{
+
   font-size:20px;
+
   font-weight:900;
+
 }
+
 
 .delete-btn{
+
   border:none;
+
   border-radius:12px;
-  padding:8px 14px;
+
+  padding:
+  8px
+  14px;
+
   background:#ffe6e8;
+
   color:#c52d3a;
+
   font-weight:800;
+
 }
 
+
 .field-label{
+
   display:block;
-  margin:10px 0 6px;
+
+  margin:
+  10px
+  0
+  6px;
+
   font-weight:800;
+
   color:#444;
+
 }
+
 
 .question-input,
 .answer-input{
+
   width:100%;
-  border:2px solid #dce2ea;
+
+  border:
+  2px
+  solid
+  #dce2ea;
+
   border-radius:12px;
-  padding:11px 13px;
+
+  padding:
+  11px
+  13px;
+
   font-size:17px;
+
   outline:none;
+
 }
+
 
 .question-input:focus,
 .answer-input:focus{
+
   border-color:#427ee9;
+
 }
+
 
 .answers-editor{
+
   display:grid;
-  grid-template-columns:1fr 1fr;
+
+  grid-template-columns:
+  1fr
+  1fr;
+
   gap:11px;
+
   margin-top:10px;
+
 }
+
 
 .answer-row{
+
   display:flex;
+
   align-items:center;
+
   gap:8px;
+
 }
+
 
 .answer-letter{
+
   width:35px;
+
   height:35px;
-  flex:0 0 35px;
+
+  flex:
+  0
+  0
+  35px;
+
   display:flex;
+
   align-items:center;
+
   justify-content:center;
+
   border-radius:50%;
+
   color:#fff;
+
   background:#667085;
+
   font-weight:900;
+
 }
 
-.answer-row input[type="radio"]{
+
+.answer-row
+input[type="radio"]{
+
   width:21px;
+
   height:21px;
+
   accent-color:#20a45a;
+
 }
+
 
 .correct-tip{
+
   margin-top:12px;
+
   color:#18864a;
+
   font-size:14px;
+
   font-weight:700;
+
 }
+
 
 .empty-editor{
+
   background:#fff;
+
   padding:35px;
+
   border-radius:20px;
+
   text-align:center;
+
   line-height:1.8;
+
   color:#777;
-  box-shadow:0 4px 14px rgba(0,0,0,.07);
+
+  box-shadow:
+  0
+  4px
+  14px
+  rgba(0,0,0,.07);
+
 }
 
+
 .setup-actions{
+
   display:flex;
+
   justify-content:center;
+
   flex-wrap:wrap;
+
   gap:12px;
+
   margin-top:22px;
+
 }
+
 
 .add-btn,
 .reload-btn,
 .clear-btn,
 .start-btn{
+
   border:none;
+
   border-radius:30px;
-  padding:14px 25px;
+
+  padding:
+  14px
+  25px;
+
   font-size:17px;
+
   font-weight:900;
+
 }
+
 
 .add-btn{
+
   background:#fff;
+
   color:#3371d6;
-  border:2px solid #3371d6;
+
+  border:
+  2px
+  solid
+  #3371d6;
+
 }
+
 
 .reload-btn{
+
   background:#dff5e7;
+
   color:#168148;
-  border:2px solid #28a862;
+
+  border:
+  2px
+  solid
+  #28a862;
+
 }
+
 
 .clear-btn{
+
   color:#666;
+
   background:#e9edf2;
+
 }
+
 
 .start-btn{
-  background:linear-gradient(135deg,#ef3c48,#ff7b32);
+
+  background:
+  linear-gradient(
+    135deg,
+    #ef3c48,
+    #ff7b32
+  );
+
   color:#fff;
-  box-shadow:0 5px 16px rgba(239,60,72,.28);
+
+  box-shadow:
+  0
+  5px
+  16px
+  rgba(239,60,72,.28);
+
 }
+
 
 .setup-info{
-  margin:24px auto 0;
+
+  margin:
+  24px
+  auto
+  0;
+
   background:#fff;
-  padding:15px 20px;
+
+  padding:
+  15px
+  20px;
+
   border-radius:18px;
+
   text-align:center;
+
   color:#666;
-  box-shadow:0 4px 14px rgba(0,0,0,.07);
+
+  box-shadow:
+  0
+  4px
+  14px
+  rgba(0,0,0,.07);
+
 }
+
 
 .setup-info strong{
+
   color:#ef3340;
+
 }
 
-/* =========================
-   遊戲
-========================= */
+
+/* ==================================================
+   GAME
+================================================== */
 
 #gameScreen{
+
   display:none;
+
   width:100vw;
+
   height:100vh;
+
   overflow:hidden;
+
 }
+
 
 #game{
+
   width:100vw;
+
   height:100vh;
+
   display:grid;
-  grid-template-rows:18% 49% 33%;
+
+  grid-template-rows:
+  18%
+  49%
+  33%;
+
   background:#fff;
+
 }
 
-.question-area{
+
+/* ==================================================
+   CLASSIC TOP
+================================================== */
+
+#classicQuestionArea{
+
   position:relative;
+
   display:flex;
+
   flex-direction:column;
+
   justify-content:center;
+
   align-items:center;
-  padding:10px 150px;
+
+  padding:
+  10px
+  150px;
+
   background:#fff;
+
   z-index:10;
+
 }
+
 
 .game-title{
+
   margin-bottom:7px;
-  font-size:clamp(13px,1.2vw,20px);
+
+  font-size:
+  clamp(
+    13px,
+    1.2vw,
+    20px
+  );
+
   letter-spacing:2px;
+
   color:#777;
+
 }
+
 
 .question{
-  font-size:clamp(27px,3vw,52px);
+
+  font-size:
+  clamp(
+    27px,
+    3vw,
+    52px
+  );
+
   font-weight:900;
+
   text-align:center;
+
   color:#202124;
+
 }
+
 
 .timer{
+
   position:absolute;
+
   right:5%;
+
   top:50%;
-  transform:translateY(-50%);
+
+  transform:
+  translateY(-50%);
+
   width:82px;
+
   height:82px;
+
   border-radius:50%;
+
   display:flex;
+
   justify-content:center;
+
   align-items:center;
+
   background:#ef3340;
+
   color:#fff;
+
   font-size:36px;
+
   font-weight:900;
-  box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+  box-shadow:
+  0
+  5px
+  15px
+  rgba(0,0,0,.15);
+
 }
+
 
 .timer.danger{
-  animation:timerPulse .6s infinite alternate;
+
+  animation:
+  timerPulse
+  .6s
+  infinite
+  alternate;
+
 }
+
 
 @keyframes timerPulse{
+
   from{
-    transform:translateY(-50%) scale(1);
+
+    transform:
+    translateY(-50%)
+    scale(1);
+
   }
+
   to{
-    transform:translateY(-50%) scale(1.12);
+
+    transform:
+    translateY(-50%)
+    scale(1.12);
+
   }
+
 }
+
 
 .progress{
+
   position:absolute;
+
   left:4%;
+
   top:50%;
-  transform:translateY(-50%);
+
+  transform:
+  translateY(-50%);
+
   color:#777;
+
   font-size:18px;
+
   font-weight:700;
+
 }
+
+
+/* ==================================================
+   DUAL TOP
+================================================== */
+
+#dualQuestionArea{
+
+  display:none;
+
+  grid-template-columns:
+  1fr
+  1fr;
+
+  background:#fff;
+
+  position:relative;
+
+  z-index:10;
+
+}
+
+
+.dual-question-side{
+
+  position:relative;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:center;
+
+  align-items:center;
+
+  text-align:center;
+
+  padding:
+  10px
+  45px;
+
+  overflow:hidden;
+
+}
+
+
+.dual-question-side.red{
+
+  border-right:
+  3px
+  solid
+  #efccd0;
+
+}
+
+
+.dual-small-title{
+
+  font-size:14px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  margin-bottom:5px;
+
+}
+
+
+.dual-question-side.red
+.dual-small-title{
+
+  color:#d93242;
+
+}
+
+
+.dual-question-side.blue
+.dual-small-title{
+
+  color:#2878d4;
+
+}
+
+
+.dual-question{
+
+  font-size:
+  clamp(
+    21px,
+    2.25vw,
+    39px
+  );
+
+  font-weight:900;
+
+  line-height:1.3;
+
+}
+
+
+.dual-progress{
+
+  position:absolute;
+
+  top:8px;
+
+  font-size:13px;
+
+  color:#777;
+
+  font-weight:800;
+
+}
+
+
+.dual-question-side.red
+.dual-progress{
+
+  left:14px;
+
+}
+
+
+.dual-question-side.blue
+.dual-progress{
+
+  right:14px;
+
+}
+
+
+/* ==================================================
+   TOP CONTROLS
+================================================== */
 
 .top-controls{
-  position:absolute;
-  right:1.5%;
-  top:8px;
+
+  position:fixed;
+
+  right:14px;
+
+  top:9px;
+
   display:flex;
+
   gap:8px;
-  z-index:30;
+
+  z-index:70;
+
 }
+
 
 .sound-btn{
+
   width:44px;
+
   height:44px;
+
   border:none;
+
   border-radius:50%;
+
   background:#fff;
-  box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+  box-shadow:
+  0
+  3px
+  10px
+  rgba(0,0,0,.15);
+
   font-size:21px;
+
 }
+
 
 .stop-btn{
+
   height:44px;
-  padding:0 15px;
+
+  padding:
+  0
+  15px;
+
   border:none;
+
   border-radius:22px;
+
   background:#333;
+
   color:#fff;
+
   font-weight:900;
+
 }
+
+
+/* ==================================================
+   ARENA
+================================================== */
 
 .arena{
+
   position:relative;
+
   overflow:hidden;
-  background-image:url("assets/background.png");
+
+  background-image:
+  url("assets/background.png");
+
   background-size:cover;
+
   background-position:center;
+
 }
+
 
 .center-line{
+
   position:absolute;
+
   left:50%;
+
   bottom:0;
+
   height:52%;
+
   width:5px;
-  background:rgba(255,255,255,.92);
-  transform:translateX(-50%);
+
+  background:
+  rgba(
+    255,
+    255,
+    255,
+    .92
+  );
+
+  transform:
+  translateX(-50%);
+
   z-index:2;
+
 }
+
 
 .tug-wrap{
+
   position:absolute;
+
   inset:0;
+
   display:flex;
+
   justify-content:center;
+
   align-items:flex-end;
+
   pointer-events:none;
+
   z-index:5;
+
 }
+
 
 .tug-image{
+
   width:96%;
+
   max-height:88%;
+
   object-fit:contain;
-  object-position:center bottom;
-  transform:translateX(0);
-  transition:transform .55s cubic-bezier(.22,1,.36,1);
-  filter:drop-shadow(0 5px 5px rgba(0,0,0,.16));
+
+  object-position:
+  center
+  bottom;
+
+  transform:
+  translateX(0);
+
+  transition:
+  transform
+  .45s
+  cubic-bezier(
+    .22,
+    1,
+    .36,
+    1
+  );
+
+  filter:
+  drop-shadow(
+    0
+    5px
+    5px
+    rgba(0,0,0,.16)
+  );
+
 }
+
 
 .team-label{
+
   position:absolute;
+
   bottom:4%;
-  padding:9px 25px;
+
+  padding:
+  9px
+  25px;
+
   color:#fff;
+
   border-radius:30px;
-  font-size:clamp(14px,1.5vw,25px);
+
+  font-size:
+  clamp(
+    14px,
+    1.5vw,
+    25px
+  );
+
   font-weight:900;
+
   z-index:8;
+
 }
+
 
 .red-label{
+
   left:3%;
+
   background:#e93443;
+
 }
+
 
 .blue-label{
+
   right:3%;
+
   background:#287ce0;
+
 }
+
 
 .status{
+
   position:absolute;
+
   top:5%;
+
   left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.96);
-  padding:8px 20px;
+
+  transform:
+  translateX(-50%);
+
+  background:
+  rgba(
+    255,
+    255,
+    255,
+    .96
+  );
+
+  padding:
+  8px
+  20px;
+
   border-radius:30px;
+
   font-size:18px;
+
   font-weight:900;
+
   opacity:0;
+
   transition:.25s;
+
   z-index:20;
+
+  white-space:nowrap;
+
 }
+
 
 .status.show{
+
   opacity:1;
+
 }
+
+
+/* ==================================================
+   ANSWERS
+================================================== */
 
 .answers{
+
   display:grid;
-  grid-template-columns:1fr 1fr;
+
+  grid-template-columns:
+  1fr
+  1fr;
+
   background:#f5f7fb;
+
 }
+
 
 .team-panel{
-  padding:10px 20px 14px;
+
+  padding:
+  10px
+  20px
+  14px;
+
+  position:relative;
+
+  overflow:hidden;
+
 }
+
 
 .red-panel{
-  border-right:2px solid #dfe5ed;
+
+  border-right:
+  2px
+  solid
+  #dfe5ed;
+
 }
+
 
 .panel-title{
+
   text-align:center;
-  font-size:clamp(17px,1.8vw,29px);
+
+  font-size:
+  clamp(
+    17px,
+    1.8vw,
+    29px
+  );
+
   font-weight:900;
+
   margin-bottom:8px;
+
 }
 
-.red-panel .panel-title{
+
+.red-panel
+.panel-title{
+
   color:#d93242;
+
 }
 
-.blue-panel .panel-title{
+
+.blue-panel
+.panel-title{
+
   color:#2878d4;
+
 }
+
 
 .answer-grid{
+
   display:grid;
-  grid-template-columns:1fr 1fr;
+
+  grid-template-columns:
+  1fr
+  1fr;
+
   gap:9px;
+
 }
+
 
 .answer-btn{
+
   min-height:58px;
+
   border-radius:15px;
+
   background:#fff;
-  font-size:clamp(14px,1.35vw,22px);
+
+  font-size:
+  clamp(
+    14px,
+    1.35vw,
+    22px
+  );
+
   font-weight:800;
-  padding:8px 12px;
+
+  padding:
+  8px
+  12px;
+
 }
 
-.red-panel .answer-btn{
-  border:3px solid #f3a4aa;
+
+.red-panel
+.answer-btn{
+
+  border:
+  3px
+  solid
+  #f3a4aa;
+
   color:#bb3440;
+
 }
 
-.blue-panel .answer-btn{
-  border:3px solid #92bff1;
+
+.blue-panel
+.answer-btn{
+
+  border:
+  3px
+  solid
+  #92bff1;
+
   color:#2674c8;
+
 }
+
+
+.answer-btn:hover:not(:disabled){
+
+  transform:
+  scale(1.015);
+
+}
+
 
 .answer-btn.selected{
+
   background:#fff2a8!important;
+
   border-color:#f1b900!important;
+
   color:#222!important;
+
 }
+
 
 .answer-btn.correct{
+
   background:#dff7e5!important;
+
   border-color:#38ad61!important;
+
   color:#177438!important;
+
 }
+
 
 .answer-btn.wrong{
+
   background:#ffe2e4!important;
+
   border-color:#ef5963!important;
+
   color:#b5222d!important;
+
 }
 
-/* =========================
-   勝利
-========================= */
+
+/* ==================================================
+   PENALTY
+================================================== */
+
+.penalty-overlay{
+
+  position:absolute;
+
+  inset:0;
+
+  display:none;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  background:
+  rgba(
+    25,
+    30,
+    40,
+    .91
+  );
+
+  color:#fff;
+
+  z-index:30;
+
+  text-align:center;
+
+}
+
+
+.penalty-overlay.show{
+
+  display:flex;
+
+}
+
+
+.penalty-title{
+
+  font-size:
+  clamp(
+    20px,
+    2vw,
+    32px
+  );
+
+  font-weight:900;
+
+  margin-bottom:4px;
+
+}
+
+
+.penalty-number{
+
+  font-size:
+  clamp(
+    45px,
+    5vw,
+    80px
+  );
+
+  font-weight:900;
+
+}
+
+
+/* ==================================================
+   WINNER
+================================================== */
 
 #winnerScreen{
+
   position:fixed;
+
   inset:0;
+
   display:none;
+
   justify-content:center;
+
   align-items:center;
+
   flex-direction:column;
-  background:rgba(10,20,35,.88);
+
+  background:
+  rgba(
+    10,
+    20,
+    35,
+    .9
+  );
+
   color:#fff;
+
   text-align:center;
+
   z-index:100;
+
 }
+
 
 #winnerScreen.show{
+
   display:flex;
+
 }
+
 
 #winnerEmoji{
+
   font-size:100px;
+
 }
+
 
 #winnerText{
+
   margin:15px;
-  font-size:clamp(40px,6vw,90px);
+
+  font-size:
+  clamp(
+    40px,
+    6vw,
+    90px
+  );
+
   font-weight:900;
+
 }
 
+
 .winner-buttons{
+
   display:flex;
+
   gap:12px;
+
 }
+
 
 .restart,
 .edit-questions{
+
   border:none;
-  padding:15px 30px;
+
+  padding:
+  15px
+  30px;
+
   border-radius:30px;
+
   font-size:19px;
+
   font-weight:900;
+
 }
+
 
 .restart{
+
   background:#fff;
+
 }
+
 
 .edit-questions{
+
   background:#ffd84d;
+
 }
 
-/* =========================
-   停止視窗
-========================= */
+
+/* ==================================================
+   STOP MODAL
+================================================== */
 
 #stopModal{
+
   position:fixed;
+
   inset:0;
+
   display:none;
+
   justify-content:center;
+
   align-items:center;
-  background:rgba(0,0,0,.65);
+
+  background:
+  rgba(
+    0,
+    0,
+    0,
+    .65
+  );
+
   z-index:200;
+
 }
+
 
 #stopModal.show{
+
   display:flex;
+
 }
+
 
 .stop-box{
-  width:min(440px,90%);
+
+  width:
+  min(
+    440px,
+    90%
+  );
+
   padding:30px;
+
   border-radius:24px;
+
   background:#fff;
+
   text-align:center;
+
 }
+
 
 .stop-box h2{
+
   margin-bottom:10px;
+
 }
+
 
 .stop-box p{
+
   color:#666;
+
   margin-bottom:20px;
+
+  line-height:1.7;
+
 }
 
+
 .stop-actions{
+
   display:flex;
+
   justify-content:center;
+
   gap:12px;
+
 }
+
 
 .continue-btn,
 .end-btn{
+
   border:none;
+
   border-radius:25px;
-  padding:12px 20px;
+
+  padding:
+  12px
+  20px;
+
   font-size:17px;
+
   font-weight:900;
+
 }
+
 
 .continue-btn{
+
   background:#e9edf3;
+
 }
+
 
 .end-btn{
+
   background:#e93443;
+
   color:#fff;
+
 }
 
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
 @media(max-width:900px){
+
   .import-options{
+
     grid-template-columns:1fr;
+
   }
 
   .import-card p{
+
     min-height:auto;
+
   }
+
+  .mode-options{
+
+    grid-template-columns:1fr;
+
+  }
+
 }
 
+
 @media(max-width:800px){
+
   .answers-editor{
+
     grid-template-columns:1fr;
+
   }
 
   #game{
-    grid-template-rows:18% 44% 38%;
+
+    grid-template-rows:
+    20%
+    42%
+    38%;
+
   }
 
-  .question-area{
-    padding:10px 70px;
+  #classicQuestionArea{
+
+    padding:
+    10px
+    70px;
+
   }
 
   .progress{
+
     display:none;
+
   }
 
   .timer{
+
     width:58px;
+
     height:58px;
+
     font-size:25px;
+
+  }
+
+  .dual-question-side{
+
+    padding:
+    12px
+    8px;
+
   }
 
   .team-panel{
+
     padding:8px;
+
   }
 
   .answer-grid{
+
     gap:5px;
+
   }
+
+  .answer-btn{
+
+    padding:
+    5px
+    7px;
+
+  }
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
-<!-- =========================
-     題庫設定
-========================= -->
+
+<!-- ==================================================
+     SETUP
+================================================== -->
 
 <section id="setupScreen">
+
 <div class="setup-container">
 
-  <div class="setup-header">
-    <h1>🇻🇳 越南語拔河大賽</h1>
-    <p>建立題庫後，紅隊與藍隊一起挑戰！</p>
-  </div>
 
-  <div class="import-box">
+<div class="setup-header">
 
-    <div class="import-title">
-      📚 選擇題庫來源
-    </div>
+<h1>
+🇻🇳 越南語拔河大賽
+</h1>
 
-    <div class="import-options">
-
-      <!-- GOOGLE -->
-
-      <div class="import-card">
-
-        <div class="import-icon">☁️</div>
-
-        <h3>Google 雲端題庫</h3>
-
-        <p>
-          直接載入公開 Google 試算表。
-          修改試算表後重新載入即可更新。
-        </p>
-
-        <button class="google-btn" id="googleImportBtn">
-          ☁️ 載入 Google 題庫
-        </button>
-
-      </div>
-
-      <!-- EXCEL -->
-
-      <div class="import-card">
-
-        <div class="import-icon">📂</div>
-
-        <h3>Excel / CSV 題庫</h3>
-
-        <p>
-          下載範本填寫完成後，
-          再將 Excel 或 CSV 上傳。
-        </p>
-
-        <label class="file-label">
-
-          📂 上傳題庫
-
-          <input
-            type="file"
-            id="fileInput"
-            accept=".xlsx,.xls,.csv">
-
-        </label>
-
-        <br>
-
-        <a
-          class="template-btn"
-          href="assets/越南語拔河遊戲_題庫範本.xlsx"
-          download>
-          📥 下載 Excel 範本
-        </a>
-
-      </div>
-
-      <!-- MANUAL -->
-
-      <div class="import-card">
-
-        <div class="import-icon">✏️</div>
-
-        <h3>自己輸入題目</h3>
-
-        <p>
-          不需要準備檔案，
-          可以直接新增、修改及刪除題目。
-        </p>
-
-        <button class="google-btn" id="manualAddTopBtn">
-          ＋ 新增一題
-        </button>
-
-      </div>
-
-    </div>
-
-    <div class="format-tip">
-
-      Excel / Google Sheet 第一列格式：
-
-      <strong>
-        題目｜A｜B｜C｜D｜正確答案
-      </strong>
-
-      ，正確答案填
-
-      <strong>A、B、C 或 D</strong>
-
-    </div>
-
-    <div id="importStatus"></div>
-
-  </div>
-
-
-  <!-- 題目編輯 -->
-
-  <div class="editor-heading">
-
-    <h2>
-      ✏️ 題目預覽與編輯
-    </h2>
-
-    <div id="questionCount">
-      0 題
-    </div>
-
-  </div>
-
-
-  <div id="questionEditor"></div>
-
-
-  <div class="setup-actions">
-
-    <button
-      class="reload-btn"
-      id="reloadGoogleBtn">
-      ☁️ 重新載入雲端題庫
-    </button>
-
-    <button
-      class="add-btn"
-      id="addQuestionBtn">
-      ＋ 手動新增題目
-    </button>
-
-    <button
-      class="clear-btn"
-      id="clearQuestionsBtn">
-      🗑️ 清空
-    </button>
-
-    <button
-      class="start-btn"
-      id="startGameBtn">
-      🔥 開始拔河！
-    </button>
-
-  </div>
-
-
-  <div class="setup-info">
-
-    ⏱️ 每題
-    <strong>10 秒</strong>
-
-    ・
-
-    🏆 先拉動
-    <strong>5 次</strong>
-    獲勝
-
-    ・
-
-    💾 題目會自動保存在這台裝置
-
-  </div>
+<p>
+建立題庫，選擇比賽模式後開始挑戰！
+</p>
 
 </div>
+
+
+<!-- ==================================================
+     MODE
+================================================== -->
+
+<div class="mode-box">
+
+<div class="mode-title">
+🎮 選擇遊戲模式
+</div>
+
+
+<div class="mode-options">
+
+
+<label
+class="mode-card active"
+id="classicModeCard">
+
+<input
+type="radio"
+name="gameMode"
+value="classic"
+checked>
+
+<div class="mode-icon">
+🏁
+</div>
+
+<h3>
+同題競速
+</h3>
+
+<p>
+紅隊、藍隊同時回答同一題。
+兩隊都答對時，由回答較快的一隊拉繩。
+</p>
+
+<div class="mode-badge">
+⏱️ 每題 10 秒
+</div>
+
+</label>
+
+
+<label
+class="mode-card"
+id="dualModeCard">
+
+<input
+type="radio"
+name="gameMode"
+value="dual">
+
+<div class="mode-icon">
+⚡
+</div>
+
+<h3>
+雙線闖關
+</h3>
+
+<p>
+兩隊題目順序不同，各自連續答題。
+答對立即拉繩；答錯暫停 3 秒。
+</p>
+
+<div class="mode-badge">
+🚀 各隊獨立作答
+</div>
+
+</label>
+
+
+</div>
+
+</div>
+
+
+<!-- ==================================================
+     IMPORT
+================================================== -->
+
+<div class="import-box">
+
+<div class="import-title">
+📚 選擇題庫來源
+</div>
+
+
+<div class="import-options">
+
+
+<div class="import-card">
+
+<div class="import-icon">
+☁️
+</div>
+
+<h3>
+Google 雲端題庫
+</h3>
+
+<p>
+直接載入公開 Google 試算表。
+修改後重新載入即可更新。
+</p>
+
+<button
+class="google-btn"
+id="googleImportBtn">
+☁️ 載入 Google 題庫
+</button>
+
+</div>
+
+
+<div class="import-card">
+
+<div class="import-icon">
+📂
+</div>
+
+<h3>
+Excel / CSV 題庫
+</h3>
+
+<p>
+下載範本填寫後，
+再將 Excel 或 CSV 上傳。
+</p>
+
+<label class="file-label">
+
+📂 上傳題庫
+
+<input
+type="file"
+id="fileInput"
+accept=".xlsx,.xls,.csv">
+
+</label>
+
+<br>
+
+<a
+class="template-btn"
+href="assets/越南語拔河遊戲_題庫範本.xlsx"
+download>
+📥 下載 Excel 範本
+</a>
+
+</div>
+
+
+<div class="import-card">
+
+<div class="import-icon">
+✏️
+</div>
+
+<h3>
+自己輸入題目
+</h3>
+
+<p>
+直接新增、修改及刪除題目，
+不需要準備其他檔案。
+</p>
+
+<button
+class="google-btn"
+id="manualAddTopBtn">
+＋ 新增一題
+</button>
+
+</div>
+
+
+</div>
+
+
+<div class="format-tip">
+
+Excel / Google Sheet 第一列格式：
+
+<strong>
+題目｜A｜B｜C｜D｜正確答案
+</strong>
+
+，正確答案填
+
+<strong>
+A、B、C 或 D
+</strong>
+
+</div>
+
+
+<div id="importStatus"></div>
+
+</div>
+
+
+<!-- ==================================================
+     EDITOR
+================================================== -->
+
+<div class="editor-heading">
+
+<h2>
+✏️ 題目預覽與編輯
+</h2>
+
+<div id="questionCount">
+0 題
+</div>
+
+</div>
+
+
+<div id="questionEditor"></div>
+
+
+<div class="setup-actions">
+
+<button
+class="reload-btn"
+id="reloadGoogleBtn">
+☁️ 重新載入雲端題庫
+</button>
+
+<button
+class="add-btn"
+id="addQuestionBtn">
+＋ 手動新增題目
+</button>
+
+<button
+class="clear-btn"
+id="clearQuestionsBtn">
+🗑️ 清空
+</button>
+
+<button
+class="start-btn"
+id="startGameBtn">
+🔥 開始拔河！
+</button>
+
+</div>
+
+
+<div
+class="setup-info"
+id="setupInfo">
+
+🏁 同題競速：
+每題
+<strong>10 秒</strong>
+・
+🏆 先拉動
+<strong>5 次</strong>
+獲勝
+
+</div>
+
+
+</div>
+
 </section>
 
 
-<!-- =========================
-     遊戲畫面
-========================= -->
+
+<!-- ==================================================
+     GAME
+================================================== -->
 
 <section id="gameScreen">
 
 <div id="game">
 
-<header class="question-area">
 
-  <div
-    class="progress"
-    id="progress">
-  </div>
+<!-- 控制 -->
 
-  <div class="game-title">
-    🇻🇳 VIETNAMESE TUG OF WAR
-  </div>
+<div class="top-controls">
 
-  <div
-    class="question"
-    id="question">
-  </div>
+<button
+class="sound-btn"
+id="soundBtn">
+🔊
+</button>
 
-  <div
-    class="timer"
-    id="timer">
-    10
-  </div>
+<button
+class="stop-btn"
+id="stopBtn">
+⏹ 停止遊戲
+</button>
 
-  <div class="top-controls">
+</div>
 
-    <button
-      class="sound-btn"
-      id="soundBtn">
-      🔊
-    </button>
 
-    <button
-      class="stop-btn"
-      id="stopBtn">
-      ⏹ 停止遊戲
-    </button>
+<!-- 同題模式題目 -->
 
-  </div>
+<header id="classicQuestionArea">
+
+<div
+class="progress"
+id="progress">
+</div>
+
+<div class="game-title">
+🇻🇳 VIETNAMESE TUG OF WAR
+</div>
+
+<div
+class="question"
+id="question">
+</div>
+
+<div
+class="timer"
+id="timer">
+10
+</div>
 
 </header>
 
 
+<!-- 雙線模式題目 -->
+
+<header id="dualQuestionArea">
+
+
+<div class="dual-question-side red">
+
+<div
+class="dual-progress"
+id="redProgress">
+</div>
+
+<div class="dual-small-title">
+🔴 ĐỘI ĐỎ
+</div>
+
+<div
+class="dual-question"
+id="redQuestion">
+</div>
+
+</div>
+
+
+<div class="dual-question-side blue">
+
+<div
+class="dual-progress"
+id="blueProgress">
+</div>
+
+<div class="dual-small-title">
+🔵 ĐỘI XANH
+</div>
+
+<div
+class="dual-question"
+id="blueQuestion">
+</div>
+
+</div>
+
+
+</header>
+
+
+<!-- ARENA -->
+
 <main class="arena">
 
-  <div class="center-line"></div>
+<div class="center-line"></div>
 
-  <div
-    class="status"
-    id="status">
-  </div>
+<div
+class="status"
+id="status">
+</div>
 
-  <div class="tug-wrap">
 
-    <img
-      src="assets/tug-war.png"
-      class="tug-image"
-      id="tugImage"
-      alt="拔河">
+<div class="tug-wrap">
 
-  </div>
+<img
+src="assets/tug-war.png"
+class="tug-image"
+id="tugImage"
+alt="拔河">
 
-  <div class="team-label red-label">
-    🔴 ĐỘI ĐỎ
-  </div>
+</div>
 
-  <div class="team-label blue-label">
-    ĐỘI XANH 🔵
-  </div>
+
+<div class="team-label red-label">
+🔴 ĐỘI ĐỎ
+</div>
+
+<div class="team-label blue-label">
+ĐỘI XANH 🔵
+</div>
 
 </main>
 
 
+<!-- ANSWERS -->
+
 <section class="answers">
 
-  <div class="team-panel red-panel">
 
-    <div class="panel-title">
-      🔴 ĐỘI ĐỎ
-    </div>
+<div class="team-panel red-panel">
 
-    <div
-      class="answer-grid"
-      id="redAnswers">
-    </div>
+<div class="panel-title">
+🔴 ĐỘI ĐỎ
+</div>
 
-  </div>
+<div
+class="answer-grid"
+id="redAnswers">
+</div>
 
 
-  <div class="team-panel blue-panel">
+<div
+class="penalty-overlay"
+id="redPenalty">
 
-    <div class="panel-title">
-      🔵 ĐỘI XANH
-    </div>
+<div class="penalty-title">
+❌ 暫停
+</div>
 
-    <div
-      class="answer-grid"
-      id="blueAnswers">
-    </div>
+<div
+class="penalty-number"
+id="redPenaltyNumber">
+3
+</div>
 
-  </div>
-
-</section>
+<div>
+秒後繼續
+</div>
 
 </div>
+
+</div>
+
+
+<div class="team-panel blue-panel">
+
+<div class="panel-title">
+🔵 ĐỘI XANH
+</div>
+
+<div
+class="answer-grid"
+id="blueAnswers">
+</div>
+
+
+<div
+class="penalty-overlay"
+id="bluePenalty">
+
+<div class="penalty-title">
+❌ 暫停
+</div>
+
+<div
+class="penalty-number"
+id="bluePenaltyNumber">
+3
+</div>
+
+<div>
+秒後繼續
+</div>
+
+</div>
+
+</div>
+
+
 </section>
 
 
-<!-- =========================
-     勝利畫面
-========================= -->
+</div>
+
+</section>
+
+
+
+<!-- ==================================================
+     WIN
+================================================== -->
 
 <div id="winnerScreen">
 
-  <div id="winnerEmoji">
-    🏆
-  </div>
+<div id="winnerEmoji">
+🏆
+</div>
 
-  <div id="winnerText"></div>
+<div id="winnerText">
+</div>
 
-  <div class="winner-buttons">
 
-    <button
-      class="restart"
-      id="restartBtn">
-      🔥 再玩一次
-    </button>
+<div class="winner-buttons">
 
-    <button
-      class="edit-questions"
-      id="editQuestionsBtn">
-      📚 回題庫
-    </button>
+<button
+class="restart"
+id="restartBtn">
+🔥 再玩一次
+</button>
 
-  </div>
+<button
+class="edit-questions"
+id="editQuestionsBtn">
+📚 回題庫
+</button>
+
+</div>
 
 </div>
 
 
-<!-- =========================
-     停止遊戲
-========================= -->
+
+<!-- ==================================================
+     STOP
+================================================== -->
 
 <div id="stopModal">
 
 <div class="stop-box">
 
-  <h2>
-    ⏹ 停止遊戲？
-  </h2>
+<h2>
+⏹ 停止遊戲？
+</h2>
 
-  <p>
-    題庫會保留，不會消失。
-  </p>
+<p>
+可以稍後繼續目前比賽，
+也可以直接回到題庫設定。
+</p>
 
-  <div class="stop-actions">
 
-    <button
-      class="continue-btn"
-      id="continueBtn">
-      🔙 繼續比賽
-    </button>
+<div class="stop-actions">
 
-    <button
-      class="end-btn"
-      id="endGameBtn">
-      ⏹ 結束遊戲
-    </button>
+<button
+class="continue-btn"
+id="continueBtn">
+🔙 繼續比賽
+</button>
 
-  </div>
+<button
+class="end-btn"
+id="endGameBtn">
+⏹ 結束遊戲
+</button>
 
 </div>
+
+</div>
+
 </div>
 
 
-<!-- =========================
-     音效
-========================= -->
+
+<!-- ==================================================
+     AUDIO
+================================================== -->
 
 <audio
-  id="bgm"
-  src="assets/bgm.mp3"
-  loop>
+id="bgm"
+src="assets/bgm.mp3"
+loop>
 </audio>
 
 <audio
-  id="countdownSound"
-  src="assets/countdown.mp3">
+id="countdownSound"
+src="assets/countdown.mp3">
 </audio>
 
 <audio
-  id="correctSound"
-  src="assets/correct.mp3">
+id="correctSound"
+src="assets/correct.mp3">
 </audio>
 
 <audio
-  id="wrongSound"
-  src="assets/wrong.mp3">
+id="wrongSound"
+src="assets/wrong.mp3">
 </audio>
 
 <audio
-  id="winSound"
-  src="assets/win.mp3">
+id="winSound"
+src="assets/win.mp3">
 </audio>
+
 
 
 <script>
 
-/* =========================
-   基本設定
-========================= */
+
+/* ==================================================
+   CONSTANTS
+================================================== */
 
 const GOOGLE_SHEET_ID =
 "18pSzxoVu-cZjwzPsM7J0E1MSnLezg_U_pNLLdLc2S5c";
 
-const GOOGLE_SHEET_GID = "0";
 
-const QUESTION_TIME = 10;
+const GOOGLE_SHEET_GID =
+"0";
 
-const WIN_SCORE = 5;
 
-const STEP = 2.8;
+const QUESTION_TIME =
+10;
+
+
+const WIN_SCORE =
+5;
+
+
+const STEP =
+2.8;
+
+
+const WRONG_PENALTY =
+3;
+
+
+
+/* ==================================================
+   VARIABLES
+================================================== */
 
 let questions = [];
 
-let currentQuestion = 0;
 
-let ropePosition = 0;
-
-let redAnswer = null;
-let blueAnswer = null;
-
-let redTime = null;
-let blueTime = null;
-
-let questionStartTime = null;
-
-let timeLeft = QUESTION_TIME;
-
-let timerInterval = null;
-
-let roundFinished = false;
-
-let soundEnabled = true;
-
-let gamePaused = false;
-
-let pauseStartedAt = null;
-
-let totalPauseTime = 0;
+let gameMode =
+"classic";
 
 
-/* =========================
+let ropePosition =
+0;
+
+
+let gamePaused =
+false;
+
+
+let gameEnded =
+false;
+
+
+/* classic */
+
+let currentQuestion =
+0;
+
+
+let redAnswer =
+null;
+
+
+let blueAnswer =
+null;
+
+
+let redTime =
+null;
+
+
+let blueTime =
+null;
+
+
+let questionStartTime =
+null;
+
+
+let timeLeft =
+QUESTION_TIME;
+
+
+let timerInterval =
+null;
+
+
+let roundFinished =
+false;
+
+
+let pauseStartedAt =
+null;
+
+
+let totalPauseTime =
+0;
+
+
+let nextQuestionTimeout =
+null;
+
+
+/* dual */
+
+let redOrder = [];
+
+let blueOrder = [];
+
+
+let redQuestionPosition =
+0;
+
+
+let blueQuestionPosition =
+0;
+
+
+let redPenaltyRemaining =
+0;
+
+
+let bluePenaltyRemaining =
+0;
+
+
+let redPenaltyInterval =
+null;
+
+
+let bluePenaltyInterval =
+null;
+
+
+let redPenaltyActive =
+false;
+
+
+let bluePenaltyActive =
+false;
+
+
+
+/* ==================================================
    DOM
-========================= */
+================================================== */
 
 const setupScreen =
-document.getElementById("setupScreen");
+document.getElementById(
+  "setupScreen"
+);
+
 
 const gameScreen =
-document.getElementById("gameScreen");
+document.getElementById(
+  "gameScreen"
+);
+
+
+const classicQuestionArea =
+document.getElementById(
+  "classicQuestionArea"
+);
+
+
+const dualQuestionArea =
+document.getElementById(
+  "dualQuestionArea"
+);
+
+
+const classicModeCard =
+document.getElementById(
+  "classicModeCard"
+);
+
+
+const dualModeCard =
+document.getElementById(
+  "dualModeCard"
+);
+
+
+const setupInfo =
+document.getElementById(
+  "setupInfo"
+);
+
 
 const questionEditor =
-document.getElementById("questionEditor");
+document.getElementById(
+  "questionEditor"
+);
+
 
 const questionCount =
-document.getElementById("questionCount");
+document.getElementById(
+  "questionCount"
+);
+
 
 const googleImportBtn =
-document.getElementById("googleImportBtn");
+document.getElementById(
+  "googleImportBtn"
+);
+
 
 const reloadGoogleBtn =
-document.getElementById("reloadGoogleBtn");
+document.getElementById(
+  "reloadGoogleBtn"
+);
+
 
 const fileInput =
-document.getElementById("fileInput");
+document.getElementById(
+  "fileInput"
+);
+
 
 const importStatus =
-document.getElementById("importStatus");
+document.getElementById(
+  "importStatus"
+);
+
 
 const addQuestionBtn =
-document.getElementById("addQuestionBtn");
+document.getElementById(
+  "addQuestionBtn"
+);
+
 
 const manualAddTopBtn =
-document.getElementById("manualAddTopBtn");
+document.getElementById(
+  "manualAddTopBtn"
+);
+
 
 const clearQuestionsBtn =
-document.getElementById("clearQuestionsBtn");
+document.getElementById(
+  "clearQuestionsBtn"
+);
+
 
 const startGameBtn =
-document.getElementById("startGameBtn");
+document.getElementById(
+  "startGameBtn"
+);
+
 
 const questionEl =
-document.getElementById("question");
+document.getElementById(
+  "question"
+);
+
 
 const progressEl =
-document.getElementById("progress");
+document.getElementById(
+  "progress"
+);
+
 
 const timerEl =
-document.getElementById("timer");
+document.getElementById(
+  "timer"
+);
+
+
+const redQuestionEl =
+document.getElementById(
+  "redQuestion"
+);
+
+
+const blueQuestionEl =
+document.getElementById(
+  "blueQuestion"
+);
+
+
+const redProgressEl =
+document.getElementById(
+  "redProgress"
+);
+
+
+const blueProgressEl =
+document.getElementById(
+  "blueProgress"
+);
+
 
 const redAnswersEl =
-document.getElementById("redAnswers");
+document.getElementById(
+  "redAnswers"
+);
+
 
 const blueAnswersEl =
-document.getElementById("blueAnswers");
+document.getElementById(
+  "blueAnswers"
+);
+
 
 const tugImage =
-document.getElementById("tugImage");
+document.getElementById(
+  "tugImage"
+);
+
 
 const statusEl =
-document.getElementById("status");
+document.getElementById(
+  "status"
+);
+
+
+const redPenalty =
+document.getElementById(
+  "redPenalty"
+);
+
+
+const bluePenalty =
+document.getElementById(
+  "bluePenalty"
+);
+
+
+const redPenaltyNumber =
+document.getElementById(
+  "redPenaltyNumber"
+);
+
+
+const bluePenaltyNumber =
+document.getElementById(
+  "bluePenaltyNumber"
+);
+
 
 const winnerScreen =
-document.getElementById("winnerScreen");
+document.getElementById(
+  "winnerScreen"
+);
+
 
 const winnerText =
-document.getElementById("winnerText");
+document.getElementById(
+  "winnerText"
+);
+
 
 const restartBtn =
-document.getElementById("restartBtn");
+document.getElementById(
+  "restartBtn"
+);
+
 
 const editQuestionsBtn =
-document.getElementById("editQuestionsBtn");
+document.getElementById(
+  "editQuestionsBtn"
+);
+
 
 const soundBtn =
-document.getElementById("soundBtn");
+document.getElementById(
+  "soundBtn"
+);
+
 
 const stopBtn =
-document.getElementById("stopBtn");
+document.getElementById(
+  "stopBtn"
+);
+
 
 const stopModal =
-document.getElementById("stopModal");
+document.getElementById(
+  "stopModal"
+);
+
 
 const continueBtn =
-document.getElementById("continueBtn");
+document.getElementById(
+  "continueBtn"
+);
+
 
 const endGameBtn =
-document.getElementById("endGameBtn");
+document.getElementById(
+  "endGameBtn"
+);
 
 
-/* =========================
-   音效
-========================= */
+
+/* ==================================================
+   AUDIO
+================================================== */
 
 const bgm =
-document.getElementById("bgm");
+document.getElementById(
+  "bgm"
+);
+
 
 const countdownSound =
-document.getElementById("countdownSound");
+document.getElementById(
+  "countdownSound"
+);
+
 
 const correctSound =
-document.getElementById("correctSound");
+document.getElementById(
+  "correctSound"
+);
+
 
 const wrongSound =
-document.getElementById("wrongSound");
+document.getElementById(
+  "wrongSound"
+);
+
 
 const winSound =
-document.getElementById("winSound");
+document.getElementById(
+  "winSound"
+);
 
-bgm.volume = 0.26;
 
-countdownSound.volume = 0.65;
+bgm.volume =
+0.26;
 
-correctSound.volume = 0.75;
 
-wrongSound.volume = 0.75;
+countdownSound.volume =
+0.65;
 
-winSound.volume = 0.9;
+
+correctSound.volume =
+0.75;
+
+
+wrongSound.volume =
+0.75;
+
+
+winSound.volume =
+0.9;
+
 
 
 function stopAllSounds(){
@@ -1360,59 +3137,101 @@ function stopAllSounds(){
     correctSound,
     wrongSound,
     winSound
-  ].forEach(audio=>{
+  ]
+  .forEach(audio=>{
 
     audio.pause();
 
-    audio.currentTime = 0;
+    audio.currentTime =
+    0;
 
   });
 
 }
 
 
+
 function playSound(audio){
 
-  if(!soundEnabled) return;
+  if(
+    !soundEnabled
+  ){
 
-  audio.currentTime = 0;
+    return;
 
-  audio.play().catch(()=>{});
+  }
+
+  audio.currentTime =
+  0;
+
+  audio
+  .play()
+  .catch(()=>{});
 
 }
+
 
 
 function startBGM(){
 
-  if(!soundEnabled) return;
+  if(
+    !soundEnabled
+  ){
 
-  bgm.play().catch(()=>{});
+    return;
+
+  }
+
+  bgm
+  .play()
+  .catch(()=>{});
 
 }
 
 
-soundBtn.addEventListener(
+
+let soundEnabled =
+true;
+
+
+soundBtn
+.addEventListener(
 "click",
 ()=>{
 
-  soundEnabled = !soundEnabled;
+  soundEnabled =
+  !soundEnabled;
 
-  if(soundEnabled){
 
-    soundBtn.textContent = "🔊";
+  if(
+    soundEnabled
+  ){
+
+    soundBtn.textContent =
+    "🔊";
+
 
     if(
       !gamePaused &&
-      gameScreen.style.display === "block"
+      !gameEnded &&
+      gameScreen.style.display
+      ===
+      "block"
     ){
 
-      bgm.play().catch(()=>{});
+      bgm
+      .play()
+      .catch(()=>{});
 
     }
 
-  }else{
+  }
 
-    soundBtn.textContent = "🔇";
+  else{
+
+    soundBtn.textContent =
+    "🔇";
+
 
     [
       bgm,
@@ -1420,8 +3239,10 @@ soundBtn.addEventListener(
       correctSound,
       wrongSound,
       winSound
-    ].forEach(
-      audio=>audio.pause()
+    ]
+    .forEach(
+      audio=>
+      audio.pause()
     );
 
   }
@@ -1429,19 +3250,123 @@ soundBtn.addEventListener(
 });
 
 
-/* =========================
-   Google Sheet 匯入
-========================= */
 
-googleImportBtn.addEventListener(
+/* ==================================================
+   MODE SELECT
+================================================== */
+
+document
+.querySelectorAll(
+  'input[name="gameMode"]'
+)
+.forEach(radio=>{
+
+  radio
+  .addEventListener(
+  "change",
+  ()=>{
+
+    gameMode =
+    radio.value;
+
+    updateModeCards();
+
+  });
+
+});
+
+
+function updateModeCards(){
+
+  classicModeCard
+  .classList
+  .toggle(
+    "active",
+    gameMode === "classic"
+  );
+
+
+  dualModeCard
+  .classList
+  .toggle(
+    "active",
+    gameMode === "dual"
+  );
+
+
+  if(
+    gameMode === "classic"
+  ){
+
+    setupInfo.innerHTML = `
+
+      🏁 同題競速：
+      每題
+      <strong>10 秒</strong>
+
+      ・
+
+      兩隊都答對時
+      <strong>較快者拉繩</strong>
+
+      ・
+
+      🏆 先拉動
+      <strong>5 次</strong>
+      獲勝
+
+    `;
+
+  }
+
+  else{
+
+    setupInfo.innerHTML = `
+
+      ⚡ 雙線闖關：
+      兩隊
+      <strong>題目順序不同</strong>
+
+      ・
+
+      答對立即拉繩
+
+      ・
+
+      答錯
+      <strong>暫停 3 秒</strong>
+
+      ・
+
+      🏆 先拉動
+      <strong>5 次</strong>
+      獲勝
+
+    `;
+
+  }
+
+}
+
+
+
+/* ==================================================
+   GOOGLE SHEET
+================================================== */
+
+googleImportBtn
+.addEventListener(
 "click",
 loadGoogleQuestions
 );
 
-reloadGoogleBtn.addEventListener(
+
+reloadGoogleBtn
+.addEventListener(
 "click",
 loadGoogleQuestions
 );
+
 
 
 async function loadGoogleQuestions(){
@@ -1451,15 +3376,20 @@ async function loadGoogleQuestions(){
     "☁️ 正在讀取 Google 雲端題庫..."
   );
 
+
   try{
 
     const url =
     `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GOOGLE_SHEET_GID}&t=${Date.now()}`;
 
+
     const response =
     await fetch(url);
 
-    if(!response.ok){
+
+    if(
+      !response.ok
+    ){
 
       throw new Error(
         "Google Sheet 無法讀取"
@@ -1467,16 +3397,24 @@ async function loadGoogleQuestions(){
 
     }
 
+
     const text =
     await response.text();
+
 
     const rows =
     parseCSV(text);
 
-    const imported =
-    convertRowsToQuestions(rows);
 
-    if(imported.length === 0){
+    const imported =
+    convertRowsToQuestions(
+      rows
+    );
+
+
+    if(
+      imported.length === 0
+    ){
 
       throw new Error(
         "找不到符合格式的題目"
@@ -1484,20 +3422,30 @@ async function loadGoogleQuestions(){
 
     }
 
-    questions = imported;
+
+    questions =
+    imported;
+
 
     saveQuestions();
 
+
     renderEditor();
+
 
     showImportStatus(
       "success",
       `✅ Google 題庫載入成功！共 ${questions.length} 題`
     );
 
-  }catch(error){
+  }
 
-    console.error(error);
+  catch(error){
+
+    console.error(
+      error
+    );
+
 
     showImportStatus(
       "error",
@@ -1509,9 +3457,10 @@ async function loadGoogleQuestions(){
 }
 
 
-/* =========================
-   CSV 解析
-========================= */
+
+/* ==================================================
+   CSV
+================================================== */
 
 function parseCSV(text){
 
@@ -1521,7 +3470,9 @@ function parseCSV(text){
 
   let field = "";
 
-  let insideQuotes = false;
+  let insideQuotes =
+  false;
+
 
   for(
     let i=0;
@@ -1529,9 +3480,13 @@ function parseCSV(text){
     i++
   ){
 
-    const char = text[i];
+    const char =
+    text[i];
 
-    if(char === '"'){
+
+    if(
+      char === '"'
+    ){
 
       if(
         insideQuotes &&
@@ -1542,7 +3497,9 @@ function parseCSV(text){
 
         i++;
 
-      }else{
+      }
+
+      else{
 
         insideQuotes =
         !insideQuotes;
@@ -1551,22 +3508,27 @@ function parseCSV(text){
 
     }
 
+
     else if(
       char === "," &&
       !insideQuotes
     ){
 
-      row.push(field);
+      row.push(
+        field
+      );
 
       field = "";
 
     }
 
+
     else if(
       (
         char === "\n" ||
         char === "\r"
-      ) &&
+      )
+      &&
       !insideQuotes
     ){
 
@@ -1579,24 +3541,35 @@ function parseCSV(text){
 
       }
 
-      row.push(field);
+
+      row.push(
+        field
+      );
+
 
       if(
         row.some(
           cell=>
-          String(cell).trim() !== ""
+          String(cell)
+          .trim()
+          !==
+          ""
         )
       ){
 
-        rows.push(row);
+        rows.push(
+          row
+        );
 
       }
+
 
       row = [];
 
       field = "";
 
     }
+
 
     else{
 
@@ -1606,29 +3579,42 @@ function parseCSV(text){
 
   }
 
-  row.push(field);
+
+  row.push(
+    field
+  );
+
 
   if(
     row.some(
       cell=>
-      String(cell).trim() !== ""
+      String(cell)
+      .trim()
+      !==
+      ""
     )
   ){
 
-    rows.push(row);
+    rows.push(
+      row
+    );
 
   }
+
 
   return rows;
 
 }
 
 
-/* =========================
-   表格轉成題庫
-========================= */
 
-function convertRowsToQuestions(rows){
+/* ==================================================
+   TABLE TO QUESTIONS
+================================================== */
+
+function convertRowsToQuestions(
+rows
+){
 
   if(
     !rows ||
@@ -1639,40 +3625,69 @@ function convertRowsToQuestions(rows){
 
   }
 
+
   const headers =
-  rows[0].map(
-    h=>normalizeHeader(h)
+  rows[0]
+  .map(
+    h=>
+    normalizeHeader(h)
   );
+
 
   const questionIndex =
   findHeaderIndex(
     headers,
-    ["題目","question","問題"]
+    [
+      "題目",
+      "question",
+      "問題"
+    ]
   );
+
 
   const aIndex =
   findHeaderIndex(
     headers,
-    ["a","選項a","答案a"]
+    [
+      "a",
+      "選項a",
+      "答案a"
+    ]
   );
+
 
   const bIndex =
   findHeaderIndex(
     headers,
-    ["b","選項b","答案b"]
+    [
+      "b",
+      "選項b",
+      "答案b"
+    ]
   );
+
 
   const cIndex =
   findHeaderIndex(
     headers,
-    ["c","選項c","答案c"]
+    [
+      "c",
+      "選項c",
+      "答案c"
+    ]
   );
+
 
   const dIndex =
   findHeaderIndex(
     headers,
-    ["d","選項d","答案d"]
+    [
+      "d",
+      "選項d",
+      "答案d"
+    ]
   );
+
 
   const correctIndex =
   findHeaderIndex(
@@ -1684,6 +3699,7 @@ function convertRowsToQuestions(rows){
       "correctanswer"
     ]
   );
+
 
   if(
     questionIndex === -1 ||
@@ -1698,7 +3714,9 @@ function convertRowsToQuestions(rows){
 
   }
 
+
   const result = [];
+
 
   for(
     let i=1;
@@ -1706,7 +3724,9 @@ function convertRowsToQuestions(rows){
     i++
   ){
 
-    const row = rows[i];
+    const row =
+    rows[i];
+
 
     const question =
     getCell(
@@ -1714,29 +3734,52 @@ function convertRowsToQuestions(rows){
       questionIndex
     );
 
+
     const answers = [
 
-      getCell(row,aIndex),
+      getCell(
+        row,
+        aIndex
+      ),
 
-      getCell(row,bIndex),
+      getCell(
+        row,
+        bIndex
+      ),
 
-      getCell(row,cIndex),
+      getCell(
+        row,
+        cIndex
+      ),
 
-      getCell(row,dIndex)
+      getCell(
+        row,
+        dIndex
+      )
 
     ];
 
-    if(!question) continue;
+
+    if(
+      !question
+    ){
+
+      continue;
+
+    }
+
 
     if(
       answers.some(
-        answer=>!answer
+        answer=>
+        !answer
       )
     ){
 
       continue;
 
     }
+
 
     const correctText =
     getCell(
@@ -1746,12 +3789,13 @@ function convertRowsToQuestions(rows){
     .trim()
     .toUpperCase();
 
+
     const correctMap = {
 
-      "A":0,
-      "B":1,
-      "C":2,
-      "D":3,
+      A:0,
+      B:1,
+      C:2,
+      D:3,
 
       "1":0,
       "2":1,
@@ -1760,8 +3804,12 @@ function convertRowsToQuestions(rows){
 
     };
 
+
     if(
-      correctMap[correctText] ===
+      correctMap[
+        correctText
+      ]
+      ===
       undefined
     ){
 
@@ -1769,32 +3817,48 @@ function convertRowsToQuestions(rows){
 
     }
 
+
     result.push({
 
-      question:question,
+      question:
+      question,
 
-      answers:answers,
+      answers:
+      answers,
 
       correct:
-      correctMap[correctText]
+      correctMap[
+        correctText
+      ]
 
     });
 
   }
+
 
   return result;
 
 }
 
 
-function normalizeHeader(text){
 
-  return String(text || "")
+function normalizeHeader(
+text
+){
+
+  return String(
+    text ||
+    ""
+  )
   .trim()
   .toLowerCase()
-  .replace(/\s/g,"");
+  .replace(
+    /\s/g,
+    ""
+  );
 
 }
+
 
 
 function findHeaderIndex(
@@ -1809,10 +3873,15 @@ possibilities
 
     const index =
     headers.indexOf(
-      normalizeHeader(possibility)
+      normalizeHeader(
+        possibility
+      )
     );
 
-    if(index !== -1){
+
+    if(
+      index !== -1
+    ){
 
       return index;
 
@@ -1820,9 +3889,11 @@ possibilities
 
   }
 
+
   return -1;
 
 }
+
 
 
 function getCell(
@@ -1831,38 +3902,57 @@ index
 ){
 
   return String(
-    row[index] ?? ""
-  ).trim();
+    row[index]
+    ??
+    ""
+  )
+  .trim();
 
 }
 
 
-/* =========================
-   Excel / CSV 上傳
-========================= */
 
-fileInput.addEventListener(
+/* ==================================================
+   EXCEL
+================================================== */
+
+fileInput
+.addEventListener(
 "change",
 async event=>{
 
   const file =
-  event.target.files[0];
+  event
+  .target
+  .files[0];
 
-  if(!file) return;
+
+  if(
+    !file
+  ){
+
+    return;
+
+  }
+
 
   showImportStatus(
     "loading",
     "📂 正在讀取題庫..."
   );
 
+
   try{
 
     let rows = [];
 
+
     if(
       file.name
       .toLowerCase()
-      .endsWith(".csv")
+      .endsWith(
+        ".csv"
+      )
     ){
 
       rows =
@@ -1870,21 +3960,32 @@ async event=>{
         await file.text()
       );
 
-    }else{
+    }
+
+    else{
 
       const data =
       await file.arrayBuffer();
 
+
       const workbook =
-      XLSX.read(data);
+      XLSX.read(
+        data
+      );
+
 
       const sheet =
-      workbook.Sheets[
-        workbook.SheetNames[0]
+      workbook
+      .Sheets[
+        workbook
+        .SheetNames[0]
       ];
 
+
       rows =
-      XLSX.utils.sheet_to_json(
+      XLSX
+      .utils
+      .sheet_to_json(
         sheet,
         {
           header:1,
@@ -1894,10 +3995,16 @@ async event=>{
 
     }
 
-    const imported =
-    convertRowsToQuestions(rows);
 
-    if(imported.length === 0){
+    const imported =
+    convertRowsToQuestions(
+      rows
+    );
+
+
+    if(
+      imported.length === 0
+    ){
 
       throw new Error(
         "格式不正確"
@@ -1905,20 +4012,30 @@ async event=>{
 
     }
 
-    questions = imported;
+
+    questions =
+    imported;
+
 
     saveQuestions();
 
+
     renderEditor();
+
 
     showImportStatus(
       "success",
       `✅ 題庫匯入成功！共 ${questions.length} 題`
     );
 
-  }catch(error){
+  }
 
-    console.error(error);
+  catch(error){
+
+    console.error(
+      error
+    );
+
 
     showImportStatus(
       "error",
@@ -1927,9 +4044,12 @@ async event=>{
 
   }
 
-  event.target.value = "";
+
+  event.target.value =
+  "";
 
 });
+
 
 
 function showImportStatus(
@@ -1937,25 +4057,32 @@ type,
 text
 ){
 
-  importStatus.className = type;
+  importStatus.className =
+  type;
 
-  importStatus.textContent = text;
+
+  importStatus.textContent =
+  text;
 
 }
 
 
-/* =========================
-   本機儲存
-========================= */
+
+/* ==================================================
+   STORAGE
+================================================== */
 
 function saveQuestions(){
 
   localStorage.setItem(
     "vietnameseTugQuestions",
-    JSON.stringify(questions)
+    JSON.stringify(
+      questions
+    )
   );
 
 }
+
 
 
 function loadSavedQuestions(){
@@ -1965,36 +4092,47 @@ function loadSavedQuestions(){
     "vietnameseTugQuestions"
   );
 
-  if(saved){
+
+  if(
+    saved
+  ){
 
     try{
 
       const data =
-      JSON.parse(saved);
+      JSON.parse(
+        saved
+      );
+
 
       if(
         Array.isArray(data) &&
         data.length
       ){
 
-        questions = data;
+        questions =
+        data;
 
         return;
 
       }
 
-    }catch(error){}
+    }
+
+    catch(error){}
 
   }
+
 
   questions = [];
 
 }
 
 
-/* =========================
-   題目編輯器
-========================= */
+
+/* ==================================================
+   EDITOR
+================================================== */
 
 function createBlankQuestion(){
 
@@ -2016,24 +4154,44 @@ function createBlankQuestion(){
 }
 
 
+
 function escapeHTML(text){
 
   return String(text)
 
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;");
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+
+  .replace(
+    /</g,
+    "&lt;"
+  )
+
+  .replace(
+    />/g,
+    "&gt;"
+  )
+
+  .replace(
+    /"/g,
+    "&quot;"
+  );
 
 }
 
 
+
 function renderEditor(){
 
-  questionEditor.innerHTML = "";
+  questionEditor.innerHTML =
+  "";
+
 
   questionCount.textContent =
   `${questions.length} 題`;
+
 
   if(
     questions.length === 0
@@ -2043,118 +4201,148 @@ function renderEditor(){
 
       <div class="empty-editor">
 
-        尚未建立題庫 📝
+      尚未建立題庫 📝
 
-        <br>
+      <br>
 
-        可以使用
-        <strong>Google 試算表</strong>、
-        <strong>Excel / CSV</strong>
-        或
-        <strong>手動新增</strong>。
+      可以使用
+      <strong>Google 試算表</strong>、
+      <strong>Excel / CSV</strong>
+      或
+      <strong>手動新增</strong>。
 
       </div>
 
     `;
+
 
     return;
 
   }
 
-  questions.forEach(
+
+  questions
+  .forEach(
   (q,index)=>{
 
+
     const card =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
     card.className =
     "question-card";
 
+
     const letters =
-    ["A","B","C","D"];
+    [
+      "A",
+      "B",
+      "C",
+      "D"
+    ];
+
 
     card.innerHTML = `
 
-      <div class="card-top">
+    <div class="card-top">
 
-        <div class="card-title">
-          題目 ${index+1}
-        </div>
-
-        <button
-          class="delete-btn"
-          data-delete="${index}">
-          🗑️ 刪除
-        </button>
-
+      <div class="card-title">
+      題目 ${index+1}
       </div>
 
-      <label class="field-label">
-        題目
-      </label>
+      <button
+      class="delete-btn"
+      data-delete="${index}">
+      🗑️ 刪除
+      </button>
+
+    </div>
+
+
+    <label class="field-label">
+    題目
+    </label>
+
+
+    <input
+    class="question-input"
+    data-question="${index}"
+    value="${escapeHTML(q.question)}">
+
+
+    <label class="field-label">
+    選項
+    </label>
+
+
+    <div class="answers-editor">
+
+    ${
+      q.answers
+      .map(
+      (answer,aIndex)=>`
+
+      <div class="answer-row">
+
+      <div class="answer-letter">
+      ${letters[aIndex]}
+      </div>
 
       <input
-        class="question-input"
-        data-question="${index}"
-        value="${escapeHTML(q.question)}">
+      class="answer-input"
+      data-answer-question="${index}"
+      data-answer-index="${aIndex}"
+      value="${escapeHTML(answer)}">
 
-      <label class="field-label">
-        選項
-      </label>
-
-      <div class="answers-editor">
-
-        ${q.answers.map(
-          (answer,aIndex)=>`
-
-          <div class="answer-row">
-
-            <div class="answer-letter">
-              ${letters[aIndex]}
-            </div>
-
-            <input
-              class="answer-input"
-              data-answer-question="${index}"
-              data-answer-index="${aIndex}"
-              value="${escapeHTML(answer)}">
-
-            <input
-              type="radio"
-              title="設為正確答案"
-              name="correct-${index}"
-              data-correct-question="${index}"
-              data-correct-index="${aIndex}"
-              ${
-                q.correct === aIndex
-                ? "checked"
-                : ""
-              }>
-
-          </div>
-
-        `).join("")}
+      <input
+      type="radio"
+      title="設為正確答案"
+      name="correct-${index}"
+      data-correct-question="${index}"
+      data-correct-index="${aIndex}"
+      ${
+        q.correct === aIndex
+        ?
+        "checked"
+        :
+        ""
+      }>
 
       </div>
 
-      <div class="correct-tip">
-        ✓ 點選每個選項右方圓圈，可設定正確答案
-      </div>
+      `)
+      .join("")
+    }
+
+    </div>
+
+
+    <div class="correct-tip">
+    ✓ 點選每個選項右方圓圈，可設定正確答案
+    </div>
 
     `;
 
-    questionEditor.appendChild(
+
+    questionEditor
+    .appendChild(
       card
     );
 
   });
+
 
   bindEditorEvents();
 
 }
 
 
+
 function bindEditorEvents(){
+
 
   document
   .querySelectorAll(
@@ -2162,23 +4350,30 @@ function bindEditorEvents(){
   )
   .forEach(input=>{
 
-    input.addEventListener(
+    input
+    .addEventListener(
     "input",
     ()=>{
 
       const index =
       Number(
-        input.dataset.question
+        input
+        .dataset
+        .question
       );
 
-      questions[index].question =
+
+      questions[index]
+      .question =
       input.value;
+
 
       saveQuestions();
 
     });
 
   });
+
 
 
   document
@@ -2187,29 +4382,38 @@ function bindEditorEvents(){
   )
   .forEach(input=>{
 
-    input.addEventListener(
+    input
+    .addEventListener(
     "input",
     ()=>{
 
       const qIndex =
       Number(
-        input.dataset.answerQuestion
+        input
+        .dataset
+        .answerQuestion
       );
+
 
       const aIndex =
       Number(
-        input.dataset.answerIndex
+        input
+        .dataset
+        .answerIndex
       );
+
 
       questions[qIndex]
       .answers[aIndex] =
       input.value;
+
 
       saveQuestions();
 
     });
 
   });
+
 
 
   document
@@ -2218,22 +4422,31 @@ function bindEditorEvents(){
   )
   .forEach(radio=>{
 
-    radio.addEventListener(
+    radio
+    .addEventListener(
     "change",
     ()=>{
 
       const qIndex =
       Number(
-        radio.dataset.correctQuestion
+        radio
+        .dataset
+        .correctQuestion
       );
+
 
       const aIndex =
       Number(
-        radio.dataset.correctIndex
+        radio
+        .dataset
+        .correctIndex
       );
 
-      questions[qIndex].correct =
+
+      questions[qIndex]
+      .correct =
       aIndex;
+
 
       saveQuestions();
 
@@ -2242,27 +4455,34 @@ function bindEditorEvents(){
   });
 
 
+
   document
   .querySelectorAll(
     "[data-delete]"
   )
   .forEach(button=>{
 
-    button.addEventListener(
+    button
+    .addEventListener(
     "click",
     ()=>{
 
       const index =
       Number(
-        button.dataset.delete
+        button
+        .dataset
+        .delete
       );
+
 
       questions.splice(
         index,
         1
       );
 
+
       saveQuestions();
+
 
       renderEditor();
 
@@ -2273,9 +4493,10 @@ function bindEditorEvents(){
 }
 
 
-/* =========================
-   新增 / 清空
-========================= */
+
+/* ==================================================
+   ADD QUESTION
+================================================== */
 
 function addBlankQuestion(){
 
@@ -2283,14 +4504,19 @@ function addBlankQuestion(){
     createBlankQuestion()
   );
 
+
   saveQuestions();
 
+
   renderEditor();
+
 
   setTimeout(()=>{
 
     document
-    .querySelector(".editor-heading")
+    .querySelector(
+      ".editor-heading"
+    )
     .scrollIntoView({
       behavior:"smooth"
     });
@@ -2300,18 +4526,24 @@ function addBlankQuestion(){
 }
 
 
-addQuestionBtn.addEventListener(
+
+addQuestionBtn
+.addEventListener(
 "click",
 addBlankQuestion
 );
 
-manualAddTopBtn.addEventListener(
+
+manualAddTopBtn
+.addEventListener(
 "click",
 addBlankQuestion
 );
 
 
-clearQuestionsBtn.addEventListener(
+
+clearQuestionsBtn
+.addEventListener(
 "click",
 ()=>{
 
@@ -2325,69 +4557,22 @@ clearQuestionsBtn.addEventListener(
 
   }
 
+
   questions = [];
 
+
   saveQuestions();
+
 
   renderEditor();
 
 });
 
 
-/* =========================
-   開始遊戲
-========================= */
 
-startGameBtn.addEventListener(
-"click",
-()=>{
-
-  if(
-    !validateQuestions()
-  ){
-
-    return;
-
-  }
-
-  saveQuestions();
-
-  stopAllSounds();
-
-  currentQuestion = 0;
-
-  ropePosition = 0;
-
-  redAnswer = null;
-
-  blueAnswer = null;
-
-  gamePaused = false;
-
-  roundFinished = false;
-
-  pauseStartedAt = null;
-
-  totalPauseTime = 0;
-
-  tugImage.style.transform =
-  "translateX(0)";
-
-  setupScreen.style.display =
-  "none";
-
-  gameScreen.style.display =
-  "block";
-
-  document.body.style.overflow =
-  "hidden";
-
-  startBGM();
-
-  loadQuestion();
-
-});
-
+/* ==================================================
+   VALIDATE
+================================================== */
 
 function validateQuestions(){
 
@@ -2403,6 +4588,7 @@ function validateQuestions(){
 
   }
 
+
   for(
     let i=0;
     i<questions.length;
@@ -2412,8 +4598,12 @@ function validateQuestions(){
     const q =
     questions[i];
 
+
     if(
-      !String(q.question).trim()
+      !String(
+        q.question
+      )
+      .trim()
     ){
 
       alert(
@@ -2424,10 +4614,12 @@ function validateQuestions(){
 
     }
 
+
     if(
       q.answers.some(
         answer=>
-        !String(answer).trim()
+        !String(answer)
+        .trim()
       )
     ){
 
@@ -2441,100 +4633,355 @@ function validateQuestions(){
 
   }
 
+
   return true;
 
 }
 
 
-/* =========================
-   載入題目
-========================= */
 
-function loadQuestion(){
+/* ==================================================
+   START GAME
+================================================== */
+
+startGameBtn
+.addEventListener(
+"click",
+()=>{
+
+  if(
+    !validateQuestions()
+  ){
+
+    return;
+
+  }
+
+
+  gameMode =
+  document
+  .querySelector(
+    'input[name="gameMode"]:checked'
+  )
+  .value;
+
+
+  saveQuestions();
+
+
+  resetEverything();
+
+
+  setupScreen.style.display =
+  "none";
+
+
+  gameScreen.style.display =
+  "block";
+
+
+  document.body.style.overflow =
+  "hidden";
+
+
+  startBGM();
+
+
+  if(
+    gameMode === "classic"
+  ){
+
+    startClassicMode();
+
+  }
+
+  else{
+
+    startDualMode();
+
+  }
+
+});
+
+
+
+/* ==================================================
+   RESET
+================================================== */
+
+function resetEverything(){
+
+  clearAllTimers();
+
+
+  stopAllSounds();
+
+
+  ropePosition =
+  0;
+
+
+  gamePaused =
+  false;
+
+
+  gameEnded =
+  false;
+
+
+  roundFinished =
+  false;
+
+
+  redAnswer =
+  null;
+
+
+  blueAnswer =
+  null;
+
+
+  redPenaltyActive =
+  false;
+
+
+  bluePenaltyActive =
+  false;
+
+
+  redPenaltyRemaining =
+  0;
+
+
+  bluePenaltyRemaining =
+  0;
+
+
+  redPenalty
+  .classList
+  .remove(
+    "show"
+  );
+
+
+  bluePenalty
+  .classList
+  .remove(
+    "show"
+  );
+
+
+  tugImage.style.transform =
+  "translateX(0)";
+
+
+  winnerScreen
+  .classList
+  .remove(
+    "show"
+  );
+
+
+  stopModal
+  .classList
+  .remove(
+    "show"
+  );
+
+}
+
+
+
+function clearAllTimers(){
 
   clearInterval(
     timerInterval
   );
 
+
+  clearInterval(
+    redPenaltyInterval
+  );
+
+
+  clearInterval(
+    bluePenaltyInterval
+  );
+
+
+  clearTimeout(
+    nextQuestionTimeout
+  );
+
+
+  timerInterval =
+  null;
+
+
+  redPenaltyInterval =
+  null;
+
+
+  bluePenaltyInterval =
+  null;
+
+
+  nextQuestionTimeout =
+  null;
+
+}
+
+
+
+/* ==================================================
+   CLASSIC MODE
+================================================== */
+
+function startClassicMode(){
+
+  classicQuestionArea.style.display =
+  "flex";
+
+
+  dualQuestionArea.style.display =
+  "none";
+
+
+  currentQuestion =
+  0;
+
+
+  loadClassicQuestion();
+
+}
+
+
+
+function loadClassicQuestion(){
+
+  clearInterval(
+    timerInterval
+  );
+
+
   countdownSound.pause();
 
-  countdownSound.currentTime = 0;
 
-  roundFinished = false;
+  countdownSound.currentTime =
+  0;
 
-  redAnswer = null;
 
-  blueAnswer = null;
+  roundFinished =
+  false;
 
-  redTime = null;
 
-  blueTime = null;
+  redAnswer =
+  null;
 
-  pauseStartedAt = null;
 
-  totalPauseTime = 0;
+  blueAnswer =
+  null;
+
+
+  redTime =
+  null;
+
+
+  blueTime =
+  null;
+
+
+  pauseStartedAt =
+  null;
+
+
+  totalPauseTime =
+  0;
+
 
   timeLeft =
   QUESTION_TIME;
 
+
   const q =
-  questions[currentQuestion];
+  questions[
+    currentQuestion
+  ];
+
 
   questionEl.textContent =
   q.question;
 
+
   progressEl.textContent =
   `Câu ${currentQuestion+1}/${questions.length}`;
+
 
   timerEl.textContent =
   timeLeft;
 
+
   timerEl.style.background =
   "#ef3340";
 
-  timerEl.classList.remove(
+
+  timerEl
+  .classList
+  .remove(
     "danger"
   );
 
-  createAnswers(
+
+  createClassicAnswers(
     redAnswersEl,
     "red",
     q
   );
 
-  createAnswers(
+
+  createClassicAnswers(
     blueAnswersEl,
     "blue",
     q
   );
 
+
   questionStartTime =
   performance.now();
 
-  startTimer();
+
+  startClassicTimer();
 
 }
 
 
-/* =========================
-   倒數
-========================= */
 
-function startTimer(){
+function startClassicTimer(){
 
   clearInterval(
     timerInterval
   );
 
+
   timerInterval =
   setInterval(()=>{
 
-    if(gamePaused) return;
+    if(
+      gamePaused ||
+      gameEnded
+    ){
+
+      return;
+
+    }
+
 
     timeLeft--;
 
+
     timerEl.textContent =
     timeLeft;
+
 
     if(
       timeLeft <= 5
@@ -2543,11 +4990,15 @@ function startTimer(){
       timerEl.style.background =
       "#ff6500";
 
-      timerEl.classList.add(
+
+      timerEl
+      .classList
+      .add(
         "danger"
       );
 
     }
+
 
     if(
       timeLeft === 5
@@ -2559,6 +5010,7 @@ function startTimer(){
 
     }
 
+
     if(
       timeLeft <= 0
     ){
@@ -2567,7 +5019,8 @@ function startTimer(){
         timerInterval
       );
 
-      finishRound();
+
+      finishClassicRound();
 
     }
 
@@ -2576,22 +5029,28 @@ function startTimer(){
 }
 
 
-/* =========================
-   建立答案
-========================= */
 
-function createAnswers(
+function createClassicAnswers(
 container,
 team,
 q
 ){
 
-  container.innerHTML = "";
+  container.innerHTML =
+  "";
+
 
   const letters =
-  ["A","B","C","D"];
+  [
+    "A",
+    "B",
+    "C",
+    "D"
+  ];
 
-  q.answers.forEach(
+
+  q.answers
+  .forEach(
   (answer,index)=>{
 
     const button =
@@ -2599,21 +5058,31 @@ q
       "button"
     );
 
+
     button.className =
     "answer-btn";
+
 
     button.innerHTML =
     `<strong>${letters[index]}.</strong> ${escapeHTML(answer)}`;
 
-    button.addEventListener(
-    "click",
-    ()=>chooseAnswer(
-      team,
-      index,
-      button
-    ));
 
-    container.appendChild(
+    button
+    .addEventListener(
+    "click",
+    ()=>{
+
+      chooseClassicAnswer(
+        team,
+        index,
+        button
+      );
+
+    });
+
+
+    container
+    .appendChild(
       button
     );
 
@@ -2622,22 +5091,8 @@ q
 }
 
 
-/* =========================
-   作答
-========================= */
 
-function getAnswerTime(){
-
-  return (
-    performance.now() -
-    questionStartTime -
-    totalPauseTime
-  );
-
-}
-
-
-function chooseAnswer(
+function chooseClassicAnswer(
 team,
 index,
 button
@@ -2645,17 +5100,26 @@ button
 
   if(
     roundFinished ||
-    gamePaused
+    gamePaused ||
+    gameEnded
   ){
 
     return;
 
   }
 
-  const answerTime =
-  getAnswerTime();
 
-  if(team === "red"){
+  const answerTime =
+  performance.now()
+  -
+  questionStartTime
+  -
+  totalPauseTime;
+
+
+  if(
+    team === "red"
+  ){
 
     if(
       redAnswer !== null
@@ -2665,21 +5129,32 @@ button
 
     }
 
-    redAnswer = index;
 
-    redTime = answerTime;
+    redAnswer =
+    index;
+
+
+    redTime =
+    answerTime;
+
 
     lockTeam(
       redAnswersEl
     );
 
-    button.classList.add(
+
+    button
+    .classList
+    .add(
       "selected"
     );
 
   }
 
-  if(team === "blue"){
+
+  if(
+    team === "blue"
+  ){
 
     if(
       blueAnswer !== null
@@ -2689,79 +5164,95 @@ button
 
     }
 
-    blueAnswer = index;
 
-    blueTime = answerTime;
+    blueAnswer =
+    index;
+
+
+    blueTime =
+    answerTime;
+
 
     lockTeam(
       blueAnswersEl
     );
 
-    button.classList.add(
+
+    button
+    .classList
+    .add(
       "selected"
     );
 
   }
+
 
   if(
     redAnswer !== null &&
     blueAnswer !== null
   ){
 
-    finishRound();
+    finishClassicRound();
 
   }
 
 }
 
 
-function lockTeam(container){
 
-  container
-  .querySelectorAll("button")
-  .forEach(button=>{
+function finishClassicRound(){
 
-    button.disabled = true;
+  if(
+    roundFinished ||
+    gameEnded
+  ){
 
-  });
+    return;
 
-}
+  }
 
 
-/* =========================
-   判定
-========================= */
+  roundFinished =
+  true;
 
-function finishRound(){
-
-  if(roundFinished) return;
-
-  roundFinished = true;
 
   clearInterval(
     timerInterval
   );
 
+
   countdownSound.pause();
 
-  countdownSound.currentTime = 0;
 
-  timerEl.classList.remove(
+  countdownSound.currentTime =
+  0;
+
+
+  timerEl
+  .classList
+  .remove(
     "danger"
   );
 
-  const q =
-  questions[currentQuestion];
 
-  revealAnswers(
+  const q =
+  questions[
+    currentQuestion
+  ];
+
+
+  revealClassicAnswers(
     q.correct
   );
+
 
   const redCorrect =
   redAnswer === q.correct;
 
+
   const blueCorrect =
   blueAnswer === q.correct;
+
 
   if(
     redCorrect &&
@@ -2772,13 +5263,18 @@ function finishRound(){
       correctSound
     );
 
+
     showStatus(
       "🔴 ĐỘI ĐỎ KÉO!"
     );
 
-    moveTug(-1);
+
+    moveTug(
+      -1
+    );
 
   }
+
 
   else if(
     blueCorrect &&
@@ -2789,13 +5285,18 @@ function finishRound(){
       correctSound
     );
 
+
     showStatus(
       "ĐỘI XANH KÉO! 🔵"
     );
 
-    moveTug(1);
+
+    moveTug(
+      1
+    );
 
   }
+
 
   else if(
     redCorrect &&
@@ -2806,10 +5307,14 @@ function finishRound(){
       correctSound
     );
 
+
     const difference =
     Math.abs(
-      redTime - blueTime
+      redTime
+      -
+      blueTime
     );
+
 
     if(
       difference < 50
@@ -2821,17 +5326,23 @@ function finishRound(){
 
     }
 
+
     else if(
-      redTime < blueTime
+      redTime <
+      blueTime
     ){
 
       showStatus(
         "⚡ ĐỘI ĐỎ NHANH HƠN!"
       );
 
-      moveTug(-1);
+
+      moveTug(
+        -1
+      );
 
     }
+
 
     else{
 
@@ -2839,11 +5350,15 @@ function finishRound(){
         "⚡ ĐỘI XANH NHANH HƠN!"
       );
 
-      moveTug(1);
+
+      moveTug(
+        1
+      );
 
     }
 
   }
+
 
   else{
 
@@ -2851,74 +5366,69 @@ function finishRound(){
       wrongSound
     );
 
+
     showStatus(
       "😅 KHÔNG ĐỘI NÀO KÉO!"
     );
 
   }
 
-  if(
-    ropePosition <=
-    -WIN_SCORE
-  ){
 
-    setTimeout(
-      ()=>showWinner("red"),
-      900
-    );
+  if(
+    checkWinner()
+  ){
 
     return;
 
   }
 
-  if(
-    ropePosition >=
-    WIN_SCORE
-  ){
 
-    setTimeout(
-      ()=>showWinner("blue"),
-      900
-    );
-
-    return;
-
-  }
-
+  nextQuestionTimeout =
   setTimeout(()=>{
 
-    if(gamePaused) return;
+    if(
+      gamePaused ||
+      gameEnded
+    ){
 
-    nextQuestion();
+      return;
+
+    }
+
+
+    nextClassicQuestion();
 
   },2200);
 
 }
 
 
-function nextQuestion(){
+
+function nextClassicQuestion(){
 
   currentQuestion++;
+
 
   if(
     currentQuestion >=
     questions.length
   ){
 
-    currentQuestion = 0;
+    currentQuestion =
+    0;
 
   }
 
-  loadQuestion();
+
+  loadClassicQuestion();
 
 }
 
 
-/* =========================
-   顯示正確答案
-========================= */
 
-function revealAnswers(correct){
+function revealClassicAnswers(
+correct
+){
 
   [
     redAnswersEl,
@@ -2927,18 +5437,28 @@ function revealAnswers(correct){
   .forEach(container=>{
 
     const buttons =
-    container.querySelectorAll(
+    container
+    .querySelectorAll(
       "button"
     );
 
-    buttons.forEach(
+
+    buttons
+    .forEach(
     (button,index)=>{
 
-      button.disabled = true;
+      button.disabled =
+      true;
 
-      if(index === correct){
 
-        button.classList.add(
+      if(
+        index ===
+        correct
+      ){
+
+        button
+        .classList
+        .add(
           "correct"
         );
 
@@ -2948,18 +5468,23 @@ function revealAnswers(correct){
 
   });
 
+
   if(
     redAnswer !== null &&
     redAnswer !== correct
   ){
 
     redAnswersEl
-    .children[redAnswer]
-    .classList.add(
+    .children[
+      redAnswer
+    ]
+    .classList
+    .add(
       "wrong"
     );
 
   }
+
 
   if(
     blueAnswer !== null &&
@@ -2967,8 +5492,11 @@ function revealAnswers(correct){
   ){
 
     blueAnswersEl
-    .children[blueAnswer]
-    .classList.add(
+    .children[
+      blueAnswer
+    ]
+    .classList
+    .add(
       "wrong"
     );
 
@@ -2977,16 +5505,845 @@ function revealAnswers(correct){
 }
 
 
-/* =========================
-   拔河移動
-========================= */
 
-function moveTug(direction){
+/* ==================================================
+   DUAL MODE
+================================================== */
 
-  ropePosition += direction;
+function startDualMode(){
+
+  classicQuestionArea.style.display =
+  "none";
+
+
+  dualQuestionArea.style.display =
+  "grid";
+
+
+  redOrder =
+  createShuffledOrder();
+
+
+  blueOrder =
+  createShuffledOrder();
+
+
+  makeOrdersDifferent();
+
+
+  redQuestionPosition =
+  0;
+
+
+  blueQuestionPosition =
+  0;
+
+
+  loadDualQuestion(
+    "red"
+  );
+
+
+  loadDualQuestion(
+    "blue"
+  );
+
+}
+
+
+
+function createShuffledOrder(){
+
+  const order =
+  questions.map(
+    (_,index)=>
+    index
+  );
+
+
+  for(
+    let i=
+    order.length-1;
+    i>0;
+    i--
+  ){
+
+    const j =
+    Math.floor(
+      Math.random()
+      *
+      (i+1)
+    );
+
+
+    [
+      order[i],
+      order[j]
+    ]
+    =
+    [
+      order[j],
+      order[i]
+    ];
+
+  }
+
+
+  return order;
+
+}
+
+
+
+function makeOrdersDifferent(){
+
+  if(
+    questions.length <= 1
+  ){
+
+    return;
+
+  }
+
+
+  const same =
+  redOrder.every(
+    (value,index)=>
+    value ===
+    blueOrder[index]
+  );
+
+
+  if(
+    same
+  ){
+
+    const first =
+    blueOrder.shift();
+
+
+    blueOrder.push(
+      first
+    );
+
+  }
+
+
+  if(
+    redOrder[0] ===
+    blueOrder[0]
+  ){
+
+    const swapIndex =
+    blueOrder
+    .findIndex(
+      value=>
+      value !==
+      redOrder[0]
+    );
+
+
+    if(
+      swapIndex > 0
+    ){
+
+      [
+        blueOrder[0],
+        blueOrder[swapIndex]
+      ]
+      =
+      [
+        blueOrder[swapIndex],
+        blueOrder[0]
+      ];
+
+    }
+
+  }
+
+}
+
+
+
+function getDualQuestionIndex(
+team
+){
+
+  if(
+    team === "red"
+  ){
+
+    return redOrder[
+      redQuestionPosition
+    ];
+
+  }
+
+
+  return blueOrder[
+    blueQuestionPosition
+  ];
+
+}
+
+
+
+function loadDualQuestion(
+team
+){
+
+  if(
+    gameEnded
+  ){
+
+    return;
+
+  }
+
+
+  const questionIndex =
+  getDualQuestionIndex(
+    team
+  );
+
+
+  const q =
+  questions[
+    questionIndex
+  ];
+
+
+  if(
+    team === "red"
+  ){
+
+    redQuestionEl.textContent =
+    q.question;
+
+
+    redProgressEl.textContent =
+    `第 ${redQuestionPosition+1} 題`;
+
+
+    createDualAnswers(
+      redAnswersEl,
+      "red",
+      q
+    );
+
+  }
+
+
+  else{
+
+    blueQuestionEl.textContent =
+    q.question;
+
+
+    blueProgressEl.textContent =
+    `第 ${blueQuestionPosition+1} 題`;
+
+
+    createDualAnswers(
+      blueAnswersEl,
+      "blue",
+      q
+    );
+
+  }
+
+}
+
+
+
+function createDualAnswers(
+container,
+team,
+q
+){
+
+  container.innerHTML =
+  "";
+
+
+  const letters =
+  [
+    "A",
+    "B",
+    "C",
+    "D"
+  ];
+
+
+  q.answers
+  .forEach(
+  (answer,index)=>{
+
+    const button =
+    document.createElement(
+      "button"
+    );
+
+
+    button.className =
+    "answer-btn";
+
+
+    button.innerHTML =
+    `<strong>${letters[index]}.</strong> ${escapeHTML(answer)}`;
+
+
+    button
+    .addEventListener(
+    "click",
+    ()=>{
+
+      chooseDualAnswer(
+        team,
+        index,
+        button
+      );
+
+    });
+
+
+    container
+    .appendChild(
+      button
+    );
+
+  });
+
+}
+
+
+
+function chooseDualAnswer(
+team,
+answerIndex,
+button
+){
+
+  if(
+    gamePaused ||
+    gameEnded
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    team === "red" &&
+    redPenaltyActive
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    team === "blue" &&
+    bluePenaltyActive
+  ){
+
+    return;
+
+  }
+
+
+  const questionIndex =
+  getDualQuestionIndex(
+    team
+  );
+
+
+  const q =
+  questions[
+    questionIndex
+  ];
+
+
+  const isCorrect =
+  answerIndex ===
+  q.correct;
+
+
+  if(
+    isCorrect
+  ){
+
+    playSound(
+      correctSound
+    );
+
+
+    button
+    .classList
+    .add(
+      "correct"
+    );
+
+
+    lockTeam(
+      team === "red"
+      ?
+      redAnswersEl
+      :
+      blueAnswersEl
+    );
+
+
+    if(
+      team === "red"
+    ){
+
+      showStatus(
+        "✅ 紅隊答對！"
+      );
+
+
+      moveTug(
+        -1
+      );
+
+
+      if(
+        checkWinner()
+      ){
+
+        return;
+
+      }
+
+
+      setTimeout(()=>{
+
+        if(
+          gamePaused ||
+          gameEnded
+        ){
+
+          return;
+
+        }
+
+
+        advanceDualQuestion(
+          "red"
+        );
+
+      },380);
+
+    }
+
+
+    else{
+
+      showStatus(
+        "✅ 藍隊答對！"
+      );
+
+
+      moveTug(
+        1
+      );
+
+
+      if(
+        checkWinner()
+      ){
+
+        return;
+
+      }
+
+
+      setTimeout(()=>{
+
+        if(
+          gamePaused ||
+          gameEnded
+        ){
+
+          return;
+
+        }
+
+
+        advanceDualQuestion(
+          "blue"
+        );
+
+      },380);
+
+    }
+
+  }
+
+
+  else{
+
+    playSound(
+      wrongSound
+    );
+
+
+    button
+    .classList
+    .add(
+      "wrong"
+    );
+
+
+    startPenalty(
+      team
+    );
+
+  }
+
+}
+
+
+
+function advanceDualQuestion(
+team
+){
+
+  if(
+    team === "red"
+  ){
+
+    redQuestionPosition++;
+
+
+    if(
+      redQuestionPosition >=
+      redOrder.length
+    ){
+
+      redOrder =
+      createShuffledOrder();
+
+
+      redQuestionPosition =
+      0;
+
+    }
+
+
+    loadDualQuestion(
+      "red"
+    );
+
+  }
+
+
+  else{
+
+    blueQuestionPosition++;
+
+
+    if(
+      blueQuestionPosition >=
+      blueOrder.length
+    ){
+
+      blueOrder =
+      createShuffledOrder();
+
+
+      blueQuestionPosition =
+      0;
+
+    }
+
+
+    loadDualQuestion(
+      "blue"
+    );
+
+  }
+
+}
+
+
+
+/* ==================================================
+   PENALTY
+================================================== */
+
+function startPenalty(
+team
+){
+
+  if(
+    team === "red"
+  ){
+
+    redPenaltyActive =
+    true;
+
+
+    redPenaltyRemaining =
+    WRONG_PENALTY;
+
+
+    redPenaltyNumber.textContent =
+    redPenaltyRemaining;
+
+
+    redPenalty
+    .classList
+    .add(
+      "show"
+    );
+
+
+    lockTeam(
+      redAnswersEl
+    );
+
+
+    runRedPenalty();
+
+  }
+
+
+  else{
+
+    bluePenaltyActive =
+    true;
+
+
+    bluePenaltyRemaining =
+    WRONG_PENALTY;
+
+
+    bluePenaltyNumber.textContent =
+    bluePenaltyRemaining;
+
+
+    bluePenalty
+    .classList
+    .add(
+      "show"
+    );
+
+
+    lockTeam(
+      blueAnswersEl
+    );
+
+
+    runBluePenalty();
+
+  }
+
+}
+
+
+
+function runRedPenalty(){
+
+  clearInterval(
+    redPenaltyInterval
+  );
+
+
+  redPenaltyInterval =
+  setInterval(()=>{
+
+    if(
+      gamePaused ||
+      gameEnded
+    ){
+
+      return;
+
+    }
+
+
+    redPenaltyRemaining--;
+
+
+    if(
+      redPenaltyRemaining <= 0
+    ){
+
+      clearInterval(
+        redPenaltyInterval
+      );
+
+
+      redPenaltyInterval =
+      null;
+
+
+      redPenaltyActive =
+      false;
+
+
+      redPenalty
+      .classList
+      .remove(
+        "show"
+      );
+
+
+      unlockTeam(
+        redAnswersEl
+      );
+
+
+      return;
+
+    }
+
+
+    redPenaltyNumber.textContent =
+    redPenaltyRemaining;
+
+  },1000);
+
+}
+
+
+
+function runBluePenalty(){
+
+  clearInterval(
+    bluePenaltyInterval
+  );
+
+
+  bluePenaltyInterval =
+  setInterval(()=>{
+
+    if(
+      gamePaused ||
+      gameEnded
+    ){
+
+      return;
+
+    }
+
+
+    bluePenaltyRemaining--;
+
+
+    if(
+      bluePenaltyRemaining <= 0
+    ){
+
+      clearInterval(
+        bluePenaltyInterval
+      );
+
+
+      bluePenaltyInterval =
+      null;
+
+
+      bluePenaltyActive =
+      false;
+
+
+      bluePenalty
+      .classList
+      .remove(
+        "show"
+      );
+
+
+      unlockTeam(
+        blueAnswersEl
+      );
+
+
+      return;
+
+    }
+
+
+    bluePenaltyNumber.textContent =
+    bluePenaltyRemaining;
+
+  },1000);
+
+}
+
+
+
+/* ==================================================
+   LOCK
+================================================== */
+
+function lockTeam(
+container
+){
+
+  container
+  .querySelectorAll(
+    "button"
+  )
+  .forEach(button=>{
+
+    button.disabled =
+    true;
+
+  });
+
+}
+
+
+
+function unlockTeam(
+container
+){
+
+  container
+  .querySelectorAll(
+    "button"
+  )
+  .forEach(button=>{
+
+    button.disabled =
+    false;
+
+
+    button
+    .classList
+    .remove(
+      "wrong"
+    );
+
+  });
+
+}
+
+
+
+/* ==================================================
+   MOVE TUG
+================================================== */
+
+function moveTug(
+direction
+){
+
+  ropePosition +=
+  direction;
+
 
   const position =
-  ropePosition * STEP;
+  ropePosition
+  *
+  STEP;
+
 
   tugImage.style.transform =
   `translateX(${position}vw)`;
@@ -2994,63 +6351,183 @@ function moveTug(direction){
 }
 
 
-/* =========================
-   狀態文字
-========================= */
 
-function showStatus(text){
+/* ==================================================
+   WIN CHECK
+================================================== */
 
-  statusEl.textContent =
-  text;
+function checkWinner(){
 
-  statusEl.classList.add(
-    "show"
-  );
+  if(
+    ropePosition <=
+    -WIN_SCORE
+  ){
 
-  setTimeout(()=>{
+    gameEnded =
+    true;
 
-    statusEl.classList.remove(
-      "show"
-    );
 
-  },1700);
+    disableAllGameButtons();
+
+
+    setTimeout(()=>{
+
+      showWinner(
+        "red"
+      );
+
+    },500);
+
+
+    return true;
+
+  }
+
+
+  if(
+    ropePosition >=
+    WIN_SCORE
+  ){
+
+    gameEnded =
+    true;
+
+
+    disableAllGameButtons();
+
+
+    setTimeout(()=>{
+
+      showWinner(
+        "blue"
+      );
+
+    },500);
+
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
-/* =========================
-   勝利
-========================= */
 
-function showWinner(team){
+function disableAllGameButtons(){
 
-  clearInterval(
-    timerInterval
+  lockTeam(
+    redAnswersEl
   );
+
+
+  lockTeam(
+    blueAnswersEl
+  );
+
+}
+
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+function showStatus(
+text
+){
+
+  statusEl.textContent =
+  text;
+
+
+  statusEl
+  .classList
+  .add(
+    "show"
+  );
+
+
+  setTimeout(()=>{
+
+    statusEl
+    .classList
+    .remove(
+      "show"
+    );
+
+  },1200);
+
+}
+
+
+
+/* ==================================================
+   WINNER
+================================================== */
+
+function showWinner(
+team
+){
+
+  clearAllTimers();
+
 
   bgm.pause();
 
-  bgm.currentTime = 0;
+
+  bgm.currentTime =
+  0;
+
 
   countdownSound.pause();
 
-  countdownSound.currentTime = 0;
+
+  countdownSound.currentTime =
+  0;
+
 
   correctSound.pause();
 
-  correctSound.currentTime = 0;
+
+  correctSound.currentTime =
+  0;
+
 
   wrongSound.pause();
 
-  wrongSound.currentTime = 0;
+
+  wrongSound.currentTime =
+  0;
+
+
+  redPenalty
+  .classList
+  .remove(
+    "show"
+  );
+
+
+  bluePenalty
+  .classList
+  .remove(
+    "show"
+  );
+
 
   playSound(
     winSound
   );
 
-  winnerScreen.classList.add(
+
+  winnerScreen
+  .classList
+  .add(
     "show"
   );
+
 
   winnerText.textContent =
   team === "red"
@@ -3062,195 +6539,338 @@ function showWinner(team){
 }
 
 
-/* =========================
-   再玩一次
-========================= */
 
-restartBtn.addEventListener(
-"click",
-restartGame
-);
+/* ==================================================
+   RESTART
+================================================== */
 
-
-function restartGame(){
-
-  stopAllSounds();
-
-  clearInterval(
-    timerInterval
-  );
-
-  currentQuestion = 0;
-
-  ropePosition = 0;
-
-  redAnswer = null;
-
-  blueAnswer = null;
-
-  gamePaused = false;
-
-  roundFinished = false;
-
-  pauseStartedAt = null;
-
-  totalPauseTime = 0;
-
-  tugImage.style.transform =
-  "translateX(0)";
-
-  winnerScreen.classList.remove(
-    "show"
-  );
-
-  startBGM();
-
-  loadQuestion();
-
-}
-
-
-/* =========================
-   回題庫
-========================= */
-
-editQuestionsBtn.addEventListener(
-"click",
-returnToSetup
-);
-
-
-/* =========================
-   停止遊戲
-========================= */
-
-stopBtn.addEventListener(
+restartBtn
+.addEventListener(
 "click",
 ()=>{
 
-  gamePaused = true;
+  winnerScreen
+  .classList
+  .remove(
+    "show"
+  );
 
-  if(!roundFinished){
+
+  resetEverything();
+
+
+  gameScreen.style.display =
+  "block";
+
+
+  startBGM();
+
+
+  if(
+    gameMode === "classic"
+  ){
+
+    startClassicMode();
+
+  }
+
+  else{
+
+    startDualMode();
+
+  }
+
+});
+
+
+
+/* ==================================================
+   STOP
+================================================== */
+
+stopBtn
+.addEventListener(
+"click",
+()=>{
+
+  if(
+    gameEnded
+  ){
+
+    return;
+
+  }
+
+
+  gamePaused =
+  true;
+
+
+  bgm.pause();
+
+
+  countdownSound.pause();
+
+
+  if(
+    gameMode === "classic" &&
+    !roundFinished
+  ){
 
     pauseStartedAt =
     performance.now();
 
+
+    clearInterval(
+      timerInterval
+    );
+
   }
 
-  clearInterval(
-    timerInterval
-  );
 
-  bgm.pause();
+  if(
+    gameMode === "dual"
+  ){
 
-  countdownSound.pause();
+    clearInterval(
+      redPenaltyInterval
+    );
 
-  stopModal.classList.add(
+
+    clearInterval(
+      bluePenaltyInterval
+    );
+
+
+    redPenaltyInterval =
+    null;
+
+
+    bluePenaltyInterval =
+    null;
+
+
+    lockTeam(
+      redAnswersEl
+    );
+
+
+    lockTeam(
+      blueAnswersEl
+    );
+
+  }
+
+
+  stopModal
+  .classList
+  .add(
     "show"
   );
 
 });
 
 
-continueBtn.addEventListener(
+
+continueBtn
+.addEventListener(
 "click",
 ()=>{
 
-  stopModal.classList.remove(
+  stopModal
+  .classList
+  .remove(
     "show"
   );
 
-  if(
-    pauseStartedAt !== null
-  ){
 
-    totalPauseTime +=
-    performance.now() -
-    pauseStartedAt;
+  gamePaused =
+  false;
 
-    pauseStartedAt = null;
-
-  }
-
-  gamePaused = false;
 
   startBGM();
 
-  /*
-    如果是在作答中暫停：
-    繼續原本倒數。
 
-    如果是在公布答案時暫停：
-    直接進下一題，避免卡住。
-  */
+  if(
+    gameMode === "classic"
+  ){
 
-  if(roundFinished){
+    if(
+      pauseStartedAt !== null
+    ){
 
-    nextQuestion();
+      totalPauseTime +=
+      performance.now()
+      -
+      pauseStartedAt;
 
-  }else{
 
-    startTimer();
+      pauseStartedAt =
+      null;
+
+    }
+
+
+    if(
+      roundFinished
+    ){
+
+      nextClassicQuestion();
+
+    }
+
+    else{
+
+      startClassicTimer();
+
+    }
+
+  }
+
+
+  else{
+
+    if(
+      redPenaltyActive
+    ){
+
+      redPenalty
+      .classList
+      .add(
+        "show"
+      );
+
+
+      runRedPenalty();
+
+    }
+
+    else{
+
+      unlockTeam(
+        redAnswersEl
+      );
+
+    }
+
+
+    if(
+      bluePenaltyActive
+    ){
+
+      bluePenalty
+      .classList
+      .add(
+        "show"
+      );
+
+
+      runBluePenalty();
+
+    }
+
+    else{
+
+      unlockTeam(
+        blueAnswersEl
+      );
+
+    }
 
   }
 
 });
 
 
-endGameBtn.addEventListener(
+
+endGameBtn
+.addEventListener(
 "click",
 ()=>{
 
-  stopModal.classList.remove(
+  stopModal
+  .classList
+  .remove(
     "show"
   );
+
 
   returnToSetup();
 
 });
 
 
+
+editQuestionsBtn
+.addEventListener(
+"click",
+returnToSetup
+);
+
+
+
 function returnToSetup(){
 
-  clearInterval(
-    timerInterval
-  );
+  clearAllTimers();
+
 
   stopAllSounds();
 
-  winnerScreen.classList.remove(
+
+  gameEnded =
+  false;
+
+
+  gamePaused =
+  false;
+
+
+  winnerScreen
+  .classList
+  .remove(
     "show"
   );
 
-  stopModal.classList.remove(
+
+  stopModal
+  .classList
+  .remove(
     "show"
   );
 
-  gamePaused = false;
 
-  roundFinished = false;
+  redPenalty
+  .classList
+  .remove(
+    "show"
+  );
 
-  currentQuestion = 0;
 
-  ropePosition = 0;
+  bluePenalty
+  .classList
+  .remove(
+    "show"
+  );
 
-  pauseStartedAt = null;
-
-  totalPauseTime = 0;
 
   tugImage.style.transform =
   "translateX(0)";
 
+
   gameScreen.style.display =
   "none";
+
 
   setupScreen.style.display =
   "block";
 
+
   document.body.style.overflow =
   "auto";
 
+
   renderEditor();
+
 
   window.scrollTo({
     top:0,
@@ -3260,15 +6880,22 @@ function returnToSetup(){
 }
 
 
-/* =========================
-   啟動
-========================= */
+
+/* ==================================================
+   INIT
+================================================== */
 
 loadSavedQuestions();
 
+
 renderEditor();
+
+
+updateModeCards();
+
 
 </script>
 
 </body>
+
 </html>
