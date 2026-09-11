@@ -1,0 +1,35 @@
+{
+  "banks": [
+    {
+      "game": "tug",
+      "title": "示範｜越南語動物詞彙",
+      "language": "越南語",
+      "level": "初級",
+      "grade": "國中、高中",
+      "topic": "動物",
+      "tags": [
+        "動物",
+        "詞彙",
+        "A1"
+      ],
+      "description": "請把這筆示範的 url 換成你自己的公開 Google Sheet 連結。",
+      "url": "請貼上你的Google Sheet公開連結"
+    },
+    {
+      "game": "fly",
+      "title": "示範｜越南語自我介紹",
+      "language": "越南語",
+      "level": "初級",
+      "grade": "國中、高中",
+      "topic": "自我介紹",
+      "tags": [
+        "姓名",
+        "年齡",
+        "年級",
+        "興趣"
+      ],
+      "description": "會飛的字題庫；A→B→C…為正確句子順序。",
+      "url": "請貼上你的Google Sheet公開連結"
+    }
+  ]
+}
