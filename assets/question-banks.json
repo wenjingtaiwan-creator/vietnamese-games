@@ -1,136 +1,24 @@
 {
-  "banks": [
-    {
-      "game": "tug",
-      "title": "第九冊 第1課｜美麗的S形",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "美麗的S形",
-      "tags": ["第九冊", "第1課", "美麗的S形", "拔河遊戲"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第1課 拔河遊戲題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
+  "第九冊": {
+    "第1課": {
+      "拔河遊戲": "https://docs.google.com/spreadsheets/d/1O6s2m1gNSeRheGL1zH6EHgk_-yuicJWI/edit?usp=drive_link",
+      "左右擺頭": "https://docs.google.com/spreadsheets/d/18iL_jY2Aij-iUn6WYyHuwgVyiCRnNef4/edit?usp=drive_link",
+      "會飛的字": "https://docs.google.com/spreadsheets/d/1-WJJP__GL3yH-W2OCwewtREMY5cPo25C/edit?usp=drive_link"
     },
-    {
-      "game": "head",
-      "title": "第九冊 第1課｜美麗的S形",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "美麗的S形",
-      "tags": ["第九冊", "第1課", "美麗的S形", "左右擺頭"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第1課 左右擺頭題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
+    "第2課": {
+      "拔河遊戲": "https://docs.google.com/spreadsheets/d/1FEYgyf5iS6-p1slSBctyx75fqnlkzREP/edit?usp=drive_link",
+      "左右擺頭": "https://docs.google.com/spreadsheets/d/14lg_6DOWKCh_aoCzuL1jWkIipMwC5X16/edit?usp=drive_link",
+      "會飛的字": "https://docs.google.com/spreadsheets/d/1u1zeqqs7C8SePIJPjh7QbTs0klzpZ831/edit?usp=drive_link"
     },
-    {
-      "game": "fly",
-      "title": "第九冊 第1課｜美麗的S形",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "美麗的S形",
-      "tags": ["第九冊", "第1課", "美麗的S形", "會飛的字"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第1課 會飛的字題庫",
-      "url": "url?id=4gid=0"
+    "第3課": {
+      "拔河遊戲": "https://docs.google.com/spreadsheets/d/11NHPy59x6k_zZgsFFeHw2MfJ0lGaeyaN/edit?usp=drive_link",
+      "左右擺頭": "https://docs.google.com/spreadsheets/d/1R4cFL9jKf_ODFWErtfbG7_lefRbUch-a/edit?usp=drive_link",
+      "會飛的字": "https://docs.google.com/spreadsheets/d/1E36BVArM6-YjSQiswQwGAexptZA5Tvco/edit?usp=drive_link"
     },
-    {
-      "game": "tug",
-      "title": "第九冊 第2課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第2課",
-      "tags": ["第九冊", "第2課", "拔河遊戲"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第2課 拔河遊戲題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "head",
-      "title": "第九冊 第2課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第2課",
-      "tags": ["第九冊", "第2課", "左右擺頭"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第2課 左右擺頭題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "fly",
-      "title": "第九冊 第2課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第2課",
-      "tags": ["第九冊", "第2課", "會飛的字"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第2課 會飛的字題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "tug",
-      "title": "第九冊 第3課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第3課",
-      "tags": ["第九冊", "第3課", "拔河遊戲"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第3課 拔河遊戲題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "head",
-      "title": "第九冊 第3課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第3課",
-      "tags": ["第九冊", "第3課", "左右擺頭"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第3課 左右擺頭題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "fly",
-      "title": "第九冊 第3課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第3課",
-      "tags": ["第九冊", "第3課", "會飛的字"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第3課 會飛的字題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "tug",
-      "title": "第九冊 第4課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第4課",
-      "tags": ["第九冊", "第4課", "拔河遊戲"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第4課 拔河遊戲題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "head",
-      "title": "第九冊 第4課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第4課",
-      "tags": ["第九冊", "第4課", "左右擺頭"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第4課 左右擺頭題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
-    },
-    {
-      "game": "fly",
-      "title": "第九冊 第4課",
-      "language": "越南語",
-      "level": "中級",
-      "grade": "教育部教材",
-      "topic": "第4課",
-      "tags": ["第九冊", "第4課", "會飛的字"],
-      "description": "教育部新住民語文數位學習教材 第九冊 第4課 會飛的字題庫",
-      "url": "https://docs.google.com/spreadsheets/d/1IqpvPCE9YozNkoCEf6V3qp9J8A1AYAYUhxHoWBbeEkM/edit?gid=0#gid=0"
+    "第4課": {
+      "拔河遊戲": "https://docs.google.com/spreadsheets/d/1z0PcNifXFxjZeF2yQEfhNAFtrS17koAf/edit?usp=drive_link",
+      "左右擺頭": "https://docs.google.com/spreadsheets/d/1nWSb68Oty2Mn7jDKdlnV6RD8Ya4iFgwD/edit?usp=drive_link",
+      "會飛的字": "https://docs.google.com/spreadsheets/d/1qsgSesdOx6Io3ZEHF70p4GCJfEng3rDF/edit?usp=drive_link"
     }
-  ]
+  }
 }
