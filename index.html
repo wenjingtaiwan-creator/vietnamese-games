@@ -1852,6 +1852,7 @@ a{text-decoration:none;color:inherit}
         <div id="cloudBankLoggedIn" class="hidden">
           <div class="row" style="justify-content:center">
             <button id="saveCloudBankBtn" type="button" class="btn green" style="font-size:18px;padding:13px 24px">💾 儲存到 Dashboard</button>
+              <button id="publishOfficialBankBtn" type="button" class="btn official-bank-btn hidden" style="font-size:18px;padding:13px 24px">⭐ 發布到官方題庫</button>
           </div>
           <div class="note" style="text-align:center;margin-top:8px">儲存後可到「我的 Dashboard」再次載入、編輯、改名或刪除。</div>
           <div id="cloudBankStatus" class="status"></div>
@@ -5914,6 +5915,7 @@ function renderAccountUI(){
   document.getElementById("cloudBankLoggedOut")?.classList.toggle("hidden",!!yeziUser&&yeziHasAccess);
   document.getElementById("cloudBankLoggedIn")?.classList.toggle("hidden",!(yeziUser&&yeziHasAccess));
   document.getElementById("adminPortalBtn")?.classList.toggle("hidden",!yeziIsAdmin);
+  document.getElementById("publishOfficialBankBtn")?.classList.toggle("hidden",!yeziIsAdmin);
   const chip=document.getElementById("lobbyMemberChip"); if(chip){const s=effectiveStatus(yeziProfile);chip.className=`member-chip ${s==="admin"?"admin":(s==="active"||s==="trial")?"ok":"warn"}`;chip.textContent=`${statusLabel(s)}${(s==="active"||s==="trial")?` · ${fmtDate(yeziProfile?.expiresAt)}`:""}`;}
 }
 async function startGoogleAuth(intent){
@@ -6085,6 +6087,66 @@ document.getElementById("refreshOfficialBanksBtn")?.addEventListener("click",()=
 document.getElementById("officialBankBook")?.addEventListener("change",renderOfficialBanks);
 document.getElementById("officialBankLesson")?.addEventListener("change",renderOfficialBanks);
 document.getElementById("officialBankSearch")?.addEventListener("input",renderOfficialBanks);
+
+
+
+/* ===== Owner：把目前完整題庫打包成官方題庫 ===== */
+function officialHash(str){
+  let h=5381;
+  for(let i=0;i<str.length;i++)h=((h<<5)+h)^str.charCodeAt(i);
+  return (h>>>0).toString(16).padStart(8,"0");
+}
+function downloadOfficialFile(name,blob){
+  const a=document.createElement("a"),url=URL.createObjectURL(blob);
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function publishCurrentBankAsOfficial(){
+  if(!yeziIsAdmin)return alert("只有 Owner 可以發布官方題庫。");
+  if(!selectedGame)return alert("請先進入一款遊戲。");
+  if(!questions.length)return alert("目前沒有題目可以發布。");
+
+  const currentName=(document.getElementById("cloudBankName")?.value||"").trim();
+  const name=(prompt("官方題庫名稱：",currentName)||"").trim(); if(!name)return;
+  const book=(prompt("冊別：\\n例如：第九冊","")||"").trim(); if(!book)return;
+  const lesson=(prompt("課次：\\n例如：第一課","")||"").trim(); if(!lesson)return;
+
+  const btn=document.getElementById("publishOfficialBankBtn"),oldText=btn?.textContent||"⭐ 發布到官方題庫";
+  if(btn){btn.disabled=true;btn.textContent="⏳ 正在打包…";}
+  cloudStatus("info","⏳ 正在打包官方題庫（包含圖片與語音）…");
+
+  try{
+    const pack=await buildFullBankPack();
+    const identity=`${book}|${lesson}|${selectedGame}|${name}`;
+    const id=`official-${selectedGame}-${officialHash(identity)}`;
+    const bankFilename=`${id}.yezi`,bankPath=`banks/${bankFilename}`;
+    const today=new Date().toLocaleDateString("sv-SE");
+    pack.name=name;
+    pack.officialMeta={id,name,book,lesson,game:selectedGame,publishedBy:"葉子老師",updated:today};
+
+    const payload=JSON.stringify(pack),bytes=new Blob([payload]).size;
+    let catalog=[];
+    try{
+      const res=await fetch(YEZI_OFFICIAL_BANK_INDEX+"?v="+Date.now(),{cache:"no-store"});
+      if(res.ok){const data=await res.json();catalog=Array.isArray(data)?data:(Array.isArray(data.banks)?data.banks:[]);}
+    }catch(e){console.warn("舊官方目錄讀取失敗，將建立新目錄",e)}
+
+    const entry={id,name,game:selectedGame,book,lesson,file:bankPath,updated:today,sizeBytes:bytes};
+    const idx=catalog.findIndex(x=>x.id===id);
+    if(idx>=0)catalog[idx]=entry;else catalog.push(entry);
+
+    downloadOfficialFile(bankFilename,new Blob([payload],{type:"application/json"}));
+    setTimeout(()=>downloadOfficialFile("official-banks.json",new Blob([JSON.stringify(catalog,null,2)],{type:"application/json"})),400);
+
+    cloudStatus("ok",`✅ 官方題庫已產生（${(bytes/1024/1024).toFixed(2)} MB）。請把兩個下載檔一起上傳到 GitHub 的 banks 資料夾。`);
+    if(btn)btn.textContent="✅ 官方題庫檔已產生";
+    setTimeout(()=>{if(btn){btn.disabled=false;btn.textContent=oldText}},4500);
+  }catch(err){
+    console.error(err);cloudStatus("err","❌ 官方題庫打包失敗："+(err?.message||err));
+    if(btn){btn.disabled=false;btn.textContent=oldText;}
+  }
+}
+document.getElementById("publishOfficialBankBtn")?.addEventListener("click",publishCurrentBankAsOfficial);
 
 
 initYeziFirebase();
