@@ -6047,8 +6047,14 @@ syncLanguage();
       title.innerHTML=`<img class="setup-game-thumb" src="${gameThumb(game)}" alt=""><span class="setup-game-name">${gameTitle(game)}</span>`;
     }
 
-    // 若原本模式區已正常出現，完全不碰它。
-    if(mode.children.length || mode.textContent.trim())return;
+    // 只有「同一款遊戲」且模式區已正常出現時才保留。
+    // 之前會員帳號若第二款遊戲初始化中途失敗，modeArea 仍保留第一款遊戲內容，
+    // 因此不能只用「有內容」判定為正常。
+    if(mode.dataset.game===game && (mode.children.length || mode.textContent.trim()))return;
+
+    // 遊戲已切換，先清掉上一款遊戲留下的設定區，再依目前遊戲重建。
+    mode.innerHTML="";
+    mode.dataset.game=game;
 
     if(game==="tug"){
       mode.innerHTML=`
@@ -6142,22 +6148,43 @@ syncLanguage();
       note.textContent="黑暗照燈題庫：題目｜A｜B｜C｜D｜正確答案。上傳圖片後，依題目順序在圖片上設定探索位置。";
       setTimeout(()=>{ try{ window.initFlashSetup?.(); }catch(e){ console.warn(e); } },0);
     }
+
+    // 題目編輯區也強制依目前遊戲重新渲染，避免沿用第一個打開的遊戲。
+    try{
+      selectedGame=game;
+      const sv=document.getElementById("setupView");
+      if(sv)sv.dataset.game=game;
+      if(typeof renderQuestionEditor==="function")renderQuestionEditor();
+    }catch(e){ console.warn("repair question editor failed",e); }
   }
 
   window.openSetup=function(game){
+    const sv=document.getElementById("setupView");
+    const mode=document.getElementById("modeArea");
+    const editor=document.getElementById("questionEditor");
+
+    // 每次切換遊戲，先把上一款遊戲的「識別狀態」清掉。
+    // 不改整體外觀，只避免會員帳號一直沿用第一款遊戲畫面。
+    try{ selectedGame=game; }catch{}
+    if(sv)sv.dataset.game=game;
+    if(mode && mode.dataset.game!==game){
+      mode.dataset.game="";
+      mode.innerHTML="";
+    }
+    if(editor)editor.innerHTML="";
+
     try{
-      if(typeof _baseOpenSetup==="function")_baseOpenSetup(game);
+      if(typeof _baseOpenSetup==="function"){
+        _baseOpenSetup(game);
+        // 只有原本 openSetup 完整跑完，才標記這個模式區確實屬於目前遊戲。
+        if(mode)mode.dataset.game=game;
+      }
     }catch(err){
       console.error("openSetup base failed",err);
-      // 即使原流程中途失敗，也至少讓設定頁顯示並補回該遊戲設定。
-      try{ selectedGame=game; }catch{}
       document.getElementById("lobbyView")?.classList.add("hidden");
       document.getElementById("gameView")?.classList.add("hidden");
-      const sv=document.getElementById("setupView");
-      if(sv)sv.dataset.game=game;
       sv?.classList.remove("hidden");
     }finally{
-      const sv=document.getElementById("setupView");
       if(sv)sv.dataset.game=game;
       try{ selectedGame=game; }catch{}
       repairSetupUI(game);
