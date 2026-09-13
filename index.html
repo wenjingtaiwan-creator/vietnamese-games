@@ -2529,6 +2529,24 @@ function saveQuestions(){
   if(!selectedGame)return;
   localStorage.setItem(gameStorageKey("yeziQuestions"),JSON.stringify(questions));
 }
+
+// 題庫編輯效能：文字輸入時延遲寫入 localStorage，避免每打一個字都序列化整份題庫。
+let questionSaveTimer=null;
+function scheduleQuestionsSave(delay=450){
+  clearTimeout(questionSaveTimer);
+  questionSaveTimer=setTimeout(()=>{
+    questionSaveTimer=null;
+    saveQuestions();
+  },delay);
+}
+function flushQuestionsSave(){
+  if(questionSaveTimer){
+    clearTimeout(questionSaveTimer);
+    questionSaveTimer=null;
+    saveQuestions();
+  }
+}
+window.addEventListener("pagehide",flushQuestionsSave);
 function loadSavedQuestions(game=selectedGame){
   if(!game)return [];
   try{return JSON.parse(localStorage.getItem(gameStorageKey("yeziQuestions",game))||"[]")}catch{return []}
@@ -3494,8 +3512,8 @@ function renderQuestionEditor(){
         questions.splice(i+1,0,copy);saveQuestions();renderQuestionEditor();
         setTimeout(()=>questionEditor.children[i+1]?.scrollIntoView({behavior:"smooth",block:"center"}),50);
       };
-      card.querySelector("[data-flip-zh]").oninput=e=>{q.question=e.target.value;saveQuestions();};
-      card.querySelector("[data-flip-vi]").oninput=e=>{q.answers[0]=e.target.value;saveQuestions();};
+      card.querySelector("[data-flip-zh]").oninput=e=>{q.question=e.target.value;scheduleQuestionsSave();};
+      card.querySelector("[data-flip-vi]").oninput=e=>{q.answers[0]=e.target.value;scheduleQuestionsSave();};
       wireAudioTools(card,q,renderQuestionEditor);
       wireImageTools(card,q,renderQuestionEditor);
 
@@ -3601,12 +3619,12 @@ function renderQuestionEditor(){
     };
     card.querySelector("[data-question]").oninput=e=>{
       q.question=e.target.value;
-      saveQuestions();
+      scheduleQuestionsSave();
     };
     card.querySelectorAll("[data-answer]").forEach(el=>{
       el.oninput=e=>{
         q.answers[+el.dataset.answer]=e.target.value;
-        saveQuestions();
+        scheduleQuestionsSave();
       };
     });
     card.querySelectorAll("[data-pick-correct]").forEach(btn=>{
