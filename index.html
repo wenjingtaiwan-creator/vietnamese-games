@@ -1409,6 +1409,19 @@ a{text-decoration:none;color:inherit}
   .image-search-bar{grid-template-columns:1fr 1fr}
   .image-search-bar .image-search-input{grid-column:1/-1}
 }
+
+/* 官方題庫 */
+.official-bank-btn{background:#fff4d7;border:2px solid #f3c861;color:#72500a}
+.official-bank-panel{display:none;margin-top:14px;padding:16px;border:1px solid #eadfbd;border-radius:18px;background:#fffdf6}
+.official-bank-panel.show{display:block}
+.official-bank-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.official-bank-toolbar .input,.official-bank-toolbar .select{min-width:160px}
+.official-bank-list{display:grid;gap:10px}
+.official-bank-item{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:13px 14px;border:1px solid #e7e9ef;border-radius:15px;background:#fff}
+.official-bank-title{font-weight:900;color:#263247}.official-bank-sub{font-size:13px;color:#78839a;margin-top:4px}
+.official-bank-empty{padding:18px;text-align:center;color:#78839a}
+@media(max-width:700px){.official-bank-item{align-items:flex-start;flex-direction:column}.official-bank-item .btn{width:100%}}
+
 </style>
 
 <style>
@@ -1808,9 +1821,22 @@ a{text-decoration:none;color:inherit}
           <input id="bankFile" type="file" accept=".xlsx,.xls,.xlsm,.csv" hidden>
         </label>
         <button id="downloadTemplateBtn" class="btn ghost">⬇️ 下載 Excel 範本</button>
+        <button id="officialBankBtn" class="btn official-bank-btn">📚 葉子老師官方題庫</button>
         <button id="addQuestionBtn" class="btn ghost">＋ 手動新增題目</button>
         <button id="clearQuestionsBtn" class="btn ghost">🗑️ 清空題目</button>
         <span id="questionCount" class="pill"></span>
+      </div>
+      <div id="officialBankPanel" class="official-bank-panel">
+        <div class="official-bank-toolbar">
+          <strong>📚 葉子老師官方題庫</strong>
+          <select id="officialBankBook" class="select"><option value="">全部冊別</option></select>
+          <select id="officialBankLesson" class="select"><option value="">全部課次</option></select>
+          <input id="officialBankSearch" class="input grow" placeholder="🔎 搜尋題庫">
+          <button id="refreshOfficialBanksBtn" class="btn ghost">↻ 更新</button>
+        </div>
+        <div class="note" style="margin-bottom:10px">官方題庫由葉子老師持續更新。載入後可以直接使用，也可以修改後儲存到自己的 Dashboard，不會改到官方原檔。</div>
+        <div id="officialBankStatus" class="status"></div>
+        <div id="officialBankList" class="official-bank-list"></div>
       </div>
     </div>
 
@@ -2486,10 +2512,10 @@ function rowsToQuestions(rows,game=selectedGame){
 
   if(game==="flip"){
     // 翻卡遊戲只有兩個文字內容，不需要題目/選項/正確答案。
-    // 建議欄名：中文內容｜越南語內容
+    // 建議欄名：正面｜背面
     // 同時相容舊格式：題目｜A
-    const ci=findIndex(["中文內容","中文","提示內容","內容1","內容一","題目","問題","prompt"]);
-    const vi=findIndex(["越南語內容","越南語","主要教學語言","教學語言","目標語言","內容2","內容二","A","答案A","翻卡內容","answer","target"]);
+    const ci=findIndex(["正面","正面內容","中文內容","中文","提示內容","內容1","內容一","題目","問題","prompt"]);
+    const vi=findIndex(["背面","背面內容","越南語內容","越南語","主要教學語言","教學語言","目標語言","內容2","內容二","A","答案A","翻卡內容","answer","target"]);
     if(ci<0||vi<0)return [];
     return rows.slice(1).map(row=>{
       const left=String(row[ci]??"").trim();
@@ -3531,13 +3557,13 @@ function renderQuestionEditor(){
 
         <div class="flip-editor-grid">
           <div class="field-block flip-editor-panel">
-            <div class="field-label"><span>中文內容</span><span style="display:flex;gap:6px;flex-wrap:wrap">${audioToolHTML(q.questionAudioKey,"question","",q.questionVoiceMode)}${imageToolHTML(q.questionImage,"question")}</span></div>
-            <textarea class="input flip-textarea" data-flip-zh placeholder="例如：地圖">${esc(q.question||"")}</textarea>
+            <div class="field-label"><span>正面</span><span style="display:flex;gap:6px;flex-wrap:wrap">${audioToolHTML(q.questionAudioKey,"question","",q.questionVoiceMode)}${imageToolHTML(q.questionImage,"question")}</span></div>
+            <textarea class="input flip-textarea" data-flip-zh placeholder="輸入正面內容">${esc(q.question||"")}</textarea>
             ${imagePreviewHTML(q.questionImage)}
           </div>
           <div class="field-block flip-editor-panel target">
-            <div class="field-label"><span>越南語內容</span><span style="display:flex;gap:6px;flex-wrap:wrap">${audioToolHTML(q.answerAudioKeys[0],"answer",0,q.answerVoiceModes?.[0])}${imageToolHTML(q.answerImages[0],"answer",0)}</span></div>
-            <textarea class="input flip-textarea" data-flip-vi placeholder="例如：bản đồ">${esc(q.answers[0]||"")}</textarea>
+            <div class="field-label"><span>背面</span><span style="display:flex;gap:6px;flex-wrap:wrap">${audioToolHTML(q.answerAudioKeys[0],"answer",0,q.answerVoiceModes?.[0])}${imageToolHTML(q.answerImages[0],"answer",0)}</span></div>
+            <textarea class="input flip-textarea" data-flip-vi placeholder="輸入背面內容">${esc(q.answers[0]||"")}</textarea>
             ${imagePreviewHTML(q.answerImages[0])}
           </div>
         </div>
@@ -3802,7 +3828,7 @@ function downloadTemplate(){
     filename=selectedGame==="flashlight"?"黑暗照燈_題庫範本.xlsx":"大冒險_題庫範本.xlsx";
     sheet=selectedGame==="flashlight"?"黑暗照燈":"大冒險";
   }else{
-    rows=[["中文內容","越南語內容"],["你好","Xin chào"],["謝謝","Cảm ơn"]];
+    rows=[["正面","背面"],["你好","Hello"],["謝謝","Thank you"]];
     filename="翻卡遊戲_題庫範本.xlsx";sheet="翻卡遊戲";
   }
 
@@ -3946,11 +3972,11 @@ function openSetup(game){
   }else if(game==="flip"){
     modeEl.innerHTML=`
       <div class="mode-card-grid">
-        <label class="mode-card orange"><input type="radio" name="flipMode" value="single" checked><div class="mode-card-title">🃏 單面翻卡</div><div class="mode-card-desc">翻開卡片複習主要教學語言，可自由翻回並切換下一張。</div></label>
-        <label class="mode-card purple"><input type="radio" name="flipMode" value="double"><div class="mode-card-title">🔁 雙面翻卡</div><div class="mode-card-desc">一面是中文，一面是主要教學語言；教學語言面可播放語音。</div></label>
+        <label class="mode-card orange"><input type="radio" name="flipMode" value="single" checked><div class="mode-card-title">🃏 單面翻卡</div><div class="mode-card-desc">翻開卡片查看背面內容，可自由翻回並切換下一張。</div></label>
+        <label class="mode-card purple"><input type="radio" name="flipMode" value="double"><div class="mode-card-title">🔁 雙面翻卡</div><div class="mode-card-desc">正面與背面都可自由輸入任何語言或內容，並可個別加入語音。</div></label>
       </div>
       <div class="note" style="margin-top:10px">卡片背面素材請放在 assets/card.png。</div>`;
-    noteEl.textContent="翻卡題庫：題目＝提示/中文；A＝主要教學語言。可在手動編輯器替題目與 A 答案加入語音。";
+    noteEl.textContent="翻卡題庫：正面｜背面。兩面都可輸入任何語言或內容，並可個別加入圖片與語音。";
 
   }else if(game==="flashlight"){
     modeEl.innerHTML=`
@@ -5904,7 +5930,12 @@ async function submitCurrentUserApplication(){
   catch(err){alert("送出申請失敗："+(err?.message||err));}
 }
 async function googleSignOut(){try{await yeziAuth?.signOut();location.hash="";}catch(err){alert("登出失敗："+err.message)}}
-function cloudStatus(type,msg){const el=document.getElementById("cloudBankStatus");if(!el)return;el.className="status "+(type||"");el.textContent=msg||"";}
+function cloudStatus(type,msg){
+  const el=document.getElementById("cloudBankStatus");
+  if(!el)return;
+  el.className="status show "+(type||"");
+  el.textContent=msg||"";
+}
 
 async function buildFullBankPack(){
   const audioKeys=new Set();questions.forEach(q=>{if(q.questionAudioKey)audioKeys.add(q.questionAudioKey);(q.answerAudioKeys||[]).forEach(k=>k&&audioKeys.add(k));});
@@ -5919,7 +5950,10 @@ async function saveCloudBank(){
   if(!questions.length)return alert("目前沒有題目可以儲存。");
   const name=(document.getElementById("cloudBankName")?.value||"").trim();
   if(!name)return alert("請先輸入題庫名稱。");
-  cloudStatus("info","正在儲存到 Dashboard…");
+  const saveBtn=document.getElementById("saveCloudBankBtn");
+  const oldSaveText=saveBtn?.textContent||"💾 儲存到 Dashboard";
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent="⏳ 儲存中…";}
+  cloudStatus("info","⏳ 正在儲存到 Dashboard…");
   try{
     const pack=await buildFullBankPack();pack.name=name;
     const payload=JSON.stringify(pack),bytes=new Blob([payload]).size;
@@ -5936,9 +5970,19 @@ async function saveCloudBank(){
       ref=banks.doc();currentCloudBankId=ref.id;
       await ref.set({name,game:selectedGame,payload,sizeBytes:bytes,questionCount:questions.length,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
     }
-    cloudStatus("ok",`✓「${name}」已儲存到 Dashboard。`);
+    cloudStatus("ok",`✅「${name}」已成功儲存到 Dashboard！`);
+    if(saveBtn)saveBtn.textContent="✅ 已儲存";
     await loadCloudBankList();
-  }catch(err){console.error(err);cloudStatus("err","雲端儲存失敗："+(err?.message||err));}
+    setTimeout(()=>{
+      const el=document.getElementById("cloudBankStatus");
+      if(el){el.className="status";el.textContent="";}
+      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldSaveText;}
+    },3200);
+  }catch(err){
+    console.error(err);
+    cloudStatus("err","❌ 儲存失敗："+(err?.message||err));
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldSaveText;}
+  }
 }
 async function loadCloudBankList(){
   const box=document.getElementById("cloudBankList");if(!box||!yeziUser||!yeziDb||!yeziHasAccess)return;box.innerHTML='<div class="note">正在讀取我的題庫…</div>';
@@ -5996,6 +6040,52 @@ async function disableMember(uid){if(!yeziIsAdmin)return;const u=adminUsers.find
 
 document.getElementById("saveCloudBankBtn")?.addEventListener("click",saveCloudBank);
 document.getElementById("refreshCloudBanksBtn")?.addEventListener("click",loadCloudBankList);
+
+
+/* ===== 葉子老師官方題庫：GitHub Pages 唯讀 ===== */
+const YEZI_OFFICIAL_BANK_INDEX="banks/official-banks.json";
+let officialBanks=[];
+function officialGameName(g){return ({tug:"拔河大賽",fly:"會飛的字",head:"左右擺頭",adventure:"探險大挑戰",flip:"翻卡遊戲",flashlight:"黑暗照燈"})[g]||g||""}
+function officialStatus(type,msg){const el=document.getElementById("officialBankStatus");if(!el)return;el.className="status "+(msg?"show ":"")+(type||"");el.textContent=msg||""}
+function safeOfficialText(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+async function loadOfficialBanks(force=false){
+ const list=document.getElementById("officialBankList");if(!list)return;officialStatus("info","正在讀取官方題庫…");
+ try{
+  const res=await fetch(YEZI_OFFICIAL_BANK_INDEX+(force?"?v="+Date.now():""),{cache:"no-store"});
+  if(!res.ok)throw new Error("官方題庫目錄尚未建立");
+  const data=await res.json();officialBanks=Array.isArray(data)?data:(Array.isArray(data.banks)?data.banks:[]);
+  populateOfficialFilters();renderOfficialBanks();officialStatus("ok",`已載入 ${officialBanks.length} 份官方題庫。`);setTimeout(()=>officialStatus("",""),1800);
+ }catch(err){console.warn(err);officialBanks=[];list.innerHTML='<div class="official-bank-empty">目前尚未上傳官方題庫。</div>';officialStatus("","")}
+}
+function populateOfficialFilters(){
+ const b=document.getElementById("officialBankBook"),l=document.getElementById("officialBankLesson");if(!b||!l)return;
+ const bv=b.value,lv=l.value,bs=[...new Set(officialBanks.map(x=>x.book).filter(Boolean))],ls=[...new Set(officialBanks.map(x=>x.lesson).filter(Boolean))];
+ b.innerHTML='<option value="">全部冊別</option>'+bs.map(x=>`<option value="${safeOfficialText(x)}">${safeOfficialText(x)}</option>`).join("");
+ l.innerHTML='<option value="">全部課次</option>'+ls.map(x=>`<option value="${safeOfficialText(x)}">${safeOfficialText(x)}</option>`).join("");
+ if(bs.includes(bv))b.value=bv;if(ls.includes(lv))l.value=lv;
+}
+function renderOfficialBanks(){
+ const list=document.getElementById("officialBankList");if(!list)return;
+ const b=document.getElementById("officialBankBook")?.value||"",l=document.getElementById("officialBankLesson")?.value||"",q=(document.getElementById("officialBankSearch")?.value||"").trim().toLowerCase();
+ const rows=officialBanks.filter(x=>(!selectedGame||!x.game||x.game===selectedGame)&&(!b||x.book===b)&&(!l||x.lesson===l)&&(!q||[x.name,x.book,x.lesson,officialGameName(x.game)].join(" ").toLowerCase().includes(q)));
+ if(!rows.length){list.innerHTML='<div class="official-bank-empty">目前沒有符合這款遊戲／篩選條件的官方題庫。</div>';return}
+ list.innerHTML=rows.map(x=>`<div class="official-bank-item"><div><div class="official-bank-title">${safeOfficialText(x.name||"官方題庫")}</div><div class="official-bank-sub">${safeOfficialText([x.book,x.lesson,officialGameName(x.game),x.updated?("更新 "+x.updated):""].filter(Boolean).join(" · "))}</div></div><button class="btn blue-btn" data-official-file="${safeOfficialText(x.file||"")}">使用這份題庫</button></div>`).join("");
+ list.querySelectorAll("[data-official-file]").forEach(btn=>btn.onclick=()=>loadOfficialBankFile(btn.dataset.officialFile));
+}
+async function loadOfficialBankFile(file){
+ if(!file)return;officialStatus("info","正在載入官方題庫…");
+ try{
+  const res=await fetch(file+(file.includes("?")?"&":"?")+"v="+Date.now(),{cache:"no-store"});if(!res.ok)throw new Error("找不到官方題庫檔案");
+  const blob=await res.blob(),f=new File([blob],file.split("/").pop()||"official.yezi",{type:"application/json"});
+  await importFullBankFile(f);currentCloudBankId=null;officialStatus("ok","✅ 官方題庫已載入，可以直接使用或修改後存到自己的 Dashboard。");
+ }catch(err){console.error(err);officialStatus("err","❌ 官方題庫載入失敗："+(err?.message||err))}
+}
+document.getElementById("officialBankBtn")?.addEventListener("click",()=>{const p=document.getElementById("officialBankPanel");if(!p)return;p.classList.toggle("show");if(p.classList.contains("show"))officialBanks.length?renderOfficialBanks():loadOfficialBanks()});
+document.getElementById("refreshOfficialBanksBtn")?.addEventListener("click",()=>loadOfficialBanks(true));
+document.getElementById("officialBankBook")?.addEventListener("change",renderOfficialBanks);
+document.getElementById("officialBankLesson")?.addEventListener("change",renderOfficialBanks);
+document.getElementById("officialBankSearch")?.addEventListener("input",renderOfficialBanks);
+
 
 initYeziFirebase();
 
