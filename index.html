@@ -1670,7 +1670,7 @@ a{text-decoration:none;color:inherit}
 </section>
 
 
-<div id="protectedApp" class="auth-locked" data-build="20260913-currentLang-rootfix">
+<div id="protectedApp" class="auth-locked" data-build="20260913-deterministic-setup">
 
 
 
@@ -2209,7 +2209,7 @@ function syncLanguage(){
 
   document.querySelectorAll("[data-new-i18n]").forEach(el=>{
     const k=el.getAttribute("data-new-i18n");
-    el.textContent=nt(k);
+    try{ el.textContent=nt(k); }catch(e){ console.warn("翻譯元件略過",k,e); }
   });
 }
 function renderGameNames(){
@@ -3816,73 +3816,74 @@ function downloadTemplate(){
    設定畫面
 ========================================================= */
 function openSetup(game){
-  // 所有已授權帳號共用同一套遊戲切換邏輯；Owner 不走另一套遊戲介面。
+  // 唯一遊戲設定入口：Owner 與一般已授權會員完全共用。
+  // 這裡先用純 DOM / 靜態文字建立完整遊戲設定，不依賴會員身分、TTS、Firebase 或翻譯函式。
   selectedGame=game;
 
-  const lobbyView=document.getElementById("lobbyView");
-  const gameView=document.getElementById("gameView");
-  const setupView=document.getElementById("setupView");
-  const setupTitle=document.getElementById("setupTitle");
-  const modeArea=document.getElementById("modeArea");
-  const formatNote=document.getElementById("formatNote");
-  const sheetUrl=document.getElementById("sheetUrl");
-  const sheetName=document.getElementById("sheetName");
-  const cloudBankName=document.getElementById("cloudBankName");
-  const questionEditor=document.getElementById("questionEditor");
+  const lobby=document.getElementById("lobbyView");
+  const gameEl=document.getElementById("gameView");
+  const setup=document.getElementById("setupView");
+  const titleEl=document.getElementById("setupTitle");
+  const modeEl=document.getElementById("modeArea");
+  const noteEl=document.getElementById("formatNote");
+  const qEditor=document.getElementById("questionEditor");
+  const cloudName=document.getElementById("cloudBankName");
+  const sheetUrlEl=document.getElementById("sheetUrl");
+  const sheetNameEl=document.getElementById("sheetName");
 
-  // 每次點一款遊戲，都先清除上一款遊戲的畫面狀態，再建立目前遊戲。
-  if(setupView)setupView.dataset.game=game;
-  if(setupTitle)setupTitle.innerHTML="";
-  if(modeArea)modeArea.innerHTML="";
-  if(formatNote)formatNote.textContent="";
-  if(questionEditor)questionEditor.innerHTML="";
+  if(!setup||!titleEl||!modeEl||!noteEl){
+    console.error("遊戲設定頁必要節點缺失", {setup,titleEl,modeEl,noteEl});
+    return;
+  }
 
-  // 每次從大廳進入任何遊戲，都以空白題庫開始。
-  // 若要使用既有題庫，改由 Dashboard 載入，避免不同遊戲沿用上一款題庫。
+  // 每次進入遊戲都先建立乾淨狀態。
+  setup.dataset.game=game;
+  titleEl.classList.add("setup-game-heading");
+  titleEl.innerHTML="";
+  modeEl.innerHTML="";
+  noteEl.textContent="";
+  if(qEditor)qEditor.innerHTML="";
   questions=[];
   currentCloudBankId=null;
-  if(cloudBankName)cloudBankName.value="";
+  if(cloudName)cloudName.value="";
 
-  // 先顯示設定頁，再建立該遊戲自己的完整設定。
-  // 任何聲音／雲端功能失敗，都不能阻斷遊戲設定介面。
-  lobbyView?.classList.add("hidden");
-  gameView?.classList.add("hidden");
-  setupView?.classList.remove("hidden");
+  lobby?.classList.add("hidden");
+  gameEl?.classList.add("hidden");
+  setup.classList.remove("hidden");
 
-  const titleMap={
-    tug:"🪢 拔河大賽",
-    fly:"💨 會飛的字",
-    head:"↔️ 左右擺頭",
-    adventure:"🗺️ 探險大挑戰",
-    flip:`🃏 ${nt("flipGame")}`,
-    flashlight:`🔦 ${nt("flashGame")}`
-  };
-  const lobbyImageMap={
-    tug:"assets/lobby-tug.png?v=20260913-1",
-    fly:"assets/lobby-fly.png?v=20260913-1",
-    head:"assets/lobby-head.png?v=20260913-1",
-    adventure:"assets/lobby-adventure.png?v=20260913-1",
-    flip:"assets/lobby-flip.png?v=20260913-1",
-    flashlight:"assets/lobby-flashlight.png?v=20260913-1"
-  };
-  if(setupTitle){
-    setupTitle.classList.add("setup-game-heading");
-    setupTitle.innerHTML=`<img class="setup-game-thumb" src="${lobbyImageMap[game]||""}" alt="${esc(titleMap[game]||"")}"><span class="setup-game-name">${esc(titleMap[game]||"")}</span>`;
+  const info={
+    tug:{title:"🪢 拔河大賽",img:"assets/lobby-tug.png?v=20260913-1"},
+    fly:{title:"💨 會飛的字",img:"assets/lobby-fly.png?v=20260913-1"},
+    head:{title:"↔️ 左右擺頭",img:"assets/lobby-head.png?v=20260913-1"},
+    adventure:{title:"🗺️ 探險大挑戰",img:"assets/lobby-adventure.png?v=20260913-1"},
+    flip:{title:"🃏 翻卡遊戲",img:"assets/lobby-flip.png?v=20260913-1"},
+    flashlight:{title:"🔦 黑暗照燈",img:"assets/lobby-flashlight.png?v=20260913-1"}
+  }[game];
+
+  if(!info){
+    console.error("未知遊戲：",game);
+    return;
   }
-  if(!modeArea||!formatNote)return;
 
+  // 先畫出遊戲識別卡；這一步不呼叫任何其他函式。
+  titleEl.innerHTML=
+    `<img class="setup-game-thumb" src="${info.img}" alt="${info.title}">`+
+    `<span class="setup-game-name">${info.title}</span>`;
+
+  // 先畫出各遊戲自己的設定區；不依賴 Owner / 會員身分。
   if(game==="tug"){
-    modeArea.innerHTML=`
-      <strong>${t("mode")}：</strong>
+    modeEl.innerHTML=`
+      <strong>遊戲模式：</strong>
       <div class="mode-card-grid">
-        <label class="mode-card red"><input type="radio" name="gameMode" value="classic" checked><div class="mode-card-title">🪢 ${t("classic")}</div><div class="mode-card-desc">兩隊回答同一題，答對或較快的一隊把繩子拉向自己。</div></label>
-        <label class="mode-card blue"><input type="radio" name="gameMode" value="dual"><div class="mode-card-title">⚡ ${t("dual")}</div><div class="mode-card-desc">紅、藍兩隊各自作答，答對立即拉繩並進入下一題。</div></label>
+        <label class="mode-card red"><input type="radio" name="gameMode" value="classic" checked><div class="mode-card-title">🪢 同題競速</div><div class="mode-card-desc">兩隊回答同一題，答對或較快的一隊把繩子拉向自己。</div></label>
+        <label class="mode-card blue"><input type="radio" name="gameMode" value="dual"><div class="mode-card-title">⚡ 雙線闖關</div><div class="mode-card-desc">紅、藍兩隊各自作答，答對立即拉繩並進入下一題。</div></label>
       </div>`;
-    formatNote.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。";
+    noteEl.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。";
+
   }else if(game==="fly"){
     const savedFlyBg=localStorage.getItem("yeziFlyBg")||"#ffd83d";
     const savedFlyMode=localStorage.getItem("yeziFlyMode")||"solo";
-    modeArea.innerHTML=`
+    modeEl.innerHTML=`
       <div class="mode-card-grid">
         <label class="mode-card orange"><input type="radio" name="flyPlayMode" value="solo" ${savedFlyMode==="solo"?"checked":""}><div class="mode-card-title">👤 一人挑戰</div><div class="mode-card-desc">單人依序完成句子，在時間內挑戰最多題數。</div></label>
         <label class="mode-card blue"><input type="radio" name="flyPlayMode" value="battle" ${savedFlyMode==="battle"?"checked":""}><div class="mode-card-title">👥 雙人對戰</div><div class="mode-card-desc">紅、藍兩組同時作答，時間到比較完成題數。</div></label>
@@ -3890,121 +3891,102 @@ function openSetup(game){
       <div class="row" style="margin-top:14px">
         <strong>遊戲時間：</strong>
         <select id="flyMatchMinutes" class="select">
-          <option value="1">1 分鐘</option>
-          <option value="2">2 分鐘</option>
-          <option value="3" selected>3 分鐘</option>
-          <option value="5">5 分鐘</option>
-          <option value="10">10 分鐘</option>
+          <option value="1">1 分鐘</option><option value="2">2 分鐘</option>
+          <option value="3" selected>3 分鐘</option><option value="5">5 分鐘</option><option value="10">10 分鐘</option>
         </select>
         <strong>背景顏色：</strong>
         <input id="flyBgColor" type="color" value="${savedFlyBg}" style="width:54px;height:42px;border:0;background:transparent;cursor:pointer">
         <input id="flyBgText" class="input" value="${savedFlyBg}" maxlength="7" style="width:104px" aria-label="背景色代碼">
         <span class="note">可自由選擇會飛的字遊戲背景。</span>
       </div>`;
+    noteEl.textContent="題庫：題目｜A～L 字詞。A→B→C→D… 就是正確句子順序，遊戲會自動打亂飛出，不需要再填「正確答案」。";
     setTimeout(()=>{
-      const c=document.getElementById("flyBgColor"), tx=document.getElementById("flyBgText");
+      const c=document.getElementById("flyBgColor"),tx=document.getElementById("flyBgText");
       if(c&&tx){
         c.oninput=()=>{tx.value=c.value;localStorage.setItem("yeziFlyBg",c.value)};
         tx.onchange=()=>{if(/^#[0-9a-fA-F]{6}$/.test(tx.value)){c.value=tx.value;localStorage.setItem("yeziFlyBg",tx.value)}};
       }
       document.querySelectorAll('input[name="flyPlayMode"]').forEach(r=>r.onchange=()=>localStorage.setItem("yeziFlyMode",r.value));
     },0);
-    formatNote.textContent="題庫：題目｜A～L 字詞。A→B→C→D… 就是正確句子順序，遊戲會自動打亂飛出，不需要再填「正確答案」。";
+
   }else if(game==="head"){
-    modeArea.innerHTML=`
-      <strong>${t("mode")}：</strong>
+    modeEl.innerHTML=`
+      <strong>遊戲模式：</strong>
       <div class="mode-card-grid">
-        <label class="mode-card orange"><input type="radio" name="inputMode" value="click" checked><div class="mode-card-title">👆 ${t("click")}</div><div class="mode-card-desc">直接點選左邊或右邊答案，適合沒有攝影機的裝置。</div></label>
-        <label class="mode-card purple"><input type="radio" name="inputMode" value="camera"><div class="mode-card-title">📷 ${t("camera")}</div><div class="mode-card-desc">使用攝影機偵測左右擺頭，以身體動作選擇答案。</div></label>
+        <label class="mode-card orange"><input type="radio" name="inputMode" value="click" checked><div class="mode-card-title">👆 點擊模式</div><div class="mode-card-desc">直接點選左邊或右邊答案，適合沒有攝影機的裝置。</div></label>
+        <label class="mode-card purple"><input type="radio" name="inputMode" value="camera"><div class="mode-card-title">📷 攝影機模式</div><div class="mode-card-desc">使用攝影機偵測左右擺頭，以身體動作選擇答案。</div></label>
       </div>`;
-    formatNote.textContent="題庫：題目｜A（左）｜B（右）｜正確答案（A/B）。攝影機不支援時仍可點擊左右答案。";
+    noteEl.textContent="題庫：題目｜A（左）｜B（右）｜正確答案（A/B）。攝影機不支援時仍可點擊左右答案。";
+
   }else if(game==="adventure"){
-    modeArea.innerHTML=`
+    modeEl.innerHTML=`
       <div class="row">
         <strong>玩家人數：</strong>
         <select id="adventurePlayerCount" class="select">
-          <option value="2" selected>2 人</option>
-          <option value="3">3 人</option>
-          <option value="4">4 人</option>
-          <option value="5">5 人</option>
-          <option value="6">6 人</option>
+          <option value="2" selected>2 人</option><option value="3">3 人</option><option value="4">4 人</option><option value="5">5 人</option><option value="6">6 人</option>
         </select>
-
         <strong>格子數：</strong>
         <input id="adventureCellCount" class="input" type="number" min="10" max="60" value="30" style="width:95px">
       </div>
-
       <div id="playerNameGrid" class="player-name-grid"></div>
-
       <div style="margin-top:16px">
         <strong>選擇遊戲地圖：</strong>
         <div id="mapChoiceGrid" class="map-choice-grid">
-          ${[1,2,3,4,5].map(n=>`
-            <button type="button" class="map-choice ${n===1?"selected":""}" data-map="${n}">
-              <img src="assets/${n}.png" alt="地圖 ${n}" onerror="this.style.opacity='.18';this.nextElementSibling.textContent='版面 ${n}（尚未上傳）'">
-              <div>版面 ${n}</div>
-            </button>`).join("")}
+          ${[1,2,3,4,5].map(n=>`<button type="button" class="map-choice ${n===1?"selected":""}" data-map="${n}"><img src="assets/${n}.png" alt="地圖 ${n}" onerror="this.style.opacity='.18';this.nextElementSibling.textContent='版面 ${n}（尚未上傳）'"><div>版面 ${n}</div></button>`).join("")}
         </div>
       </div>
-
       <div class="row" style="margin-top:12px">
-        <label class="btn blue-btn">
-          🖼️ 上傳自己的地圖
-          <input id="customAdventureMap" type="file" accept=".png,.jpg,.jpeg,.webp" hidden>
-        </label>
+        <label class="btn blue-btn">🖼️ 上傳自己的地圖<input id="customAdventureMap" type="file" accept=".png,.jpg,.jpeg,.webp" hidden></label>
         <button id="editAdventureMapBtn" type="button" class="btn ghost">🛠 設定格子位置</button>
         <span id="mapSetupStatus" class="note"></span>
       </div>`;
+    noteEl.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。玩家依序擲骰子；答錯會退回擲骰前的位置。內建地圖請放在 assets/1.png～assets/5.png。";
+    setTimeout(()=>{try{initAdventureSetupUI()}catch(e){console.error("探險設定初始化失敗",e)}},0);
 
-    formatNote.textContent="題庫：題目｜A｜B｜C｜D｜正確答案（A/B/C/D）。玩家依序擲骰子；答錯會退回擲骰前的位置。內建地圖請放在 assets/1.png～assets/5.png。";
-
-    setTimeout(initAdventureSetupUI,0);
   }else if(game==="flip"){
-    modeArea.innerHTML=`
+    modeEl.innerHTML=`
       <div class="mode-card-grid">
-        <label class="mode-card orange"><input type="radio" name="flipMode" value="single" checked><div class="mode-card-title">🃏 ${nt("singleCard")}</div><div class="mode-card-desc">${nt("flipSingleDesc")}</div></label>
-        <label class="mode-card purple"><input type="radio" name="flipMode" value="double"><div class="mode-card-title">🔁 ${nt("doubleCard")}</div><div class="mode-card-desc">${nt("flipDoubleDesc")}</div></label>
+        <label class="mode-card orange"><input type="radio" name="flipMode" value="single" checked><div class="mode-card-title">🃏 單面翻卡</div><div class="mode-card-desc">翻開卡片複習主要教學語言，可自由翻回並切換下一張。</div></label>
+        <label class="mode-card purple"><input type="radio" name="flipMode" value="double"><div class="mode-card-title">🔁 雙面翻卡</div><div class="mode-card-desc">一面是中文，一面是主要教學語言；教學語言面可播放語音。</div></label>
       </div>
-      <div class="note" style="margin-top:10px">${nt("cardBackNote")}</div>`;
-    formatNote.textContent="翻卡題庫：題目＝提示/中文；A＝主要教學語言。可在手動編輯器替題目與 A 答案加入語音。";
+      <div class="note" style="margin-top:10px">卡片背面素材請放在 assets/card.png。</div>`;
+    noteEl.textContent="翻卡題庫：題目＝提示/中文；A＝主要教學語言。可在手動編輯器替題目與 A 答案加入語音。";
+
   }else if(game==="flashlight"){
-    modeArea.innerHTML=`
+    modeEl.innerHTML=`
       <div class="section" style="margin:0;padding:14px">
         <div class="row">
-          <label class="btn blue-btn">🖼️ ${nt("flashUpload")}<input id="flashImageInput" type="file" accept=".png,.jpg,.jpeg,.webp" hidden></label>
-          <button id="flashEditPointsBtn" type="button" class="btn ghost">📍 ${nt("flashSetPoints")}</button>
+          <label class="btn blue-btn">🖼️ 上傳探索圖片<input id="flashImageInput" type="file" accept=".png,.jpg,.jpeg,.webp" hidden></label>
+          <button id="flashEditPointsBtn" type="button" class="btn ghost">📍 設定圖片位置</button>
           <span id="flashPointStatus" class="note"></span>
         </div>
         <img id="flashSetupPreview" class="flash-setup-preview hidden" alt="探索圖片">
       </div>`;
-    formatNote.textContent="黑暗照燈題庫：題目｜A｜B｜C｜D｜正確答案。上傳圖片後，依題目順序在圖片上設定探索位置。";
-    setTimeout(initFlashSetup,0);
+    noteEl.textContent="黑暗照燈題庫：題目｜A｜B｜C｜D｜正確答案。上傳圖片後，依題目順序在圖片上設定探索位置。";
+    setTimeout(()=>{try{initFlashSetup()}catch(e){console.error("黑暗照燈設定初始化失敗",e)}},0);
   }
 
+  // 以上設定畫面已建立完成。下面全部都是附加功能，任何錯誤都不能讓上面消失。
+  try{
+    const draft=loadSheetDraft(game);
+    if(sheetUrlEl)sheetUrlEl.value=draft?.url||"";
+    if(sheetNameEl)sheetNameEl.value=draft?.name||"";
+  }catch(e){console.warn("題庫草稿讀取失敗",e)}
 
-  const draft=loadSheetDraft(game);
-  if(sheetUrl)sheetUrl.value=draft.url;
-  if(sheetName)sheetName.value=draft.name;
+  try{
+    renderQuestionEditor();
+  }catch(e){console.error("題目編輯器初始化失敗",e)}
 
-  // 先同步文字，再明確依「這一次點選的 game」建立題目編輯器。
-  syncLanguage();
-  selectedGame=game;
-  if(setupView)setupView.dataset.game=game;
-  renderQuestionEditor();
+  try{
+    syncLanguage();
+  }catch(e){console.warn("語言同步失敗，不影響遊戲設定頁",e)}
 
-  // 非必要功能放最後，並且完全隔離錯誤。
-  // 即使某位會員的瀏覽器對音訊或 Firebase 有問題，也不會再造成上方遊戲設定整區空白。
   try{
     setGameBgm(game,false);
-  }catch(err){
-    console.warn("BGM 初始化失敗，不影響遊戲設定頁：", err);
-  }
+  }catch(e){console.warn("BGM 初始化失敗，不影響遊戲設定頁",e)}
+
   setTimeout(()=>{
-    try{
-      if(yeziUser)loadCloudBankList();
-    }catch(err){
-      console.warn("雲端題庫刷新失敗，不影響遊戲設定頁：", err);
-    }
+    try{if(yeziUser)loadCloudBankList()}catch(e){console.warn("雲端題庫刷新失敗",e)}
   },0);
 }
 
