@@ -1670,7 +1670,7 @@ a{text-decoration:none;color:inherit}
 </section>
 
 
-<div id="protectedApp" class="auth-locked" data-build="20260913-single-ui-rootfix-final">
+<div id="protectedApp" class="auth-locked" data-build="20260913-currentLang-rootfix">
 
 
 
@@ -2908,7 +2908,7 @@ function ttsResolvedLang(){
   const l=ttsLang();
   if(l!=="auto")return l;
   const map={zh:"zh-TW",vi:"vi-VN",en:"en-US",id:"id-ID",th:"th-TH",ja:"ja-JP",ko:"ko-KR",fr:"fr-FR",de:"de-DE",es:"es-ES"};
-  return map[currentLang]||"vi-VN";
+  return map[lang]||"vi-VN";
 }
 function ttsBestVoice(lang,voiceName=""){
   const voices=window.speechSynthesis?.getVoices?.()||[];
@@ -5419,8 +5419,8 @@ Object.assign(NEW_GAME_I18N["fr"], {"nextCard": "Carte suivante", "restartCards"
 Object.assign(NEW_GAME_I18N["de"], {"nextCard": "Nächste Karte", "restartCards": "Neu starten", "reviewedCards": "Wiederholt", "cardsFinished": "Wiederholung abgeschlossen!", "flipNeedBank": "Chinesischer und zielsprachlicher Inhalt wird benötigt.", "flashUploadFirst": "Bitte zuerst ein Erkundungsbild hochladen.", "flashPointHelp": "Positionen in Fragenreihenfolge setzen: 1=Frage 1, 2=Frage 2… Koordinaten bleiben am Bild fixiert.", "positionsSet": "Gesetzt", "undo": "Rückgängig", "clear": "Löschen", "save": "Speichern", "close": "Schließen", "flashNeedBank": "Bitte Fragenbank vorbereiten.", "flashNeedPoints": "Bitte Erkundungspositionen setzen.", "flashFindAndAnswer": "Ziele der Reihe nach finden und antworten", "points": "Pkt.", "explorationDone": "Erkundung abgeschlossen! Punkte:"});
 Object.assign(NEW_GAME_I18N["es"], {"nextCard": "Siguiente carta", "restartCards": "Reiniciar", "reviewedCards": "Repasadas", "cardsFinished": "¡Repaso completado!", "flipNeedBank": "Se necesita contenido en chino y en el idioma objetivo.", "flashUploadFirst": "Sube primero una imagen de exploración.", "flashPointHelp": "Define posiciones en orden: 1=pregunta 1, 2=pregunta 2… Las coordenadas quedan fijadas a la imagen.", "positionsSet": "Posiciones definidas", "undo": "Deshacer", "clear": "Limpiar", "save": "Guardar", "close": "Cerrar", "flashNeedBank": "Prepara un banco de preguntas.", "flashNeedPoints": "Define primero las posiciones de exploración.", "flashFindAndAnswer": "Encuentra los objetivos en orden y responde", "points": "pts", "explorationDone": "¡Exploración terminada! Puntuación:"});
 function nt(key){
-  const lang=localStorage.getItem("yeziGameLanguage")||currentLang||"zh";
-  return NEW_GAME_I18N?.[lang]?.[key] || NEW_GAME_I18N.zh[key] || key;
+  const activeLang=localStorage.getItem("yeziGameLanguage")||lang||"zh";
+  return NEW_GAME_I18N?.[activeLang]?.[key] || NEW_GAME_I18N.zh[key] || key;
 }
 /* =========================================================
    共用：上方開始按鈕 + 直式探險圖完整顯示
