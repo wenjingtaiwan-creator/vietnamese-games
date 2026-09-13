@@ -1622,6 +1622,12 @@ a{text-decoration:none;color:inherit}
   min-width:120px;
 }
 
+
+/* ===== 2026-09-13 遊戲設定頁識別卡 ===== */
+#setupTitle.setup-game-heading{display:flex;align-items:center;gap:16px;margin:0 0 14px;font-size:28px}
+#setupTitle .setup-game-thumb{width:180px;aspect-ratio:16/9;object-fit:contain;background:#eef2f7;border-radius:16px;border:1px solid #e3e8f1;box-shadow:0 6px 16px rgba(31,49,77,.08);flex:0 0 auto}
+#setupTitle .setup-game-name{font-weight:1000;color:#263247}
+@media(max-width:700px){#setupTitle.setup-game-heading{align-items:flex-start;font-size:23px}#setupTitle .setup-game-thumb{width:130px}}
 </style>
 
 </head>
@@ -1846,6 +1852,28 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <script>
+// 明確建立共用 DOM 參照，避免依賴瀏覽器把 id 自動變成全域變數。
+// 不同老師／瀏覽器都使用同一套節點，避免設定區塊莫名空白。
+var lobbyView=document.getElementById("lobbyView");
+var setupView=document.getElementById("setupView");
+var gameView=document.getElementById("gameView");
+var modeArea=document.getElementById("modeArea");
+var setupTitle=document.getElementById("setupTitle");
+var formatNote=document.getElementById("formatNote");
+var sheetUrl=document.getElementById("sheetUrl");
+var sheetName=document.getElementById("sheetName");
+var bankStatus=document.getElementById("bankStatus");
+var recentBanks=document.getElementById("recentBanks");
+var modal=document.getElementById("modal");
+var modalCard=document.getElementById("modalCard");
+var lobbyLang=document.getElementById("lobbyLang");
+var setupLang=document.getElementById("setupLang");
+var questionEditor=document.getElementById("questionEditor");
+var nameTug=document.getElementById("nameTug");
+var nameFly=document.getElementById("nameFly");
+var nameHead=document.getElementById("nameHead");
+var nameAdventure=document.getElementById("nameAdventure");
+
 /* =========================================================
    多語言
 ========================================================= */
@@ -2170,8 +2198,10 @@ function syncLanguage(){
   document.documentElement.lang=lang==="zh"?"zh-Hant":lang;
   document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>el.placeholder=t(el.dataset.i18nPlaceholder));
-  lobbyLang.value=lang;
-  setupLang.value=lang;
+  const lobbyLang=document.getElementById("lobbyLang");
+  const setupLang=document.getElementById("setupLang");
+  if(lobbyLang)lobbyLang.value=lang;
+  if(setupLang)setupLang.value=lang;
   renderGameNames();
   if(selectedGame) renderQuestionEditor();
   renderRecentBanks();
@@ -2196,10 +2226,14 @@ function renderGameNames(){
     es:["Tira y afloja","Palabras voladoras","Inclinar la cabeza","Aventura"]
   };
   const a=names[lang]||names.zh;
-  nameTug.textContent=a[0];
-  nameFly.textContent=a[1];
-  nameHead.textContent=a[2];
-  nameAdventure.textContent=a[3];
+  const elTug=document.getElementById("nameTug");
+  const elFly=document.getElementById("nameFly");
+  const elHead=document.getElementById("nameHead");
+  const elAdventure=document.getElementById("nameAdventure");
+  if(elTug)elTug.textContent=a[0];
+  if(elFly)elFly.textContent=a[1];
+  if(elHead)elHead.textContent=a[2];
+  if(elAdventure)elAdventure.textContent=a[3];
 }
 
 /* =========================================================
@@ -3458,8 +3492,10 @@ function wireImageTools(card,q,rerender){
 }
 
 function renderQuestionEditor(){
-  if(!window.questionEditor)return;
-  questionCount.textContent=`${questions.length} ${t("questions")}`;
+  const questionEditor=document.getElementById("questionEditor");
+  const questionCount=document.getElementById("questionCount");
+  if(!questionEditor)return;
+  if(questionCount)questionCount.textContent=`${questions.length} ${t("questions")}`;
   questionEditor.innerHTML="";
 
   if(selectedGame==="flip"){
@@ -3777,14 +3813,33 @@ function downloadTemplate(){
    設定畫面
 ========================================================= */
 function openSetup(game){
+  const previousGame=selectedGame;
   selectedGame=game;
+
+  // 不依賴瀏覽器把 id 自動變成全域變數，避免不同老師／瀏覽器出現設定區空白。
+  const lobbyView=document.getElementById("lobbyView");
+  const gameView=document.getElementById("gameView");
+  const setupView=document.getElementById("setupView");
+  const setupTitle=document.getElementById("setupTitle");
+  const modeArea=document.getElementById("modeArea");
+  const formatNote=document.getElementById("formatNote");
+  const sheetUrl=document.getElementById("sheetUrl");
+  const sheetName=document.getElementById("sheetName");
+  const cloudBankName=document.getElementById("cloudBankName");
+
   setTimeout(()=>{if(yeziUser)loadCloudBankList();},0);
   // 先載入該遊戲 BGM，讓按「開始遊戲」時可以立即播放，降低瀏覽器阻擋機率。
   setGameBgm(game,false);
-  questions=loadSavedQuestions(game).map(normalizeQuestionAudio);
-  lobbyView.classList.add("hidden");
-  gameView.classList.add("hidden");
-  setupView.classList.remove("hidden");
+
+  // 每次從大廳進入任何遊戲，都以空白題庫開始。
+  // 若要使用既有題庫，改由 Dashboard 載入，避免不同遊戲沿用上一款題庫。
+  questions=[];
+  currentCloudBankId=null;
+  if(cloudBankName)cloudBankName.value="";
+
+  lobbyView?.classList.add("hidden");
+  gameView?.classList.add("hidden");
+  setupView?.classList.remove("hidden");
 
   const titleMap={
     tug:"🪢 拔河大賽",
@@ -3794,7 +3849,19 @@ function openSetup(game){
     flip:`🃏 ${nt("flipGame")}`,
     flashlight:`🔦 ${nt("flashGame")}`
   };
-  setupTitle.textContent=titleMap[game];
+  const lobbyImageMap={
+    tug:"assets/lobby-tug.png?v=20260913-1",
+    fly:"assets/lobby-fly.png?v=20260913-1",
+    head:"assets/lobby-head.png?v=20260913-1",
+    adventure:"assets/lobby-adventure.png?v=20260913-1",
+    flip:"assets/lobby-flip.png?v=20260913-1",
+    flashlight:"assets/lobby-flashlight.png?v=20260913-1"
+  };
+  if(setupTitle){
+    setupTitle.classList.add("setup-game-heading");
+    setupTitle.innerHTML=`<img class="setup-game-thumb" src="${lobbyImageMap[game]||""}" alt="${esc(titleMap[game]||"")}"><span class="setup-game-name">${esc(titleMap[game]||"")}</span>`;
+  }
+  if(!modeArea||!formatNote)return;
 
   if(game==="tug"){
     modeArea.innerHTML=`
@@ -3908,11 +3975,10 @@ function openSetup(game){
 
 
   const draft=loadSheetDraft(game);
-  sheetUrl.value=draft.url;
-  sheetName.value=draft.name;
+  if(sheetUrl)sheetUrl.value=draft.url;
+  if(sheetName)sheetName.value=draft.name;
 
-  renderQuestionEditor();
-  renderRecentBanks();
+  // syncLanguage 內會同步題目編輯器與近期題庫，避免重複 render。
   syncLanguage();
 }
 
