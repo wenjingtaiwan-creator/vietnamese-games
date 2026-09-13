@@ -3494,6 +3494,8 @@ function wireImageTools(card,q,rerender){
 function renderQuestionEditor(){
   const questionEditor=document.getElementById("questionEditor");
   const questionCount=document.getElementById("questionCount");
+  const setupGame=document.getElementById("setupView")?.dataset?.game||"";
+  if(setupGame && setupGame!==selectedGame)selectedGame=setupGame;
   if(!questionEditor)return;
   if(questionCount)questionCount.textContent=`${questions.length} ${t("questions")}`;
   questionEditor.innerHTML="";
@@ -3820,6 +3822,7 @@ function openSetup(game){
   const lobbyView=document.getElementById("lobbyView");
   const gameView=document.getElementById("gameView");
   const setupView=document.getElementById("setupView");
+  if(setupView)setupView.dataset.game=game;
   const setupTitle=document.getElementById("setupTitle");
   const modeArea=document.getElementById("modeArea");
   const formatNote=document.getElementById("formatNote");
@@ -5341,6 +5344,8 @@ bankFile.onchange=async e=>{
 };
 
 addQuestionBtn.onclick=()=>{
+  const setupGame=document.getElementById("setupView")?.dataset?.game||selectedGame;
+  if(setupGame)selectedGame=setupGame;
   const max=selectedGame==="fly"?12:4;
   questions.push({
     question:"",
@@ -6145,11 +6150,16 @@ syncLanguage();
     }catch(err){
       console.error("openSetup base failed",err);
       // 即使原流程中途失敗，也至少讓設定頁顯示並補回該遊戲設定。
-      window.selectedGame=game;
+      try{ selectedGame=game; }catch{}
       document.getElementById("lobbyView")?.classList.add("hidden");
       document.getElementById("gameView")?.classList.add("hidden");
-      document.getElementById("setupView")?.classList.remove("hidden");
+      const sv=document.getElementById("setupView");
+      if(sv)sv.dataset.game=game;
+      sv?.classList.remove("hidden");
     }finally{
+      const sv=document.getElementById("setupView");
+      if(sv)sv.dataset.game=game;
+      try{ selectedGame=game; }catch{}
       repairSetupUI(game);
       setTimeout(()=>repairSetupUI(game),80);
       setTimeout(()=>repairSetupUI(game),350);
@@ -6160,8 +6170,10 @@ syncLanguage();
   document.addEventListener("click",()=>{
     setTimeout(()=>{
       const setup=document.getElementById("setupView");
-      if(setup && !setup.classList.contains("hidden") && window.selectedGame){
-        repairSetupUI(window.selectedGame);
+      const currentGame=setup?.dataset?.game||"";
+      if(setup && !setup.classList.contains("hidden") && currentGame){
+        try{ selectedGame=currentGame; }catch{}
+        repairSetupUI(currentGame);
       }
     },120);
   },true);
