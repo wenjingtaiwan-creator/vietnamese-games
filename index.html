@@ -2959,8 +2959,9 @@ function renderTTSSetupControls(){
   const lang=box.querySelector("#ttsLangSelect"),rate=box.querySelector("#ttsRateSelect");
   lang.onchange=()=>localStorage.setItem("yeziTtsLang",lang.value);
   rate.onchange=()=>localStorage.setItem("yeziTtsRate",rate.value);
-  box.querySelector("#ttsTestBtn").onclick=()=>{
+  box.querySelector("#ttsTestBtn").onclick=async()=>{
     const sample=questions.find(q=>String(q.question||"").trim())?.question || ({"vi-VN":"Xin chào!","zh-TW":"你好！","en-US":"Hello!"}[ttsResolvedLang()]||"Xin chào!");
+    if(ttsResolvedLang()==="vi-VN"){try{await previewVietnameseTts(sample,"female")}catch(err){alert("越南語 TTS 產生失敗："+err.message)};return;}
     speakText(sample,{cancel:true});
   };
   try{window.speechSynthesis?.getVoices?.()}catch{}
@@ -3060,28 +3061,50 @@ function voicesForExactLang(lang){
   return (window.speechSynthesis?.getVoices?.()||[])
     .filter(v=>String(v.lang||"").toLowerCase()===String(lang||"").toLowerCase());
 }
+const YEZI_VI_TTS_API="https://yezi-tts-api.onrender.com/tts";
+let yeziViPreviewBlob=null;
+let yeziViPreviewUrl="";
+async function generateVietnameseTtsBlob(text,voiceKey="female"){
+  const res=await fetch(YEZI_VI_TTS_API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text:String(text||"").trim(),voice:voiceKey==="male"?"male":"female"})
+  });
+  if(!res.ok)throw new Error((await res.text())||(`HTTP ${res.status}`));
+  const blob=await res.blob();
+  if(!blob.size)throw new Error("語音檔為空");
+  return blob;
+}
+async function previewVietnameseTts(text,voiceKey="female"){
+  yeziViPreviewBlob=await generateVietnameseTtsBlob(text,voiceKey);
+  if(yeziViPreviewUrl)URL.revokeObjectURL(yeziViPreviewUrl);
+  yeziViPreviewUrl=URL.createObjectURL(yeziViPreviewBlob);
+  const a=new Audio(yeziViPreviewUrl);
+  beginVoiceDuck();
+  const finish=()=>endVoiceDuck();
+  a.onended=finish;a.onerror=finish;
+  await a.play();
+  return yeziViPreviewBlob;
+}
+function clearVietnameseTtsPreview(){
+  if(yeziViPreviewUrl){try{URL.revokeObjectURL(yeziViPreviewUrl)}catch{};yeziViPreviewUrl="";}
+  yeziViPreviewBlob=null;
+}
 function openTtsChooser(textValue,currentLang,currentVoice,onUse){
   const value=String(textValue||"").trim();
   if(!value){alert("請先輸入文字，再加入 TTS 語音。");return;}
   let selectedVoice=currentVoice||"";
   const initial=YEZI_TTS_PICK_LANGS.some(x=>x[0]===currentLang)?currentLang:"vi-VN";
+  clearVietnameseTtsPreview();
   modalCard.innerHTML=`
     <div class="audio-manager tts-chooser">
       <h2>✨ 加入 TTS 語音</h2>
-      <div class="field-block">
-        <div class="field-label">文字</div>
-        <div class="tts-preview-text">${esc(value)}</div>
+      <div class="field-block"><div class="field-label">文字</div><div class="tts-preview-text">${esc(value)}</div></div>
+      <div class="field-block"><div class="field-label">1. 選擇語言</div>
+        <select id="ttsPickLang" class="select" style="width:100%">${YEZI_TTS_PICK_LANGS.map(([v,n])=>`<option value="${v}" ${v===initial?"selected":""}>${n}</option>`).join("")}</select>
       </div>
-      <div class="field-block">
-        <div class="field-label">1. 選擇語言</div>
-        <select id="ttsPickLang" class="select" style="width:100%">
-          ${YEZI_TTS_PICK_LANGS.map(([v,n])=>`<option value="${v}" ${v===initial?"selected":""}>${n}</option>`).join("")}
-        </select>
-      </div>
-      <div class="field-block">
-        <div class="field-label">2. 選擇語音</div>
-        <select id="ttsPickVoice" class="select" style="width:100%"></select>
-        <div id="ttsVoiceHint" class="note" style="margin-top:7px"></div>
+      <div class="field-block"><div class="field-label">2. 選擇語音</div>
+        <select id="ttsPickVoice" class="select" style="width:100%"></select><div id="ttsVoiceHint" class="note" style="margin-top:7px"></div>
       </div>
       <div class="row" style="justify-content:center;margin-top:14px">
         <button id="ttsPreviewBtn" class="btn blue-btn" type="button">▶ 產生／試聽</button>
@@ -3090,47 +3113,56 @@ function openTtsChooser(textValue,currentLang,currentVoice,onUse){
       </div>
     </div>`;
   modal.classList.add("show");
-  const langEl=document.getElementById("ttsPickLang");
-  const voiceEl=document.getElementById("ttsPickVoice");
-  const hint=document.getElementById("ttsVoiceHint");
-  const previewBtn=document.getElementById("ttsPreviewBtn");
-  const useBtn=document.getElementById("ttsUseBtn");
+  const langEl=document.getElementById("ttsPickLang"),voiceEl=document.getElementById("ttsPickVoice"),hint=document.getElementById("ttsVoiceHint");
+  const previewBtn=document.getElementById("ttsPreviewBtn"),useBtn=document.getElementById("ttsUseBtn");
 
   function refreshVoices(){
+    clearVietnameseTtsPreview();
     const lang=langEl.value;
+    if(lang==="vi-VN"){
+      voiceEl.innerHTML=`<option value="female">Hoài My（女聲）</option><option value="male">Nam Minh（男聲）</option>`;
+      if(selectedVoice==="male"||selectedVoice==="female")voiceEl.value=selectedVoice;
+      hint.textContent="越南語使用葉子雲端 TTS；產生並試聽後，確認使用會把 MP3 儲存到這個題目／答案。";
+      previewBtn.disabled=false;useBtn.disabled=false;return;
+    }
     const voices=voicesForExactLang(lang);
     voiceEl.innerHTML=voices.map(v=>`<option value="${esc(v.name)}">${esc(v.name)}${v.default?"（預設）":""}</option>`).join("");
-    if(selectedVoice && voices.some(v=>v.name===selectedVoice))voiceEl.value=selectedVoice;
+    if(selectedVoice&&voices.some(v=>v.name===selectedVoice))voiceEl.value=selectedVoice;
     const label=YEZI_TTS_PICK_LANGS.find(x=>x[0]===lang)?.[1]||lang;
-    if(voices.length){
-      hint.textContent=`找到 ${voices.length} 個 ${label} 語音。只使用語言標籤完全符合 ${lang} 的聲音。`;
-      previewBtn.disabled=false;useBtn.disabled=false;
-    }else{
-      hint.textContent=`此裝置／瀏覽器目前沒有 ${label}（${lang}）語音。為避免發音錯誤，不會用其他語言替代；請改用自己錄音或上傳語音。`;
-      previewBtn.disabled=true;useBtn.disabled=true;
-    }
+    if(voices.length){hint.textContent=`找到 ${voices.length} 個 ${label} 語音。其他語言維持原本瀏覽器 TTS。`;previewBtn.disabled=false;useBtn.disabled=false;}
+    else{hint.textContent=`此裝置／瀏覽器目前沒有 ${label}（${lang}）語音。為避免發音錯誤，不會用其他語言替代；請改用自己錄音或上傳語音。`;previewBtn.disabled=true;useBtn.disabled=true;}
   }
   langEl.onchange=()=>{selectedVoice="";refreshVoices()};
-  previewBtn.onclick=()=>{
-    const ok=speakText(value,{cancel:true,lang:langEl.value,voiceName:voiceEl.value});
-    if(!ok)alert("找不到這個語言的正確語音，請改用錄音或上傳語音。");
+  voiceEl.onchange=()=>{if(langEl.value==="vi-VN")clearVietnameseTtsPreview()};
+  previewBtn.onclick=async()=>{
+    if(langEl.value!=="vi-VN"){
+      const ok=speakText(value,{cancel:true,lang:langEl.value,voiceName:voiceEl.value});
+      if(!ok)alert("找不到這個語言的正確語音，請改用錄音或上傳語音。");
+      return;
+    }
+    previewBtn.disabled=true;useBtn.disabled=true;hint.textContent="正在產生越南語語音…免費服務若剛休眠，第一次可能需要稍等。";
+    try{await previewVietnameseTts(value,voiceEl.value);hint.textContent="✅ 越南語語音已產生並試聽。滿意後按『使用這個語音』。";}
+    catch(err){console.warn("Vietnamese cloud TTS failed",err);hint.textContent="❌ 越南語語音產生失敗，請稍後再試。";alert("越南語 TTS 產生失敗："+err.message);}
+    finally{previewBtn.disabled=false;useBtn.disabled=false;}
   };
-  useBtn.onclick=()=>{
+  useBtn.onclick=async()=>{
     if(!voiceEl.value)return;
-    onUse({lang:langEl.value,voiceName:voiceEl.value});
-    try{window.speechSynthesis?.cancel()}catch{}
-    resetVoiceDuck();
-    modal.classList.remove("show");
+    if(langEl.value==="vi-VN"){
+      useBtn.disabled=true;previewBtn.disabled=true;
+      try{
+        if(!yeziViPreviewBlob)yeziViPreviewBlob=await generateVietnameseTtsBlob(value,voiceEl.value);
+        const key=await putAudioBlob(yeziViPreviewBlob);
+        await onUse({lang:"vi-VN",voiceName:voiceEl.value,audioKey:key,mode:"audio"});
+        clearVietnameseTtsPreview();modal.classList.remove("show");
+      }catch(err){console.warn("Vietnamese cloud TTS save failed",err);alert("越南語 TTS 儲存失敗："+err.message);useBtn.disabled=false;previewBtn.disabled=false;}
+      return;
+    }
+    await onUse({lang:langEl.value,voiceName:voiceEl.value,mode:"tts"});
+    try{window.speechSynthesis?.cancel()}catch{};resetVoiceDuck();modal.classList.remove("show");
   };
-  document.getElementById("ttsCancelBtn").onclick=()=>{
-    try{window.speechSynthesis?.cancel()}catch{}
-    resetVoiceDuck();
-    modal.classList.remove("show");
-  };
-  refreshVoices();
-  setTimeout(refreshVoices,250);
+  document.getElementById("ttsCancelBtn").onclick=()=>{try{window.speechSynthesis?.cancel()}catch{};clearVietnameseTtsPreview();resetVoiceDuck();modal.classList.remove("show");};
+  refreshVoices();if(initial!=="vi-VN")setTimeout(refreshVoices,250);
 }
-
 function audioToolHTML(key,scope,index="",mode="none"){
   const hasAudio=!!key;
   const activeMode=hasAudio?"audio":(mode==="tts"?"tts":"none");
@@ -3171,21 +3203,21 @@ function wireAudioTools(card,q,rerender){
       rerender();
     };
     const setTts=()=>{
-      openTtsChooser(getText(),getLang(),getVoiceName(),async({lang,voiceName})=>{
+      openTtsChooser(getText(),getLang(),getVoiceName(),async({lang,voiceName,audioKey="",mode="tts"})=>{
         const old=getKey();
         if(scope==="question"){
-          q.questionAudioKey="";
-          q.questionVoiceMode="tts";
+          q.questionAudioKey=audioKey;
+          q.questionVoiceMode=mode;
           q.questionVoiceLang=lang;
           q.questionVoiceName=voiceName;
         }else{
-          q.answerAudioKeys[idx]="";
-          q.answerVoiceModes[idx]="tts";
+          q.answerAudioKeys[idx]=audioKey;
+          q.answerVoiceModes[idx]=mode;
           q.answerVoiceLangs[idx]=lang;
           q.answerVoiceNames[idx]=voiceName;
         }
         saveQuestions();
-        if(old)await deleteAudioBlob(old);
+        if(old&&old!==audioKey)await deleteAudioBlob(old);
         rerender();
       });
     };
