@@ -1,22 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<script>
-(function(){
-  const BUILD="20260913-2146";
-  try{
-    const u=new URL(location.href);
-    if(u.searchParams.get("build")!==BUILD){
-      u.searchParams.set("build",BUILD);
-      location.replace(u.toString());
-    }
-    document.documentElement.dataset.yeziBuild=BUILD;
-  }catch(e){console.warn("build cache-bust failed",e);}
-})();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>葉子教室遊戲室</title>
@@ -1686,7 +1670,7 @@ a{text-decoration:none;color:inherit}
 </section>
 
 
-<div id="protectedApp" class="auth-locked">
+<div id="protectedApp" class="auth-locked" data-build="20260913-single-ui-rootfix-final">
 
 
 
@@ -3853,16 +3837,14 @@ function openSetup(game){
   if(formatNote)formatNote.textContent="";
   if(questionEditor)questionEditor.innerHTML="";
 
-  setTimeout(()=>{if(yeziUser)loadCloudBankList();},0);
-  // 先載入該遊戲 BGM，讓按「開始遊戲」時可以立即播放，降低瀏覽器阻擋機率。
-  setGameBgm(game,false);
-
   // 每次從大廳進入任何遊戲，都以空白題庫開始。
   // 若要使用既有題庫，改由 Dashboard 載入，避免不同遊戲沿用上一款題庫。
   questions=[];
   currentCloudBankId=null;
   if(cloudBankName)cloudBankName.value="";
 
+  // 先顯示設定頁，再建立該遊戲自己的完整設定。
+  // 任何聲音／雲端功能失敗，都不能阻斷遊戲設定介面。
   lobbyView?.classList.add("hidden");
   gameView?.classList.add("hidden");
   setupView?.classList.remove("hidden");
@@ -4009,6 +3991,21 @@ function openSetup(game){
   selectedGame=game;
   if(setupView)setupView.dataset.game=game;
   renderQuestionEditor();
+
+  // 非必要功能放最後，並且完全隔離錯誤。
+  // 即使某位會員的瀏覽器對音訊或 Firebase 有問題，也不會再造成上方遊戲設定整區空白。
+  try{
+    setGameBgm(game,false);
+  }catch(err){
+    console.warn("BGM 初始化失敗，不影響遊戲設定頁：", err);
+  }
+  setTimeout(()=>{
+    try{
+      if(yeziUser)loadCloudBankList();
+    }catch(err){
+      console.warn("雲端題庫刷新失敗，不影響遊戲設定頁：", err);
+    }
+  },0);
 }
 
 /* =========================================================
