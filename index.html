@@ -6125,15 +6125,31 @@ async function publishCurrentBankAsOfficial(){
     pack.officialMeta={id,name,book,lesson,game:selectedGame,publishedBy:"葉子老師",updated:today};
 
     const payload=JSON.stringify(pack),bytes=new Blob([payload]).size;
-    let catalog=[];
+    // 合併 GitHub 已有目錄 + 這台電腦尚未上傳的發布紀錄，
+    // 讓 Owner 可連續發布多份官方題庫，JSON 會持續累積。
+    const LOCAL_OFFICIAL_CATALOG_KEY="yeziOwnerOfficialBankCatalog";
+    let remoteCatalog=[],localCatalog=[];
     try{
       const res=await fetch(YEZI_OFFICIAL_BANK_INDEX+"?v="+Date.now(),{cache:"no-store"});
-      if(res.ok){const data=await res.json();catalog=Array.isArray(data)?data:(Array.isArray(data.banks)?data.banks:[]);}
-    }catch(e){console.warn("舊官方目錄讀取失敗，將建立新目錄",e)}
+      if(res.ok){
+        const data=await res.json();
+        remoteCatalog=Array.isArray(data)?data:(Array.isArray(data.banks)?data.banks:[]);
+      }
+    }catch(e){console.warn("GitHub 官方目錄讀取失敗，改用本機累積目錄",e)}
+    try{
+      const saved=JSON.parse(localStorage.getItem(LOCAL_OFFICIAL_CATALOG_KEY)||"[]");
+      if(Array.isArray(saved))localCatalog=saved;
+    }catch(e){console.warn("本機官方目錄讀取失敗",e)}
+
+    const byId=new Map();
+    remoteCatalog.forEach(x=>{if(x&&x.id)byId.set(x.id,x);});
+    localCatalog.forEach(x=>{if(x&&x.id)byId.set(x.id,x);});
 
     const entry={id,name,game:selectedGame,book,lesson,file:bankPath,updated:today,sizeBytes:bytes};
-    const idx=catalog.findIndex(x=>x.id===id);
-    if(idx>=0)catalog[idx]=entry;else catalog.push(entry);
+    byId.set(id,entry);
+    const catalog=Array.from(byId.values());
+    try{localStorage.setItem(LOCAL_OFFICIAL_CATALOG_KEY,JSON.stringify(catalog));}
+    catch(e){console.warn("本機官方目錄儲存失敗",e)}
 
     downloadOfficialFile(bankFilename,new Blob([payload],{type:"application/json"}));
     setTimeout(()=>downloadOfficialFile("official-banks.json",new Blob([JSON.stringify(catalog,null,2)],{type:"application/json"})),400);
