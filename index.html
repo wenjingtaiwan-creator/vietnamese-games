@@ -5795,7 +5795,8 @@ const firebaseConfig={
 let yeziAuth=null,yeziDb=null,yeziUser=null,yeziProfile=null,yeziIsAdmin=false,yeziHasAccess=false;
 let currentCloudBankId=null;
 let dashboardBanks=[],adminUsers=[];
-const CLOUD_BANK_MAX_BYTES=850000;
+const CLOUD_BANK_MAX_BYTES=850000; // 舊版單文件門檻，保留供相容判斷
+const CLOUD_BANK_CHUNK_BYTES=450000; // 大型題庫分段，每段遠低於 Firestore 單文件上限
 const MEMBERSHIP_PRICE=99;
 const SALES_LINE_ID="0921005440";
 const OWNER_EMAIL="wenjingtaiwan@gmail.com";
@@ -5945,6 +5946,58 @@ async function buildFullBankPack(){
   const media={flashlightImage:selectedGame==="flashlight"?(flashImageData||sessionStorage.getItem("yeziFlashImage")||""):"",flashlightPoints:selectedGame==="flashlight"?(flashPoints||[]):[],adventureCustomMap:selectedGame==="adventure"?(adventureCustomMapData||""):"",adventureSelectedMap:selectedGame==="adventure"?(adventureSelectedMap||"1"):"",adventurePoints:selectedGame==="adventure"?getAdventurePoints():[]};
   return {format:"YEZI_GAME_BANK",version:3,exportedAt:new Date().toISOString(),game:selectedGame,name:(document.getElementById("cloudBankName")?.value||document.getElementById("sheetName")?.value||"").trim()||`${selectedGame}_題庫`,questions:JSON.parse(JSON.stringify(questions)),audio,media};
 }
+
+function utf8Bytes(s){return new TextEncoder().encode(s||"").length;}
+function splitCloudPayloadUtf8(str,maxBytes=CLOUD_BANK_CHUNK_BYTES){
+  const parts=[];let start=0;
+  while(start<str.length){
+    let lo=start+1,hi=str.length,best=start+1;
+    while(lo<=hi){
+      const mid=Math.floor((lo+hi)/2);
+      const n=utf8Bytes(str.slice(start,mid));
+      if(n<=maxBytes){best=mid;lo=mid+1}else hi=mid-1;
+    }
+    // 避免剛好切在 UTF-16 surrogate pair 中間
+    if(best<str.length){
+      const c=str.charCodeAt(best-1);
+      if(c>=0xD800&&c<=0xDBFF)best--;
+    }
+    if(best<=start)best=start+1;
+    parts.push(str.slice(start,best));start=best;
+  }
+  return parts;
+}
+async function clearCloudBankChunks(bankRef){
+  const snap=await bankRef.collection("chunks").get();
+  if(snap.empty)return;
+  const docs=snap.docs;
+  for(let i=0;i<docs.length;i+=400){
+    const batch=yeziDb.batch();
+    docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+  }
+}
+async function writeCloudBankChunks(bankRef,payload){
+  const parts=splitCloudPayloadUtf8(payload);
+  await clearCloudBankChunks(bankRef);
+  for(let i=0;i<parts.length;i+=400){
+    const batch=yeziDb.batch();
+    parts.slice(i,i+400).forEach((part,j)=>{
+      const index=i+j;
+      batch.set(bankRef.collection("chunks").doc(String(index).padStart(4,"0")),{index,data:part});
+    });
+    await batch.commit();
+  }
+  return parts.length;
+}
+async function readCloudBankPayload(bankRef,data){
+  if(data?.payload)return data.payload; // 舊版小型題庫
+  if(data?.storageMode!=="chunks-v1")throw new Error("這份題庫沒有可讀取的內容。");
+  const snap=await bankRef.collection("chunks").orderBy("index").get();
+  if(snap.empty)throw new Error("大型題庫的分段內容不存在。");
+  return snap.docs.map(d=>d.data().data||"").join("");
+}
+
 async function saveCloudBank(){
   if(!yeziUser)return googleSignIn();
   if(!yeziHasAccess)return alert("會員尚未開通或已到期。");
@@ -5958,21 +6011,27 @@ async function saveCloudBank(){
   cloudStatus("info","⏳ 正在儲存到 Dashboard…");
   try{
     const pack=await buildFullBankPack();pack.name=name;
-    const payload=JSON.stringify(pack),bytes=new Blob([payload]).size;
-    if(bytes>CLOUD_BANK_MAX_BYTES){
-      cloudStatus("err",`這份題庫約 ${(bytes/1024).toFixed(0)} KB，圖片／錄音內容較多，已超過目前雲端題庫大小限制。請縮小圖片或縮短錄音後再存。`);
-      return;
-    }
+    const payload=JSON.stringify(pack),bytes=utf8Bytes(payload);
     const banks=yeziDb.collection("users").doc(yeziUser.uid).collection("banks");
-    let ref;
-    if(currentCloudBankId){
-      ref=banks.doc(currentCloudBankId);
-      await ref.set({name,game:selectedGame,payload,sizeBytes:bytes,questionCount:questions.length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    let ref,isNew=false;
+    if(currentCloudBankId)ref=banks.doc(currentCloudBankId);
+    else{ref=banks.doc();currentCloudBankId=ref.id;isNew=true;}
+
+    const base={name,game:selectedGame,sizeBytes:bytes,questionCount:questions.length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(isNew)base.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+
+    if(bytes<=CLOUD_BANK_MAX_BYTES){
+      // 小型題庫維持原本單文件方式，不改既有行為。
+      await ref.set({...base,payload,storageMode:"single-v1",chunkCount:0},{merge:true});
+      await clearCloudBankChunks(ref);
     }else{
-      ref=banks.doc();currentCloudBankId=ref.id;
-      await ref.set({name,game:selectedGame,payload,sizeBytes:bytes,questionCount:questions.length,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      // 大型題庫改為分段儲存；老師看到的仍是一份題庫。
+      cloudStatus("info",`⏳ 題庫約 ${(bytes/1024).toFixed(0)} KB，正在以大型題庫模式分段儲存…`);
+      const chunkCount=await writeCloudBankChunks(ref,payload);
+      await ref.set({...base,payload:firebase.firestore.FieldValue.delete(),storageMode:"chunks-v1",chunkCount},{merge:true});
     }
-    cloudStatus("ok",`✅「${name}」已成功儲存到 Dashboard！`);
+
+    cloudStatus("ok",`✅「${name}」已成功儲存到 Dashboard！${bytes>CLOUD_BANK_MAX_BYTES?"（大型題庫已自動分段）":""}`);
     if(saveBtn)saveBtn.textContent="✅ 已儲存";
     await loadCloudBankList();
     setTimeout(()=>{
@@ -5982,7 +6041,10 @@ async function saveCloudBank(){
     },3200);
   }catch(err){
     console.error(err);
-    cloudStatus("err","❌ 儲存失敗："+(err?.message||err));
+    const permission=(err?.code==="permission-denied"||String(err?.message||"").toLowerCase().includes("permission"));
+    cloudStatus("err",permission
+      ?"❌ 大型題庫分段儲存需要允許 banks/{bankId}/chunks 子集合。請更新 Firestore Rules 後再存；題目目前仍留在編輯畫面。"
+      :"❌ 儲存失敗："+(err?.message||err));
     if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldSaveText;}
   }
 }
@@ -5995,11 +6057,30 @@ function questionCountFromPayload(payload){try{return JSON.parse(payload||"{}").
 function gameNameForBank(g){return ({tug:"拔河大賽",fly:"會飛的字",head:"左右擺頭",adventure:"探險大挑戰",flip:"翻卡遊戲",flashlight:"黑暗照燈"})[g]||g||"";}
 async function loadCloudBank(id){
   if(!yeziUser||!yeziHasAccess)return;cloudStatus("info","正在載入雲端題庫…");
-  try{const doc=await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").doc(id).get();if(!doc.exists)throw new Error("找不到題庫");const data=doc.data();currentCloudBankId=id;const file=new File([data.payload],`${safeFilePart(data.name)}.yezi`,{type:"application/json"});await importFullBankFile(file);const n=document.getElementById("cloudBankName");if(n)n.value=data.name||"";cloudStatus("ok",`已載入「${data.name||"題庫"}」，包含可用的語音與圖片。`);}
-  catch(err){console.error(err);cloudStatus("err","載入失敗："+(err?.message||err));}
+  try{
+    const ref=yeziDb.collection("users").doc(yeziUser.uid).collection("banks").doc(id);
+    const doc=await ref.get();if(!doc.exists)throw new Error("找不到題庫");
+    const data=doc.data();currentCloudBankId=id;
+    const payload=await readCloudBankPayload(ref,data);
+    const file=new File([payload],`${safeFilePart(data.name)}.yezi`,{type:"application/json"});
+    await importFullBankFile(file);
+    const n=document.getElementById("cloudBankName");if(n)n.value=data.name||"";
+    cloudStatus("ok",`已載入「${data.name||"題庫"}」，包含可用的語音與圖片。`);
+  }catch(err){console.error(err);cloudStatus("err","載入失敗："+(err?.message||err));}
 }
 async function renameCloudBank(id){if(!yeziUser||!yeziHasAccess)return;const name=prompt("新的題庫名稱：");if(!name?.trim())return;try{await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").doc(id).update({name:name.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});await loadCloudBankList();if(!document.getElementById("dashboardView")?.classList.contains("hidden"))await loadDashboardBanks();}catch(err){alert("重新命名失敗："+err.message)}}
-async function deleteCloudBank(id){if(!yeziUser||!yeziHasAccess||!confirm("確定要刪除這份雲端題庫嗎？刪除後無法復原。"))return;try{await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").doc(id).delete();await loadCloudBankList();if(!document.getElementById("dashboardView")?.classList.contains("hidden"))await loadDashboardBanks();cloudStatus("ok","雲端題庫已刪除。");}catch(err){alert("刪除失敗："+err.message)}}
+async function deleteCloudBank(id){
+  if(!yeziUser||!yeziHasAccess||!confirm("確定要刪除這份雲端題庫嗎？刪除後無法復原。"))return;
+  try{
+    const ref=yeziDb.collection("users").doc(yeziUser.uid).collection("banks").doc(id);
+    await clearCloudBankChunks(ref);
+    await ref.delete();
+    if(currentCloudBankId===id)currentCloudBankId=null;
+    await loadCloudBankList();
+    if(!document.getElementById("dashboardView")?.classList.contains("hidden"))await loadDashboardBanks();
+    cloudStatus("ok","雲端題庫已刪除。");
+  }catch(err){alert("刪除失敗："+err.message)}
+}
 
 function hideMainViews(){cleanupGame?.();document.getElementById("lobbyView")?.classList.add("hidden");document.getElementById("setupView")?.classList.add("hidden");document.getElementById("gameView")?.classList.add("hidden");document.getElementById("dashboardView")?.classList.add("hidden");document.getElementById("adminView")?.classList.add("hidden");}
 function closePortalViews(){document.getElementById("dashboardView")?.classList.add("hidden");document.getElementById("adminView")?.classList.add("hidden");document.getElementById("setupView")?.classList.add("hidden");document.getElementById("gameView")?.classList.add("hidden");document.getElementById("lobbyView")?.classList.remove("hidden");}
