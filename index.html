@@ -1643,6 +1643,10 @@ a{text-decoration:none;color:inherit}
 @media(max-width:700px){#setupTitle.setup-game-heading{align-items:flex-start;font-size:23px}#setupTitle .setup-game-thumb{width:130px}}
 </style>
 
+
+<style>
+.image-paste-hint{display:inline-flex;align-items:center;padding:4px 7px;border:1px dashed rgba(0,0,0,.18);border-radius:8px;font-size:12px;opacity:.72;white-space:nowrap}
+</style>
 </head>
 
 <body>
@@ -1822,9 +1826,20 @@ a{text-decoration:none;color:inherit}
         </label>
         <button id="downloadTemplateBtn" class="btn ghost">⬇️ 下載 Excel 範本</button>
         <button id="officialBankBtn" class="btn official-bank-btn">📚 葉子老師官方題庫</button>
+        <button id="quickMyBanksBtn" class="btn ghost">📂 我的已儲存題庫</button>
         <button id="addQuestionBtn" class="btn ghost">＋ 手動新增題目</button>
         <button id="clearQuestionsBtn" class="btn ghost">🗑️ 清空題目</button>
         <span id="questionCount" class="pill"></span>
+      </div>
+      <div id="quickMyBanksPanel" class="official-bank-panel" style="display:none">
+        <div class="official-bank-toolbar">
+          <strong>📂 我的已儲存題庫</strong>
+          <input id="quickMyBanksSearch" class="input grow" placeholder="🔎 搜尋目前遊戲的題庫">
+          <button id="refreshQuickMyBanksBtn" class="btn ghost">↻ 更新</button>
+        </div>
+        <div class="note" style="margin-bottom:10px">只顯示目前這款遊戲已儲存在 Dashboard 的題庫，點一下即可直接載入編輯。</div>
+        <div id="quickMyBanksStatus" class="status"></div>
+        <div id="quickMyBanksList" class="official-bank-list"></div>
       </div>
       <div id="officialBankPanel" class="official-bank-panel">
         <div class="official-bank-toolbar">
@@ -1842,7 +1857,7 @@ a{text-decoration:none;color:inherit}
 
     <div class="section">
       <h2>✏️ 題目編輯</h2>
-      <div class="note" style="margin-bottom:10px">每一題與每一個答案都能個別加入圖片、TTS、上傳語音或自己錄音；沒有設定語音的內容不會自動播放。</div>
+      <div class="note" style="margin-bottom:10px">每一題與每一個答案都能個別加入圖片、TTS、上傳語音或自己錄音。輸入時可用 Enter／Tab 跳到下一格；圖片可直接複製後 Ctrl+V 貼入。</div>
       <div id="questionEditor"></div>
     </div>
 
@@ -1852,6 +1867,7 @@ a{text-decoration:none;color:inherit}
         <div id="cloudBankLoggedIn" class="hidden">
           <div class="row" style="justify-content:center">
             <button id="saveCloudBankBtn" type="button" class="btn green" style="font-size:18px;padding:13px 24px">💾 儲存到 Dashboard</button>
+            <button id="shareGameLinkBtn" type="button" class="btn blue-btn" style="font-size:18px;padding:13px 24px">🔗 分享遊戲連結</button>
               <button id="publishOfficialBankBtn" type="button" class="btn official-bank-btn hidden" style="font-size:18px;padding:13px 24px">⭐ 發布到官方題庫</button>
           </div>
           <div class="note" style="text-align:center;margin-top:8px">儲存後可到「我的 Dashboard」再次載入、編輯、改名或刪除。</div>
@@ -3349,9 +3365,8 @@ function imageDisplayHTML(src,cls="game-media-img",alt=""){
 function imageToolHTML(src,scope,index=""){
   const has=!!safeImageSrc(src);
   return `<span class="image-tools" data-image-scope="${scope}" data-image-index="${index}">
-    <button type="button" class="image-btn ${has?"has-image":""}" data-image-search title="搜尋圖片">🔎</button>
     <button type="button" class="image-btn" data-image-upload title="上傳圖片">📷</button>
-    <button type="button" class="image-btn" data-image-url title="貼上圖片網址">🔗</button>
+    <span class="image-paste-hint" title="也可以先在其他地方複製圖片，再回到文字欄位按 Ctrl+V">📋 貼圖</span>
     ${has?'<button type="button" class="image-btn" data-image-delete title="移除圖片">✕</button>':''}
   </span>`;
 }
@@ -3391,121 +3406,10 @@ function setQuestionImageUrl(current,onSaved){
   if(v&&!/^https?:\/\//i.test(v)){alert("請貼上以 http:// 或 https:// 開頭的圖片網址。");return;}
   onSaved(v);
 }
-function openImageSearch(initialQuery,onPick){
-  const q0=String(initialQuery||"").trim();
-
-  modalCard.innerHTML=`<div class="image-search-modal">
-    <h2 style="margin:0">🔎 搜尋圖片</h2>
-
-    <div class="field-block" style="margin-top:12px">
-      <div class="field-label">搜尋關鍵字</div>
-      <input id="imageSearchQuery" class="input image-search-input" value="${esc(q0)}"
-        placeholder="例如：teacher、female teacher、classroom">
-    </div>
-
-    <div class="image-source-actions">
-      <button id="imageGoogleBtn" class="btn primary" type="button">Google 圖片</button>
-      <button id="imageBingBtn" class="btn ghost" type="button">Bing 圖片</button>
-      <button id="imagePexelsBtn" class="btn ghost" type="button">Pexels</button>
-      <button id="imagePixabayBtn" class="btn ghost" type="button">Pixabay</button>
-    </div>
-
-    <div class="image-search-note" style="margin-top:10px">
-      為了避免內建搜尋來源失效或結果不準，現在改成直接開啟圖片搜尋網站。
-      找到適合的圖片後，複製「圖片網址」貼到下方即可；也可以直接上傳自己的圖片。
-      搜尋關鍵字不會修改原本題目。
-    </div>
-
-    <div class="field-block" style="margin-top:16px">
-      <div class="field-label">貼上圖片網址</div>
-      <div class="row">
-        <input id="imageDirectUrl" class="input grow" placeholder="https://...">
-        <button id="imageUseUrlBtn" class="btn green" type="button">✓ 套用圖片</button>
-      </div>
-      <div id="imageUrlStatus" class="note" style="margin-top:6px"></div>
-    </div>
-
-    <div class="field-block" style="margin-top:14px">
-      <div class="field-label">或直接上傳圖片</div>
-      <label class="btn blue-btn">
-        📷 選擇圖片
-        <input id="imageDirectUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-      </label>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-top:18px">
-      <button id="imageSearchClose" class="btn ghost" type="button">關閉</button>
-    </div>
-  </div>`;
-
-  modal.classList.add("show");
-
-  const queryEl=document.getElementById("imageSearchQuery");
-  const urlEl=document.getElementById("imageDirectUrl");
-  const status=document.getElementById("imageUrlStatus");
-
-  function q(){
-    return queryEl.value.trim();
-  }
-  function needQuery(){
-    if(q())return true;
-    alert("請先輸入搜尋關鍵字。");
-    queryEl.focus();
-    return false;
-  }
-  function openSearch(url){
-    if(!needQuery())return;
-    window.open(url(q()),"_blank","noopener");
-  }
-
-  document.getElementById("imageGoogleBtn").onclick=()=>openSearch(
-    x=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(x)}`
-  );
-  document.getElementById("imageBingBtn").onclick=()=>openSearch(
-    x=>`https://www.bing.com/images/search?q=${encodeURIComponent(x)}`
-  );
-  document.getElementById("imagePexelsBtn").onclick=()=>openSearch(
-    x=>`https://www.pexels.com/search/${encodeURIComponent(x)}/`
-  );
-  document.getElementById("imagePixabayBtn").onclick=()=>openSearch(
-    x=>`https://pixabay.com/images/search/${encodeURIComponent(x)}/`
-  );
-
-  document.getElementById("imageUseUrlBtn").onclick=()=>{
-    const u=urlEl.value.trim();
-    if(!u){
-      status.textContent="請先貼上圖片網址。";
-      return;
-    }
-    if(!safeImageSrc(u)){
-      status.textContent="這個網址格式無法使用，請貼上 https 開頭的圖片網址。";
-      return;
-    }
-    onPick(u);
-    modal.classList.remove("show");
-  };
-
-  document.getElementById("imageDirectUpload").onchange=async e=>{
-    const file=e.target.files?.[0];
-    if(!file)return;
-    try{
-      const data=await compressImageFile(file);
-      onPick(data);
-      modal.classList.remove("show");
-    }catch(err){
-      console.warn(err);
-      alert("圖片處理失敗，請換一張圖片再試。");
-    }
-  };
-
-  document.getElementById("imageSearchClose").onclick=()=>modal.classList.remove("show");
-}
 function wireImageTools(card,q,rerender){
   card.querySelectorAll("[data-image-scope]").forEach(group=>{
     const scope=group.dataset.imageScope;
     const idx=Number(group.dataset.imageIndex||0);
-    const getValue=()=>scope==="question"?(q.questionImage||""):(q.answerImages?.[idx]||"");
-    const getText=()=>scope==="question"?(q.question||""):(q.answers?.[idx]||"");
     const setValue=value=>{
       q.questionImage=q.questionImage||"";
       q.answerImages=Array.isArray(q.answerImages)?q.answerImages:[];
@@ -3514,12 +3418,49 @@ function wireImageTools(card,q,rerender){
       else q.answerImages[idx]=value||"";
       saveQuestions();rerender();
     };
-    group.querySelector("[data-image-search]")?.addEventListener("click",e=>{e.stopPropagation();openImageSearch(getText(),setValue)});
     group.querySelector("[data-image-upload]")?.addEventListener("click",e=>{e.stopPropagation();chooseQuestionImageFile(setValue)});
-    group.querySelector("[data-image-url]")?.addEventListener("click",e=>{e.stopPropagation();setQuestionImageUrl(getValue(),setValue)});
     group.querySelector("[data-image-delete]")?.addEventListener("click",e=>{e.stopPropagation();setValue("")});
   });
 }
+async function pasteImageIntoQuestionField(e,q,scope,index,rerender){
+  const items=Array.from(e.clipboardData?.items||[]);
+  const imageItem=items.find(x=>String(x.type||"").startsWith("image/"));
+  if(!imageItem)return false;
+  const file=imageItem.getAsFile();if(!file)return false;
+  e.preventDefault();
+  try{
+    const data=await compressImageFile(file);
+    q.questionImage=q.questionImage||"";
+    q.answerImages=Array.isArray(q.answerImages)?q.answerImages:[];
+    while(q.answerImages.length<(q.answers?.length||0))q.answerImages.push("");
+    if(scope==="question")q.questionImage=data;
+    else q.answerImages[index]=data;
+    saveQuestions();rerender();
+  }catch(err){
+    console.warn(err);alert("貼上的圖片無法處理，請改用 JPG、PNG 或 WebP。");
+  }
+  return true;
+}
+function wireEditorKeyboardNav(){
+  const root=document.getElementById("questionEditor");if(!root)return;
+  const fields=Array.from(root.querySelectorAll("[data-flip-zh],[data-flip-vi],[data-question],[data-answer]"));
+  fields.forEach((el,i)=>{
+    el.addEventListener("keydown",e=>{
+      if(e.isComposing)return;
+      const isEnter=e.key==="Enter";
+      const isTab=e.key==="Tab";
+      if(!isEnter&&!isTab)return;
+      if(isEnter&&el.tagName==="TEXTAREA"&&e.shiftKey)return; // Shift+Enter 保留換行
+      const dir=e.shiftKey?-1:1;
+      const next=fields[i+dir];
+      if(!next)return;
+      e.preventDefault();
+      next.focus();
+      if(typeof next.select==="function")next.select();
+    });
+  });
+}
+
 
 function renderQuestionEditor(){
   const questionEditor=document.getElementById("questionEditor");
@@ -3568,7 +3509,7 @@ function renderQuestionEditor(){
             ${imagePreviewHTML(q.answerImages[0])}
           </div>
         </div>
-        <div class="editor-help">☰ 可拖曳調整卡片順序　｜　📄 可複製卡片　｜　🔊 可上傳／錄製／TTS　｜　🔎 每一面都可搜圖、上傳圖或貼圖片網址</div>`;
+        <div class="editor-help">☰ 可拖曳調整卡片順序　｜　📄 可複製卡片　｜　🔊 可上傳／錄製／TTS　｜　📷 可上傳圖片，也可從其他地方複製圖片後直接 Ctrl+V 貼入</div>`;
 
       card.querySelector("[data-delete]").onclick=()=>{
         questions.splice(i,1);saveQuestions();renderQuestionEditor();
@@ -3580,6 +3521,8 @@ function renderQuestionEditor(){
       };
       card.querySelector("[data-flip-zh]").oninput=e=>{q.question=e.target.value;scheduleQuestionsSave();};
       card.querySelector("[data-flip-vi]").oninput=e=>{q.answers[0]=e.target.value;scheduleQuestionsSave();};
+      card.querySelector("[data-flip-zh]").addEventListener("paste",e=>pasteImageIntoQuestionField(e,q,"question",0,renderQuestionEditor));
+      card.querySelector("[data-flip-vi]").addEventListener("paste",e=>pasteImageIntoQuestionField(e,q,"answer",0,renderQuestionEditor));
       wireAudioTools(card,q,renderQuestionEditor);
       wireImageTools(card,q,renderQuestionEditor);
 
@@ -3603,6 +3546,7 @@ function renderQuestionEditor(){
       });
       questionEditor.appendChild(card);
     });
+    wireEditorKeyboardNav();
     return;
   }
 
@@ -3669,7 +3613,7 @@ function renderQuestionEditor(){
         ${selectedGame==="fly"&&answerCount<12?'<button type="button" class="btn small ghost" data-add-answer style="margin-top:8px">＋ 新增詞塊</button>':''}
       </div>
 
-      <div class="editor-help">☰ 可拖曳題目與答案調整順序　｜　📄 可複製題目後再修改　｜　🔊 可上傳／錄製／TTS　｜　🔎 每個題目與答案都可搜圖</div>`;
+      <div class="editor-help">☰ 可拖曳題目與答案調整順序　｜　📄 可複製題目後再修改　｜　🔊 可上傳／錄製／TTS　｜　📷 可上傳圖片，也可從其他地方複製圖片後直接 Ctrl+V 貼入</div>`;
 
     card.querySelector("[data-delete]").onclick=()=>{
       questions.splice(i,1);
@@ -3687,11 +3631,13 @@ function renderQuestionEditor(){
       q.question=e.target.value;
       scheduleQuestionsSave();
     };
+    card.querySelector("[data-question]").addEventListener("paste",e=>pasteImageIntoQuestionField(e,q,"question",0,renderQuestionEditor));
     card.querySelectorAll("[data-answer]").forEach(el=>{
       el.oninput=e=>{
         q.answers[+el.dataset.answer]=e.target.value;
         scheduleQuestionsSave();
       };
+      el.addEventListener("paste",e=>pasteImageIntoQuestionField(e,q,"answer",+el.dataset.answer,renderQuestionEditor));
     });
     card.querySelectorAll("[data-pick-correct]").forEach(btn=>{
       btn.onclick=()=>{
@@ -3837,6 +3783,7 @@ function downloadTemplate(){
   const ws=XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb,ws,sheet);
   XLSX.writeFile(wb,filename);
+  wireEditorKeyboardNav();
 }
 
 /* =========================================================
@@ -3873,6 +3820,7 @@ function openSetup(game){
   questions=[];
   currentCloudBankId=null;
   if(cloudName)cloudName.value="";
+  const quickPanel=document.getElementById("quickMyBanksPanel");if(quickPanel)quickPanel.style.display="none";
 
   lobby?.classList.add("hidden");
   gameEl?.classList.add("hidden");
@@ -5864,6 +5812,7 @@ function initYeziFirebase(){
       }
       applyAuthGate(); renderAccountUI();
       if(yeziUser&&yeziHasAccess)loadCloudBankList();
+      if(currentShareId()&&!window.__yeziShareLoaded){window.__yeziShareLoaded=true;setTimeout(loadSharedGameFromUrl,80);}
     });
   }catch(err){console.error("Firebase init",err);setAuthLoading("登入服務載入失敗");showAuthError("Firebase 初始化失敗，請重新整理後再試。");}
 }
@@ -5874,6 +5823,10 @@ function applyAuthGate(){
   const gate=document.getElementById("authGate"), access=document.getElementById("accessGate"), app=document.getElementById("protectedApp");
   if(!gate||!access||!app)return;
   if(!yeziUser){
+    if(currentShareId()){
+      gate.classList.add("hidden");access.classList.add("hidden");app.classList.remove("auth-locked");
+      return;
+    }
     cleanupGame?.(); app.classList.add("auth-locked"); gate.classList.remove("hidden"); access.classList.add("hidden");
     setAuthLoading("尚未登入"); return;
   }
@@ -5917,6 +5870,10 @@ function renderAccountUI(){
   document.getElementById("cloudBankLoggedIn")?.classList.toggle("hidden",!(yeziUser&&yeziHasAccess));
   document.getElementById("adminPortalBtn")?.classList.toggle("hidden",!yeziIsAdmin);
   document.getElementById("publishOfficialBankBtn")?.classList.toggle("hidden",!yeziIsAdmin);
+  if(currentShareId()&&!yeziUser){
+    document.getElementById("cloudBankLoggedOut")?.classList.add("hidden");
+    document.getElementById("cloudBankLoggedIn")?.classList.add("hidden");
+  }
   const chip=document.getElementById("lobbyMemberChip"); if(chip){const s=effectiveStatus(yeziProfile);chip.className=`member-chip ${s==="admin"?"admin":(s==="active"||s==="trial")?"ok":"warn"}`;chip.textContent=`${statusLabel(s)}${(s==="active"||s==="trial")?` · ${fmtDate(yeziProfile?.expiresAt)}`:""}`;}
 }
 async function startGoogleAuth(intent){
@@ -5997,6 +5954,83 @@ async function readCloudBankPayload(bankRef,data){
   if(snap.empty)throw new Error("大型題庫的分段內容不存在。");
   return snap.docs.map(d=>d.data().data||"").join("");
 }
+
+const YEZI_SHARE_PARAM="play";
+function currentShareId(){return new URLSearchParams(location.search).get(YEZI_SHARE_PARAM)||"";}
+function makeShareId(){
+  const a=new Uint8Array(12);crypto.getRandomValues(a);
+  return Array.from(a,x=>x.toString(36).padStart(2,"0")).join("").slice(0,18);
+}
+async function clearShareChunks(ref){
+  const snap=await ref.collection("chunks").get();if(snap.empty)return;
+  for(let i=0;i<snap.docs.length;i+=400){
+    const batch=yeziDb.batch();snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));await batch.commit();
+  }
+}
+async function writeShareChunks(ref,payload){
+  const parts=splitCloudPayloadUtf8(payload);
+  await clearShareChunks(ref);
+  for(let i=0;i<parts.length;i+=400){
+    const batch=yeziDb.batch();
+    parts.slice(i,i+400).forEach((part,j)=>batch.set(ref.collection("chunks").doc(String(i+j).padStart(4,"0")),{index:i+j,data:part}));
+    await batch.commit();
+  }
+  return parts.length;
+}
+async function readSharePayload(ref,data){
+  if(data?.payload)return data.payload;
+  const snap=await ref.collection("chunks").orderBy("index").get();
+  if(snap.empty)throw new Error("分享題庫內容不存在。");
+  return snap.docs.map(d=>d.data().data||"").join("");
+}
+async function shareCurrentGameLink(){
+  if(!yeziUser||!yeziHasAccess)return alert("請先登入已開通的會員帳號。");
+  if(!selectedGame||!questions.length)return alert("目前沒有可以分享的題庫。");
+  const btn=document.getElementById("shareGameLinkBtn"),old=btn?.textContent||"🔗 分享遊戲連結";
+  if(btn){btn.disabled=true;btn.textContent="⏳ 產生連結…";}
+  try{
+    const pack=await buildFullBankPack();
+    const name=(document.getElementById("cloudBankName")?.value||pack.name||"分享題庫").trim();
+    pack.name=name;
+    const payload=JSON.stringify(pack),bytes=utf8Bytes(payload),id=makeShareId();
+    const ref=yeziDb.collection("shares").doc(id);
+    const base={id,name,game:selectedGame,ownerUid:yeziUser.uid,sizeBytes:bytes,questionCount:questions.length,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(bytes<=CLOUD_BANK_MAX_BYTES){
+      await ref.set({...base,payload,storageMode:"single-v1"});
+    }else{
+      const chunkCount=await writeShareChunks(ref,payload);
+      await ref.set({...base,storageMode:"chunks-v1",chunkCount});
+    }
+    const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set(YEZI_SHARE_PARAM,id);
+    try{await navigator.clipboard.writeText(url.toString());}
+    catch{}
+    cloudStatus("ok",`✅ 分享連結已產生並複製！收到連結的人不需登入即可開啟這份題庫。`);
+    prompt("分享連結已產生。可直接複製傳給學生或老師：",url.toString());
+  }catch(err){
+    console.error(err);cloudStatus("err","❌ 分享連結產生失敗："+(err?.message||err));
+  }finally{if(btn){btn.disabled=false;btn.textContent=old;}}
+}
+async function loadSharedGameFromUrl(){
+  const id=currentShareId();if(!id||!yeziDb)return false;
+  try{
+    const ref=yeziDb.collection("shares").doc(id),doc=await ref.get();
+    if(!doc.exists)throw new Error("找不到這份分享題庫，連結可能已失效。");
+    const data=doc.data(),payload=await readSharePayload(ref,data),pack=JSON.parse(payload);
+    if(!pack?.game||!Array.isArray(pack.questions))throw new Error("分享題庫格式錯誤。");
+    openSetup(pack.game);
+    await new Promise(r=>setTimeout(r,40));
+    const file=new File([payload],`${safeFilePart(pack.name||"分享題庫")}.yezi`,{type:"application/json"});
+    await importFullBankFile(file);
+    const n=document.getElementById("cloudBankName");if(n)n.value=pack.name||data.name||"分享題庫";
+    currentCloudBankId=null;
+    cloudStatus("ok",`🔗 已載入分享題庫「${pack.name||data.name||"題庫"}」，按「開始遊戲」即可。`);
+    return true;
+  }catch(err){
+    console.error(err);alert("分享連結無法開啟："+(err?.message||err));return false;
+  }
+}
+
 
 async function saveCloudBank(){
   if(!yeziUser)return googleSignIn();
@@ -6122,8 +6156,46 @@ async function setMemberPending(uid){if(!yeziIsAdmin)return;const u=adminUsers.f
 async function disableMember(uid){if(!yeziIsAdmin)return;const u=adminUsers.find(x=>x.id===uid);if((u?.email||"").toLowerCase()===OWNER_EMAIL)return alert("Owner 不能被停用。");if(!confirm("確定停用此帳號嗎？題庫資料會保留，但使用者無法進入遊戲室。"))return;try{await yeziDb.collection("users").doc(uid).update({membershipStatus:"disabled",applicationStatus:"disabled",membershipUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});await loadAdminUsers();}catch(err){alert("停用失敗："+err.message)}}
 
 document.getElementById("saveCloudBankBtn")?.addEventListener("click",saveCloudBank);
+document.getElementById("shareGameLinkBtn")?.addEventListener("click",shareCurrentGameLink);
 document.getElementById("refreshCloudBanksBtn")?.addEventListener("click",loadCloudBankList);
 
+
+
+function quickBankStatus(type,msg){
+  const el=document.getElementById("quickMyBanksStatus");if(!el)return;
+  el.className="status "+(msg?"show ":"")+(type||"");el.textContent=msg||"";
+}
+async function loadQuickMyBanks(){
+  const box=document.getElementById("quickMyBanksList");
+  if(!box)return;
+  if(!yeziUser||!yeziHasAccess){box.innerHTML='<div class="note">請先登入已開通的會員帳號。</div>';return;}
+  quickBankStatus("info","正在讀取我的題庫…");
+  try{
+    const snap=await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").get();
+    const keyword=(document.getElementById("quickMyBanksSearch")?.value||"").trim().toLowerCase();
+    const docs=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .filter(x=>x.game===selectedGame&&(!keyword||(x.name||"").toLowerCase().includes(keyword)))
+      .sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0));
+    quickBankStatus("","");
+    if(!docs.length){box.innerHTML='<div class="note">目前這款遊戲還沒有已儲存題庫。</div>';return;}
+    box.innerHTML=docs.map(d=>`<div class="cloud-bank-card">
+      <h4>${esc(d.name||"未命名題庫")}</h4>
+      <div class="meta">${d.questionCount||questionCountFromPayload(d.payload)} 題 · ${Math.ceil((d.sizeBytes||0)/1024)} KB</div>
+      <button class="btn blue-btn" type="button" data-quick-bank="${d.id}">▶ 直接載入</button>
+    </div>`).join("");
+    box.querySelectorAll("[data-quick-bank]").forEach(btn=>btn.onclick=async()=>{
+      await loadCloudBank(btn.dataset.quickBank);
+      const p=document.getElementById("quickMyBanksPanel");if(p)p.style.display="none";
+    });
+  }catch(err){console.error(err);quickBankStatus("err","讀取失敗："+(err?.message||err));}
+}
+document.getElementById("quickMyBanksBtn")?.addEventListener("click",async()=>{
+  const p=document.getElementById("quickMyBanksPanel");if(!p)return;
+  const open=p.style.display!=="block";p.style.display=open?"block":"none";
+  if(open)await loadQuickMyBanks();
+});
+document.getElementById("refreshQuickMyBanksBtn")?.addEventListener("click",loadQuickMyBanks);
+document.getElementById("quickMyBanksSearch")?.addEventListener("input",loadQuickMyBanks);
 
 /* ===== 葉子老師官方題庫：GitHub Pages 唯讀 ===== */
 const YEZI_OFFICIAL_BANK_INDEX="banks/official-banks.json";
