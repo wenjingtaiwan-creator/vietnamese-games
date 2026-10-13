@@ -1698,7 +1698,7 @@ a{text-decoration:none;color:inherit}
     <div class="portal-hero"><div><h1>📚 我的雲端題庫</h1><p class="note">這裡會集中顯示六款遊戲中，儲存在你 Google 帳號下的所有題庫。</p></div><button class="btn green" onclick="loadDashboardBanks()">↻ 重新整理</button></div>
     <div id="dashboardStats" class="dashboard-stat"></div>
     <div class="portal-tools"><input id="dashboardSearch" class="input grow" placeholder="🔎 搜尋題庫名稱" oninput="renderDashboardBanks()"><select id="dashboardGameFilter" class="select" onchange="renderDashboardBanks()"><option value="">全部遊戲</option><option value="tug">拔河大賽</option><option value="fly">會飛的字</option><option value="head">左右擺頭</option><option value="adventure">探險大挑戰</option><option value="flip">翻卡遊戲</option><option value="flashlight">黑暗照燈</option></select></div>
-    <div id="dashboardBankList" class="portal-grid"></div>
+    <div class="portal-tools"><select id="folderFilter" class="select" onchange="renderDashboardBanks()"><option value="">📁 全部資料夾</option></select><button class="btn primary" onclick="createBankFolder()">＋ 新增資料夾</button></div><div id="dashboardBankList" class="portal-grid"></div>
   </div>
 </section>
 
@@ -1867,7 +1867,7 @@ a{text-decoration:none;color:inherit}
         <div id="cloudBankLoggedIn" class="hidden">
           <div class="row" style="justify-content:center">
             <button id="saveCloudBankBtn" type="button" class="btn green" style="font-size:18px;padding:13px 24px">💾 儲存到 Dashboard</button>
-            <button id="shareGameLinkBtn" type="button" class="btn blue-btn" style="font-size:18px;padding:13px 24px">🔗 分享遊戲連結</button>
+            <button id="embedGameBtn" type="button" class="btn ghost">🧩 複製嵌入碼</button> <button id="shareGameLinkBtn" type="button" class="btn blue-btn" style="font-size:18px;padding:13px 24px">🔗 分享遊戲連結</button>
               <button id="publishOfficialBankBtn" type="button" class="btn official-bank-btn hidden" style="font-size:18px;padding:13px 24px">⭐ 發布到官方題庫</button>
           </div>
           <div class="note" style="text-align:center;margin-top:8px">儲存後可到「我的 Dashboard」再次載入、編輯、改名或刪除。</div>
@@ -3969,7 +3969,7 @@ function openSetup(game){
    遊戲 1：拔河
 ========================================================= */
 function startTug(){
-  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
+  const qs=shuffle(questions).filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
   if(!qs.length){alert(t("invalid"));return}
 
   const mode=document.querySelector('input[name="gameMode"]:checked')?.value||"classic";
@@ -4272,7 +4272,7 @@ function startTug(){
    遊戲 2：會飛的字
 ========================================================= */
 function startFly(){
-  const qs=questions
+  const qs=shuffle(questions)
     .filter(q=>q.question&&q.answers?.filter(Boolean).length>=2)
     .map(q=>{
       const compact=q.answers.map((x,i)=>({x:String(x||"").trim(),i,audio:q.answerAudioKeys?.[i]||"",image:q.answerImages?.[i]||""})).filter(o=>o.x);
@@ -4383,7 +4383,7 @@ function startFly(){
    遊戲 3：左右擺頭
 ========================================================= */
 function startHead(){
-  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&(q.correct===0||q.correct===1));
+  const qs=shuffle(questions).filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&(q.correct===0||q.correct===1));
   if(!qs.length){alert(t("invalid"));return}
 
   const inputMode=document.querySelector('input[name="inputMode"]:checked')?.value||"click";
@@ -5008,7 +5008,7 @@ function openAdventureMapEditor(){
 }
 
 function startAdventure(){
-  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
+  const qs=shuffle(questions).filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
   if(!qs.length){alert(t("invalid"));return}
 
   const playerCount=Math.max(2,Math.min(6,Number(document.getElementById("adventurePlayerCount")?.value||2)));
@@ -5408,7 +5408,7 @@ function fitAdventureBoardToImage(img){
    遊戲 5：翻卡
 ========================================================= */
 function startFlip(){
-  const qs=questions.filter(q=>String(q.question||"").trim()&&String(q.answers?.[0]||"").trim());
+  const qs=shuffle(questions).filter(q=>String(q.question||"").trim()&&String(q.answers?.[0]||"").trim());
   if(!qs.length){alert(nt("flipNeedBank")||"翻卡遊戲至少需要兩個文字內容。");return}
   const mode=document.querySelector('input[name="flipMode"]:checked')?.value||"single";
 
@@ -5606,7 +5606,7 @@ function openFlashPointEditor(){
 }
 
 function startFlashlight(){
-  const qs=questions.filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
+  const qs=shuffle(questions).filter(q=>q.question&&q.answers?.[0]&&q.answers?.[1]&&q.correct!=null);
   if(!flashImageData){alert(nt("flashUploadFirst")||"請先上傳探索圖片。");return}
   if(!qs.length){alert(nt("flashNeedBank")||"請先準備題庫。");return}
   if(!flashPoints.length){alert(nt("flashNeedPoints")||"請先設定圖片探索位置。");return}
@@ -5822,6 +5822,7 @@ function showAuthError(msg){const e=document.getElementById("authGateError");if(
 function applyAuthGate(){
   const gate=document.getElementById("authGate"), access=document.getElementById("accessGate"), app=document.getElementById("protectedApp");
   if(!gate||!access||!app)return;
+  if(currentShareId()){gate.classList.add("hidden");access.classList.add("hidden");app.classList.remove("auth-locked");return;}
   if(!yeziUser){
     if(currentShareId()){
       gate.classList.add("hidden");access.classList.add("hidden");app.classList.remove("auth-locked");
@@ -6027,7 +6028,7 @@ async function loadSharedGameFromUrl(){
     cloudStatus("ok",`🔗 已載入分享題庫「${pack.name||data.name||"題庫"}」，按「開始遊戲」即可。`);
     return true;
   }catch(err){
-    console.error(err);alert("分享連結無法開啟："+(err?.message||err));return false;
+    window.__yeziShareLoaded=false;console.error(err);alert("分享連結無法開啟："+(err?.message||err));return false;
   }
 }
 
@@ -6121,14 +6122,14 @@ function closePortalViews(){document.getElementById("dashboardView")?.classList.
 async function openDashboard(){if(!yeziHasAccess)return;hideMainViews();document.getElementById("dashboardView")?.classList.remove("hidden");renderAccountUI();await loadDashboardBanks();}
 async function loadDashboardBanks(){
   const box=document.getElementById("dashboardBankList");if(!box||!yeziUser||!yeziHasAccess)return;box.innerHTML='<div class="empty-state">正在讀取所有雲端題庫…</div>';
-  try{const snap=await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").get();dashboardBanks=snap.docs.map(d=>({id:d.id,...d.data()}));dashboardBanks.sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0));renderDashboardBanks();}
+  try{const snap=await yeziDb.collection("users").doc(yeziUser.uid).collection("banks").get();dashboardBanks=snap.docs.map(d=>({id:d.id,...d.data()}));dashboardBanks.sort((a,b)=>(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0));await loadBankFolders();renderDashboardBanks();}
   catch(err){box.innerHTML=`<div class="status err">讀取失敗：${esc(err?.message||err)}</div>`;}
 }
 function renderDashboardBanks(){
-  const box=document.getElementById("dashboardBankList");if(!box)return;const q=(document.getElementById("dashboardSearch")?.value||"").trim().toLowerCase(),g=document.getElementById("dashboardGameFilter")?.value||"";const list=dashboardBanks.filter(x=>(!g||x.game===g)&&(!q||(x.name||"").toLowerCase().includes(q)));
+  const box=document.getElementById("dashboardBankList");if(!box)return;const q=(document.getElementById("dashboardSearch")?.value||"").trim().toLowerCase(),g=document.getElementById("dashboardGameFilter")?.value||"";const folder=document.getElementById("folderFilter")?.value||"";const list=dashboardBanks.filter(x=>(!g||x.game===g)&&(!q||(x.name||"").toLowerCase().includes(q))&&(!folder||x.folderId===folder));
   const stats=document.getElementById("dashboardStats");if(stats){const games=new Set(dashboardBanks.map(x=>x.game)).size,qs=dashboardBanks.reduce((n,x)=>n+(x.questionCount||questionCountFromPayload(x.payload)),0);stats.innerHTML=`<div class="stat-box"><strong>${dashboardBanks.length}</strong><span>雲端題庫</span></div><div class="stat-box"><strong>${games}</strong><span>使用中的遊戲類型</span></div><div class="stat-box"><strong>${qs}</strong><span>題目總數</span></div>`;}
   if(!list.length){box.innerHTML='<div class="empty-state">目前沒有符合條件的題庫。</div>';return;}
-  box.innerHTML=list.map(d=>`<div class="portal-card"><h3>${esc(d.name||"未命名題庫")}</h3><div class="portal-meta">🎮 ${esc(gameNameForBank(d.game))}<br>📝 ${d.questionCount||questionCountFromPayload(d.payload)} 題 · ${Math.ceil((d.sizeBytes||0)/1024)} KB<br>🕒 ${fmtDateTime(d.updatedAt)}</div><div class="row"><button class="btn blue-btn" onclick="dashboardLoadBank('${d.id}','${d.game}')">▶ 載入使用</button><button class="btn ghost" onclick="renameCloudBank('${d.id}')">✏️ 改名</button><button class="btn ghost" onclick="deleteCloudBank('${d.id}')">🗑️</button></div></div>`).join("");
+  box.innerHTML=list.map(d=>`<div class="portal-card"><h3>${esc(d.name||"未命名題庫")}</h3><div class="portal-meta">🎮 ${esc(gameNameForBank(d.game))}<br>📝 ${d.questionCount||questionCountFromPayload(d.payload)} 題 · ${Math.ceil((d.sizeBytes||0)/1024)} KB<br>🕒 ${fmtDateTime(d.updatedAt)}</div><div class="row"><button class="btn blue-btn" onclick="dashboardLoadBank('${d.id}','${d.game}')">▶ 載入使用</button><button class="btn ghost" onclick="moveBankToFolder('${d.id}')">📁 分類</button><button class="btn ghost" onclick="renameCloudBank('${d.id}')">✏️ 改名</button><button class="btn ghost" onclick="deleteCloudBank('${d.id}')">🗑️</button></div></div>`).join("");
 }
 async function dashboardLoadBank(id,game){closePortalViews();openSetup(game);await new Promise(r=>setTimeout(r,40));await loadCloudBank(id);}
 
@@ -6329,5 +6330,60 @@ syncLanguage();
 
 
 
+
+<style>
+/* 葉子教室 3.0：清爽的教育 SaaS 介面 */
+:root{--ink:#17243c;--muted:#69788f;--brand:#4c56dc;--brand2:#7774f1;--shadow:0 12px 36px rgba(23,36,60,.08);--radius:20px}
+html,body{background:#f5f7fc;color:var(--ink)}
+#lobbyView{background:radial-gradient(ellipse at 85% 0%,#e9eaff 0%,transparent 40%),#f5f7fc!important}
+#lobbyView:before,#lobbyView:after{display:none}
+#lobbyView .topbar{background:rgba(255,255,255,.94)!important;border-bottom:1px solid #e8eaf3!important}
+#lobbyView .lobby{max-width:1320px!important;padding:40px 30px 70px!important}
+#lobbyView .lobby-simple-hero{padding:24px 12px 30px!important}
+#lobbyView .lobby-simple-hero h1{font-size:clamp(36px,4.5vw,60px)!important;letter-spacing:-.045em}
+#lobbyView .lobby-thumb-grid{gap:22px!important}
+#lobbyView .lobby-thumb-card{border:1px solid #e9edf5!important;border-radius:24px!important;box-shadow:0 8px 26px rgba(24,37,70,.07)!important;transition:transform .2s,box-shadow .2s!important}
+#lobbyView .lobby-thumb-card:hover{transform:translateY(-6px)!important;box-shadow:0 18px 38px rgba(24,37,70,.14)!important}
+#lobbyView .lobby-game-title{font-size:18px!important;padding:18px!important}
+.portal-view{background:#f5f7fc!important}.portal-card,.stat-box,.section{border:1px solid #e8ecf5;box-shadow:0 7px 24px rgba(24,37,70,.055)!important}
+.btn{border-radius:13px!important}.btn.primary{background:#4c56dc}.input,.select{border-radius:12px}
+@media(max-width:600px){#lobbyView .lobby{padding:22px 14px 45px!important}}
+</style>
+<script>
+let yeziFolders=[];
+async function loadBankFolders(){
+ if(!yeziDb||!yeziUser)return;
+ try{const snap=await yeziDb.collection('users').doc(yeziUser.uid).collection('folders').get();yeziFolders=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+ const el=document.getElementById('folderFilter');if(el){const prev=el.value;el.innerHTML='<option value="">📁 全部資料夾</option>'+yeziFolders.map(f=>`<option value="${esc(f.id)}">📁 ${esc(f.name)}</option>`).join('');el.value=yeziFolders.some(f=>f.id===prev)?prev:'';}}
+ catch(e){console.error('資料夾讀取失敗',e)}
+}
+async function createBankFolder(){
+ if(!yeziUser||!yeziHasAccess)return;
+ const name=prompt('新增題庫資料夾名稱：');if(!name?.trim())return;
+ try{await yeziDb.collection('users').doc(yeziUser.uid).collection('folders').add({name:name.trim().slice(0,80),createdAt:firebase.firestore.FieldValue.serverTimestamp()});await loadBankFolders();}
+ catch(e){alert('新增資料夾失敗：'+e.message)}
+}
+async function moveBankToFolder(id){
+ if(!yeziUser||!yeziHasAccess)return;
+ await loadBankFolders();
+ const options=['0. 未分類',...yeziFolders.map((f,i)=>`${i+1}. ${f.name}`)];
+ const pick=prompt('請輸入分類編號：\n'+options.join('\n'));if(pick===null)return;
+ const index=Number(pick);if(!Number.isInteger(index)||index<0||index>yeziFolders.length)return alert('分類編號不正確');
+ try{await yeziDb.collection('users').doc(yeziUser.uid).collection('banks').doc(id).update({folderId:index?yeziFolders[index-1].id:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});await loadDashboardBanks();}
+ catch(e){alert('移動失敗：'+e.message)}
+}
+let yeziLastShareUrl='';
+const originalShareGameLink=shareCurrentGameLink;
+shareCurrentGameLink=async function(){
+ const before=currentShareId();await originalShareGameLink();
+ // 分享連結由原功能建立；嵌入功能使用同一個已建立的連結
+};
+function getEmbedCode(url){const u=new URL(url);return `<iframe src="${u.href.replaceAll('&','&amp;')}" title="葉子教室互動遊戲" width="100%" height="720" style="border:0;border-radius:16px" allow="camera; microphone; fullscreen" allowfullscreen loading="lazy"></iframe>`;}
+document.getElementById('embedGameBtn')?.addEventListener('click',async()=>{
+ const link=prompt('請貼上剛才產生的「分享遊戲連結」：');if(!link)return;
+ try{const u=new URL(link);if(u.origin!==location.origin||!u.searchParams.get(YEZI_SHARE_PARAM))throw Error('請使用本站產生的分享連結');const code=getEmbedCode(link);await navigator.clipboard.writeText(code);alert('嵌入碼已複製！可貼到支援 HTML iframe 的平台。');}
+ catch(e){alert('無法產生嵌入碼：'+e.message)}
+});
+</script>
 </body>
 </html>
